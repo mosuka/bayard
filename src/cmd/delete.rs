@@ -7,14 +7,11 @@ pub fn run_delete_cli(matches: &ArgMatches) -> Result<(), String> {
     set_log_level();
     env_logger::init();
 
-    let mut servers = vec![];
-    if let Some(addr_vec) = matches.values_of("SERVERS") {
-        addr_vec
-            .map(|addr| {
-                servers.push(create_client(addr));
-            })
-            .count();
-    }
+    let servers: Vec<_> = matches
+        .values_of("SERVERS")
+        .unwrap()
+        .map(|addr| create_client(addr))
+        .collect();
 
     let key = matches.value_of("KEY").unwrap();
 
