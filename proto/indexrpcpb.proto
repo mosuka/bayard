@@ -1,0 +1,57 @@
+syntax = "proto3";
+package indexrpcpb;
+
+import "eraftpb.proto";
+
+enum RespErr {
+    OK = 0;
+    ErrWrongLeader = 1;
+    ErrNoKey = 2;
+}
+
+enum ReqType {
+    Get = 0;
+    Put = 1;
+    Delete = 2;
+    Search = 3;
+    PeerAddr = 4;
+}
+
+message IndexReq {
+    uint64 client_id = 1;
+    uint64 seq = 2;
+    ReqType req_type = 3;
+    uint64 peer_id = 4;
+    string peer_addr = 5;
+    string key = 6;
+    string value = 7;
+    string query = 8;
+}
+
+message ConfChangeReq {
+    eraftpb.ConfChange cc = 1;
+    string ip = 2;
+    uint32 port = 3;
+}
+
+message GetResp {
+    string value = 1;
+    RespErr err = 2;
+}
+
+message PutResp {
+    RespErr err = 1;
+}
+
+message DeleteResp {
+    RespErr err = 1;
+}
+
+message SearchResp {
+    string value = 1;
+    RespErr err = 2;
+}
+
+message RaftDone {
+    RespErr err = 1;
+}

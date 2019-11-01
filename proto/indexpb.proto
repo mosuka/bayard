@@ -1,0 +1,20 @@
+syntax = "proto3";
+package indexpb;
+
+import "indexrpcpb.proto";
+import "eraftpb.proto";
+
+service Index {
+    rpc Get (indexrpcpb.IndexReq) returns (indexrpcpb.GetResp) {
+    }
+    rpc Put (indexrpcpb.IndexReq) returns (indexrpcpb.PutResp) {
+    }
+    rpc Delete (indexrpcpb.IndexReq) returns (indexrpcpb.DeleteResp) {
+    }
+    rpc Search (indexrpcpb.IndexReq) returns (indexrpcpb.SearchResp) {
+    }
+    rpc Raft (eraftpb.Message) returns (indexrpcpb.RaftDone) {
+    }
+    rpc RaftConfChange (indexrpcpb.ConfChangeReq) returns (indexrpcpb.RaftDone) {
+    }
+}

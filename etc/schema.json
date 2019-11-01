@@ -1,0 +1,24 @@
+[
+  {
+    "name": "id",
+    "type": "text",
+    "options": {
+      "indexing": {
+        "record": "basic",
+        "tokenizer": "raw"
+      },
+      "stored": true
+    }
+  },
+  {
+    "name": "text",
+    "type": "text",
+    "options": {
+      "indexing": {
+        "record": "position",
+        "tokenizer": "en_stem"
+      },
+      "stored": true
+    }
+  }
+]
