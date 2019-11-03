@@ -51,7 +51,7 @@ $ ./bin/bayard set 11 '{"text":"Bayard is a full text search and indexing server
 Getting a document is as following:
 
 ```text
-$ ./bin/bayard get 1 | jq .
+$ ./bin/bayard get 11 | jq .
 ```
 
 You can see the result in JSON format. The result of the above command is:
