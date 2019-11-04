@@ -4,6 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## Unreleased
+- refactor get servers from ArgMatches #3 @robatipoor
 - Small typo in get command example fixed #4 @msmakhlouf
 
 
