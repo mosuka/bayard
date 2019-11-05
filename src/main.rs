@@ -324,7 +324,7 @@ fn main() {
 
     if let Err(ref e) = run_cli(options) {
         let stderr = &mut std::io::stderr();
-        let errmsg = "Error writing ot stderr";
+        let errmsg = "Error writing to stderr";
         writeln!(stderr, "{}", e).expect(errmsg);
         std::process::exit(1);
     }
