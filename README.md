@@ -1,5 +1,7 @@
 # Bayard
 
+[![Join the chat at https://gitter.im/bayard-search/bayard](https://badges.gitter.im/bayard-search/bayard.svg)](https://gitter.im/bayard-search/bayard?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Bayard is a full-text search and indexing server written in [Rust](https://www.rust-lang.org/) built on top of [Tantivy](https://github.com/tantivy-search/tantivy) that implements [The Raft Consensus Algorithm](https://raft.github.io/) by [raft-rs](https://github.com/tikv/raft-rs) and [The gRPC](https://grpc.io/) ([HTTP/2](https://en.wikipedia.org/wiki/HTTP/2) + [Protocol Buffers](https://developers.google.com/protocol-buffers)) by [grpc-rs](https://github.com/tikv/grpc-rs) and [rust-protobuf](https://github.com/stepancheg/rust-protobuf).  
 Achieves consensus across all the nodes, ensures every change made to the system is made to a quorum of nodes.  
 Bayard makes easy for programmers to develop search applications with advanced features and high availability.
