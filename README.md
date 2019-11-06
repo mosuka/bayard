@@ -214,3 +214,27 @@ $ ./bin/bayard leave \
     --peers="1=0.0.0.0:5001,2=0.0.0.0:5002" \
     --leader-id=1
 ```
+
+
+## Bayard on Docker
+
+### Pulling Docker container image from docker.io
+
+You can pull the Docker container image already registered in docker.io like so:
+
+```
+$ docker pull bayardsearch/bayard:latest
+```
+
+Check the available version at the following URL:
+https://hub.docker.com/r/bayardsearch/bayard/tags/
+
+### Running Docker container
+
+Running a Bayard on Docker like so:
+
+```
+$ docker run --rm --name bayard \
+    -p 5000:5000 \
+    bayardsearch/bayard:latest
+```

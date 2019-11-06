@@ -1,4 +1,4 @@
-FROM rust:slim-stretch as builder
+FROM rust:1.38.0-slim-stretch as builder
 
 WORKDIR /repo
 ADD . /repo/
@@ -13,4 +13,5 @@ WORKDIR /
 COPY --from=builder /repo/bin /usr/local/bin
 COPY --from=builder /repo/etc/* /etc/
 EXPOSE 5000
-ENTRYPOINT [ "bayard", "serve" ]
+ENTRYPOINT [ "bayard" ]
+CMD [ "serve" ]
