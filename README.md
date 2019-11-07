@@ -236,5 +236,5 @@ Running a Bayard on Docker like so:
 ```
 $ docker run --rm --name bayard \
     -p 5000:5000 \
-    bayardsearch/bayard:latest
+    bayardsearch/bayard:latest serve
 ```
