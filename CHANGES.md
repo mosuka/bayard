@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## 0.1.1
+- Restore leave command document #21 @mosuka
 - Add source code link #20 @mosuka
 - Add documents #19 @mosuka
 - Update Dockerfile #10 @mosuka
