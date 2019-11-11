@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## 0.1.1 (2019-11-06)
+- Add documents #19 @mosuka
 - Update Dockerfile #10 @mosuka
 - Fixed typo in error message #6 @eko
 - Dockerfile for tests and profit #5 @iyesin
