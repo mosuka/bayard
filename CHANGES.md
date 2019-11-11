@@ -6,7 +6,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Unreleased
 
 
-## 0.1.1 (2019-11-06)
+## 0.1.1
+- Add source code link #20 @mosuka
 - Add documents #19 @mosuka
 - Update Dockerfile #10 @mosuka
 - Fixed typo in error message #6 @eko
