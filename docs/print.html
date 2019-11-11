@@ -354,6 +354,17 @@ You can start servers in cluster mode with the following command:</p>
 <p>The above commands run servers on the same host, so each server must listen on a different port. This would not be necessary if each server runs on a different host.
 Recommend 3 or more odd number of servers in the cluster to avoid split-brain.<br />
 When deploying to a single host, if that host goes down due to hardware failure, all of the servers in the cluster will be stopped, so recommend deploying to a different host.</p>
+<h2><a class="header" href="#remove-a-server-from-a-cluster" id="remove-a-server-from-a-cluster">Remove a server from a cluster</a></h2>
+<p>If one of the servers in a cluster goes down due to a hardware failure and raft logs and metadata is lost, that server cannot join the cluster again.<br />
+If you want the server to join the cluster again, you must remove it from the cluster.<br />
+The following command deletes the server with <code>id=3</code> from the cluster:</p>
+<pre><code class="language-shellscript">./bin/bayard leave \
+    --host=127.0.0.1 \
+    --port=5001 \
+    --id=3 \
+    --peers=&quot;1=0.0.0.0:5001,2=0.0.0.0:5002&quot; \
+    --leader-id=1
+</code></pre>
 <h1><a class="header" href="#running-on-docker" id="running-on-docker">Running on Docker</a></h1>
 <p>Docker container image is available. Check the available version at the following URL:</p>
 <ul>
