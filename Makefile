@@ -34,3 +34,6 @@ docker-push:
 
 docker-clean:
 	docker rmi -f $(shell docker images --filter "dangling=true" -q --no-trunc)
+
+build-docs:
+	mdbook build

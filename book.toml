@@ -1,0 +1,10 @@
+[book]
+authors = ["Minoru Osuka"]
+language = "en"
+multilingual = false
+src = "docs_src"
+title = "Bayard"
+
+[build]
+build-dir = "docs"
+create-missing = false
