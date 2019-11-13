@@ -16,12 +16,14 @@ Bayard makes easy for programmers to develop search applications with advanced f
 - Command line interface is available
 
 
-## Source code
+## Source code repository
 
-Here is the source code.
 - [https://github.com/bayard-search/bayard](https://github.com/bayard-search/bayard)
+
+## Docker container repository
+
+- [https://hub.docker.com/r/bayardsearch/bayard](https://hub.docker.com/r/bayardsearch/bayard)
 
 ## Documents
 
-The document is available at the following URL:
 - [https://bayard-search.github.io/bayard/](https://bayard-search.github.io/bayard/)

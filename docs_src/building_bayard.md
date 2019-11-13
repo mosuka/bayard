@@ -21,5 +21,3 @@ When the build is successful, the binary file is output to the following directo
 ```text
 $ ls ./bin
 ```
-
-
