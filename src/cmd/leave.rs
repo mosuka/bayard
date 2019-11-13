@@ -1,12 +1,13 @@
+use std::collections::HashMap;
+
 use clap::ArgMatches;
 use log::*;
 use raft::eraftpb::{ConfChange, ConfChangeType};
 
-use crate::client::client::{create_client, Clerk};
+use crate::client::client::create_client;
 use crate::proto::indexrpcpb::ConfChangeReq;
 use crate::server::util::conf_change;
 use crate::util::log::set_log_level;
-use std::collections::HashMap;
 
 pub fn run_leave_cli(matches: &ArgMatches) -> Result<(), String> {
     set_log_level();

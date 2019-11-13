@@ -1,6 +1,4 @@
 BIN_DIR ?= $(CURDIR)/bin
-DATA_DIR ?= $(CURDIR)/data
-CARGO_TARGET_DIR ?= $(CURDIR)/target
 VERSION ?=
 
 ifeq ($(VERSION),)
@@ -9,8 +7,7 @@ endif
 
 clean:
 	rm -rf $(BIN_DIR)
-	rm -rf $(DATA_DIR)
-	rm -rf $(CARGO_TARGET_DIR)
+	cargo clean
 
 format:
 	cargo fmt
@@ -19,20 +16,20 @@ protoc:
 	./generate_proto.sh
 
 build:
+	mkdir -p $(BIN_DIR)
 	cargo update -p protobuf --precise 2.8.0
 	cargo build --release
-	mkdir -p $(BIN_DIR)
-	cp $(CARGO_TARGET_DIR)/release/bayard $(BIN_DIR)/
+	cp -p ./target/release/bayard $(BIN_DIR)
 
-docker-build:
+build-docker:
 	docker build -t bayardsearch/bayard:latest .
 	docker tag bayardsearch/bayard:latest bayardsearch/bayard:$(VERSION)
 
-docker-push:
+push-docker:
 	docker push bayardsearch/bayard:latest
 	docker push bayardsearch/bayard:$(VERSION)
 
-docker-clean:
+clean-docker:
 	docker rmi -f $(shell docker images --filter "dangling=true" -q --no-trunc)
 
 build-docs:

@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+//use std::collections::HashMap;
 use std::sync::mpsc::{Receiver, RecvTimeoutError, SyncSender};
 use std::thread;
 use std::time::{Duration, Instant};
@@ -18,10 +18,10 @@ pub enum PeerMessage {
 
 pub struct Peer {
     raft_group: RawNode<PeerStorage>,
-    last_applying_idx: u64,
-    last_compacted_idx: u64,
+    //    last_applying_idx: u64,
+    //    last_compacted_idx: u64,
     apply_ch: SyncSender<Entry>,
-    peers_addr: HashMap<u64, (String, u32)>,
+    //    peers_addr: HashMap<u64, (String, u32)>,
 }
 
 impl Peer {
@@ -30,10 +30,10 @@ impl Peer {
         let storge = PeerStorage::new();
         Peer {
             raft_group: RawNode::new(&cfg, storge, vec![]).unwrap(),
-            last_applying_idx: 0,
-            last_compacted_idx: 0,
+            //            last_applying_idx: 0,
+            //            last_compacted_idx: 0,
             apply_ch,
-            peers_addr: HashMap::new(),
+            //            peers_addr: HashMap::new(),
         }
     }
 

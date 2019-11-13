@@ -1,7 +1,7 @@
 # Running on Docker
 
-Docker container image is available. Check the available version at the following URL:
-- https://hub.docker.com/r/bayardsearch/bayard/tags/
+See the available Docker container image version at the following URL:
+- [https://hub.docker.com/r/bayardsearch/bayard/tags/](https://hub.docker.com/r/bayardsearch/bayard/tags/)
 
 ## Pulling Docker container
 

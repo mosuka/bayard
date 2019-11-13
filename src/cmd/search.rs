@@ -7,7 +7,7 @@ pub fn run_search_cli(matches: &ArgMatches) -> Result<(), String> {
     set_log_level();
     env_logger::init();
 
-   let servers: Vec<_> = matches
+    let servers: Vec<_> = matches
         .values_of("SERVERS")
         .unwrap()
         .map(|addr| create_client(addr))

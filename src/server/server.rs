@@ -4,7 +4,8 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
-use futures::sync::oneshot;
+use crossbeam_channel::{bounded, select, Receiver as CReceiver};
+use ctrlc;
 use futures::Future;
 use grpcio::{ChannelBuilder, EnvBuilder, Environment, RpcContext, ServerBuilder, UnarySink};
 use log::*;
@@ -23,6 +24,16 @@ use crate::server::peer::PeerMessage;
 use crate::server::{peer, util};
 
 struct NotifyArgs(u64, String, RespErr);
+
+fn sigterm_channel() -> Result<CReceiver<()>, ctrlc::Error> {
+    let (sender, receiver) = bounded(100);
+    ctrlc::set_handler(move || {
+        let _ = sender.send(());
+    })
+    .unwrap();
+
+    Ok(receiver)
+}
 
 #[derive(Clone)]
 pub struct IndexServer {
@@ -78,15 +89,17 @@ impl IndexServer {
             info!("listening on {}:{}", host, port);
         }
 
-        let (tx, rx) = oneshot::channel();
-        thread::spawn(move || {
-            loop {
-                thread::sleep(Duration::from_secs(60));
+        // Wait for signals for termination (SIGINT, SIGTERM).
+        let sigterm_receiver = sigterm_channel().unwrap();
+        loop {
+            select! {
+                recv(sigterm_receiver) -> _ => {
+                    info!("stopping on {}:{}", host, port);
+                    let _ = server.shutdown().wait();
+                    break;
+                }
             }
-            tx.send(())
-        });
-        let _ = rx.wait();
-        let _ = server.shutdown().wait();
+        }
     }
 
     fn async_rpc_sender(&mut self, receiver: Receiver<RaftMessage>) {
