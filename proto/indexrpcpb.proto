@@ -16,7 +16,7 @@ enum ReqType {
     Search = 3;
     Join = 4;
     Leave = 5;
-    Status = 6;
+    Peers = 6;
 }
 
 message IndexReq {
@@ -36,7 +36,7 @@ message ConfChangeReq {
     uint32 port = 3;
 }
 
-message StatusResp {
+message PeersResp {
     string value = 1;
     RespErr err = 2;
 }

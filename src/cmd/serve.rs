@@ -9,8 +9,7 @@ use serde_json;
 use tantivy::schema::Schema;
 use tantivy::Index;
 
-use crate::client::client::{create_client, Clerk};
-use crate::proto::indexpb_grpc::IndexClient;
+use crate::client::client::create_client;
 use crate::server::server::IndexServer;
 use crate::util::log::set_logger;
 

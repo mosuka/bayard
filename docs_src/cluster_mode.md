@@ -47,6 +47,24 @@ The above commands run servers on the same host, so each server must listen on a
 Recommend 3 or more odd number of servers in the cluster to avoid split-brain.  
 When deploying to a single host, if that host goes down due to hardware failure, all of the servers in the cluster will be stopped, so recommend deploying to a different host.
 
+## Cluster peers
+
+You can check the peers in the cluster with the following command:
+
+```shell script
+./bin/bayard peers --servers localhost:5001 | jq .
+```
+
+You'll see the result in JSON format. The result of the above command is:
+
+```json
+{
+  "1": "0.0.0.0:5001",
+  "2": "0.0.0.0:5002",
+  "3": "0.0.0.0:5003"
+}
+```
+
 ## Remove a server from a cluster
 
 If one of the servers in a cluster goes down due to a hardware failure and raft logs and metadata is lost, that server cannot join the cluster again.  
