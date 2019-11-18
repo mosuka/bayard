@@ -10,15 +10,17 @@ use futures::Future;
 use grpcio::{ChannelBuilder, EnvBuilder, Environment, RpcContext, ServerBuilder, UnarySink};
 use log::*;
 use protobuf::Message;
-use raft::eraftpb::{ConfChange, Entry, EntryType, Message as RaftMessage};
+use raft::eraftpb::{ConfChange, ConfChangeType, Entry, EntryType, Message as RaftMessage};
 use tantivy::collector::TopDocs;
 use tantivy::query::{QueryParser, TermQuery};
 use tantivy::schema::{Field, FieldType, IndexRecordOption, NamedFieldDocument};
 use tantivy::{Document, Index, Term};
 
+use crate::client::client::Clerk;
 use crate::proto::indexpb_grpc::{self, Index as IndexService, IndexClient};
 use crate::proto::indexrpcpb::{
     ConfChangeReq, DeleteResp, GetResp, IndexReq, PutResp, RaftDone, ReqType, RespErr, SearchResp,
+    StatusResp,
 };
 use crate::server::peer::PeerMessage;
 use crate::server::{peer, util};
@@ -39,6 +41,7 @@ fn sigterm_channel() -> Result<CReceiver<()>, ctrlc::Error> {
 pub struct IndexServer {
     id: u64,
     peers: Arc<Mutex<HashMap<u64, IndexClient>>>,
+    peers_addr: Arc<Mutex<HashMap<u64, String>>>,
     rf_message_ch: SyncSender<PeerMessage>,
     notify_ch_map: Arc<Mutex<HashMap<u64, SyncSender<NotifyArgs>>>>,
     index: Arc<Index>,
@@ -50,6 +53,7 @@ impl IndexServer {
         id: u64,
         host: &str,
         port: u16,
+        leader_id: u64,
         peers: HashMap<u64, IndexClient>,
         index: Arc<Index>,
         unique_key_field: &str,
@@ -59,11 +63,11 @@ impl IndexServer {
         let (apply_sender, apply_receiver) = mpsc::sync_channel(100);
 
         let peers_id = peers.keys().map(|id| *id).collect();
-        let peer = peer::Peer::new(id, apply_sender, peers_id);
 
         let mut index_server = IndexServer {
             id,
             peers: Arc::new(Mutex::new(peers)),
+            peers_addr: Arc::new(Mutex::new(HashMap::new())),
             rf_message_ch: rf_sender,
             notify_ch_map: Arc::new(Mutex::new(HashMap::new())),
             index,
@@ -74,7 +78,7 @@ impl IndexServer {
         index_server.async_applier(apply_receiver);
 
         let env = Arc::new(Environment::new(10));
-        let service = indexpb_grpc::create_index(index_server);
+        let service = indexpb_grpc::create_index(index_server.clone());
         let mut server = ServerBuilder::new(env)
             .register_service(service)
             .bind(host, port)
@@ -83,10 +87,30 @@ impl IndexServer {
                 panic!("build server error: {}", e);
             });
 
-        peer::Peer::activate(peer, rpc_sender, rf_receiver);
         server.start();
         for &(ref host, port) in server.bind_addrs() {
             info!("listening on {}:{}", host, port);
+        }
+
+        let peer = peer::Peer::new(id, apply_sender, peers_id);
+        peer::Peer::activate(peer, rpc_sender, rf_receiver);
+
+        debug!("leader_id: {}", leader_id);
+        if leader_id > 0 {
+            let mut leaders: Vec<IndexClient> = Vec::new();
+            leaders.push(
+                index_server
+                    .peers
+                    .clone()
+                    .lock()
+                    .unwrap()
+                    .get(&leader_id)
+                    .unwrap()
+                    .clone(),
+            );
+            let client_id = rand::random();
+            let mut client = Clerk::new(&leaders, client_id);
+            client.join(id, host, port);
         }
 
         // Wait for signals for termination (SIGINT, SIGTERM).
@@ -157,6 +181,7 @@ impl IndexServer {
     fn async_applier(&mut self, apply_receiver: Receiver<Entry>) {
         let notify_ch_map = self.notify_ch_map.clone();
         let peers = self.peers.clone();
+        let peers_addr = self.peers_addr.clone();
         let index = self.index.clone();
         let unique_key_field = self.unique_key_field.clone();
 
@@ -172,13 +197,14 @@ impl IndexServer {
                                 e.term,
                                 &req,
                                 peers.clone(),
+                                peers_addr.clone(),
                                 index.clone(),
                                 unique_key_field.as_str(),
                             );
-                            debug!("apply_entry: {:?}---{:?}", req, result.2);
+                            debug!("{:?}: {:?}", result.2, req);
                         } else {
                             result = NotifyArgs(0, String::from(""), RespErr::ErrWrongLeader);
-                            debug!("empty_entry: {:?}", req);
+                            debug!("{:?}", req);
                         }
                         let mut map = notify_ch_map.lock().unwrap();
                         if let Some(s) = map.get(&client_id) {
@@ -209,13 +235,12 @@ impl IndexServer {
         term: u64,
         req: &IndexReq,
         peers: Arc<Mutex<HashMap<u64, IndexClient>>>,
+        peers_addr: Arc<Mutex<HashMap<u64, String>>>,
         index: Arc<Index>,
         unique_key_field: &str,
     ) -> NotifyArgs {
         match req.req_type {
             ReqType::Get => {
-                // searcher
-                debug!("Get");
                 let t = Term::from_field_text(
                     index.schema().get_field(unique_key_field).unwrap(),
                     req.key.as_str(),
@@ -235,8 +260,6 @@ impl IndexServer {
                 )
             }
             ReqType::Put => {
-                // indexer
-                debug!("Put");
                 let num_threads = 1;
                 let buffer_size_per_thread = 50_000_000;
                 let mut index_writer = if num_threads > 0 {
@@ -263,8 +286,6 @@ impl IndexServer {
                 }
             }
             ReqType::Delete => {
-                // indexer
-                debug!("Delete");
                 let num_threads = 1;
                 let buffer_size_per_thread = 50_000_000;
                 let mut index_writer = if num_threads > 0 {
@@ -290,8 +311,6 @@ impl IndexServer {
                 }
             }
             ReqType::Search => {
-                // searcher
-                debug!("Search");
                 let schema = index.schema();
                 let default_fields: Vec<Field> = schema
                     .fields()
@@ -326,12 +345,37 @@ impl IndexServer {
                     RespErr::OK,
                 )
             }
-            ReqType::PeerAddr => {
+            ReqType::Join => {
+                debug!("request: {:?}", &req);
                 let mut prs = peers.lock().unwrap();
                 let env = Arc::new(EnvBuilder::new().build());
                 let ch = ChannelBuilder::new(env).connect(&req.peer_addr);
                 prs.insert(req.peer_id, IndexClient::new(ch));
+
+                let mut prs_addr = peers_addr.lock().unwrap();
+                prs_addr.insert(req.peer_id, req.peer_addr.clone());
+
                 NotifyArgs(term, String::from(""), RespErr::OK)
+            }
+            ReqType::Leave => {
+                debug!("request: {:?}", &req);
+                let mut prs = peers.lock().unwrap();
+                prs.remove(&req.peer_id);
+
+                let mut prs_addr = peers_addr.lock().unwrap();
+                prs_addr.remove(&req.peer_id);
+
+                NotifyArgs(term, String::from(""), RespErr::OK)
+            }
+            ReqType::Status => {
+                let prs_addr = peers_addr.lock().unwrap();
+                debug!("{:?}", prs_addr);
+                NotifyArgs(
+                    term,
+                    serde_json::to_string(&prs_addr.clone()).unwrap(),
+                    // String::from(""),
+                    RespErr::OK,
+                )
             }
         }
     }
@@ -394,10 +438,19 @@ impl IndexService for IndexServer {
     }
 
     fn raft_conf_change(&mut self, ctx: RpcContext, req: ConfChangeReq, sink: UnarySink<RaftDone>) {
+        debug!("request: {:?}", req);
         let cc = req.cc.clone().unwrap();
         let mut resp = RaftDone::new();
         let mut peer_req = IndexReq::new();
-        peer_req.set_req_type(ReqType::PeerAddr);
+
+        match cc.change_type {
+            ConfChangeType::AddNode | ConfChangeType::AddLearnerNode => {
+                peer_req.set_req_type(ReqType::Join);
+            }
+            ConfChangeType::RemoveNode => {
+                peer_req.set_req_type(ReqType::Leave);
+            }
+        }
         peer_req.set_peer_addr(format!("{}:{}", req.ip, req.port));
         peer_req.set_peer_id(cc.get_node_id());
         peer_req.set_client_id(cc.get_node_id());
@@ -420,6 +473,17 @@ impl IndexService for IndexServer {
             _ => resp.set_err(RespErr::ErrWrongLeader),
         }
 
+        ctx.spawn(
+            sink.success(resp)
+                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
+        )
+    }
+
+    fn status(&mut self, ctx: RpcContext, req: IndexReq, sink: UnarySink<StatusResp>) {
+        let (err, value) = Self::start_op(self, &req);
+        let mut resp = StatusResp::new();
+        resp.set_err(err);
+        resp.set_value(value);
         ctx.spawn(
             sink.success(resp)
                 .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),

@@ -4,3 +4,4 @@ pub mod leave;
 pub mod search;
 pub mod serve;
 pub mod set;
+pub mod status;

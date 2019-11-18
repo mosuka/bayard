@@ -18,23 +18,24 @@ pub enum PeerMessage {
 
 pub struct Peer {
     raft_group: RawNode<PeerStorage>,
-    //    last_applying_idx: u64,
-    //    last_compacted_idx: u64,
+    // last_applying_idx: u64,
+    // last_compacted_idx: u64,
     apply_ch: SyncSender<Entry>,
-    //    peers_addr: HashMap<u64, (String, u32)>,
+    // peers_addr: HashMap<u64, (String, u32)>, // id, (host, port)
 }
 
 impl Peer {
     pub fn new(id: u64, apply_ch: SyncSender<Entry>, peers: Vec<u64>) -> Peer {
         let cfg = util::default_raft_config(id, peers);
         let storge = PeerStorage::new();
-        Peer {
+        let peer = Peer {
             raft_group: RawNode::new(&cfg, storge, vec![]).unwrap(),
-            //            last_applying_idx: 0,
-            //            last_compacted_idx: 0,
+            // last_applying_idx: 0,
+            // last_compacted_idx: 0,
             apply_ch,
-            //            peers_addr: HashMap::new(),
-        }
+            // peers_addr: HashMap::new(),
+        };
+        peer
     }
 
     pub fn activate(mut peer: Peer, sender: SyncSender<Message>, receiver: Receiver<PeerMessage>) {
@@ -55,7 +56,7 @@ impl Peer {
                 Ok(PeerMessage::ConfChange(cc)) => {
                     match self.raft_group.propose_conf_change(vec![], cc.clone()) {
                         Ok(_) => (),
-                        Err(_) => debug!("conf change failed: {:?}", cc),
+                        Err(_) => error!("conf change failed: {:?}", cc),
                     }
                 }
                 Ok(PeerMessage::Message(m)) => self.raft_group.step(m).unwrap(),
@@ -84,7 +85,7 @@ impl Peer {
         let mut ready = self.raft_group.ready();
         let is_leader = self.raft_group.raft.leader_id == self.raft_group.raft.id;
         if is_leader {
-            //            debug!("I'm leader");
+            // debug!("I'm leader");
             let msgs = ready.messages.drain(..);
             for _msg in msgs {
                 Self::send_message(sender.clone(), _msg.clone());
@@ -112,7 +113,7 @@ impl Peer {
         }
 
         if !is_leader {
-            //            debug!("I'm follower");
+            // debug!("I'm follower");
             let msgs = ready.messages.drain(..);
             for mut _msg in msgs {
                 for _entry in _msg.mut_entries().iter() {
@@ -138,6 +139,7 @@ impl Peer {
                     EntryType::EntryNormal => self.apply_message(entry.clone()),
                     EntryType::EntryConfChange => {
                         let cc = util::parse_data(&entry.data);
+                        debug!("config: {:?}", cc);
                         self.raft_group.apply_conf_change(&cc);
                         debug!("apply conf change");
                         self.apply_message(entry.clone());

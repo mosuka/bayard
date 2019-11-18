@@ -14,7 +14,9 @@ enum ReqType {
     Put = 1;
     Delete = 2;
     Search = 3;
-    PeerAddr = 4;
+    Join = 4;
+    Leave = 5;
+    Status = 6;
 }
 
 message IndexReq {
@@ -32,6 +34,11 @@ message ConfChangeReq {
     eraftpb.ConfChange cc = 1;
     string ip = 2;
     uint32 port = 3;
+}
+
+message StatusResp {
+    string value = 1;
+    RespErr err = 2;
 }
 
 message GetResp {
