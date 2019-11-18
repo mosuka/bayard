@@ -5,20 +5,17 @@ use std::sync::Arc;
 
 use clap::ArgMatches;
 use log::*;
-use raft::eraftpb::{ConfChange, ConfChangeType};
 use serde_json;
 use tantivy::schema::Schema;
 use tantivy::Index;
 
-use crate::client::client::create_client;
-use crate::proto::indexrpcpb::ConfChangeReq;
+use crate::client::client::{create_client, Clerk};
+use crate::proto::indexpb_grpc::IndexClient;
 use crate::server::server::IndexServer;
-use crate::server::util::conf_change;
-use crate::util::log::set_log_level;
+use crate::util::log::set_logger;
 
 pub fn run_serve_cli(matches: &ArgMatches) -> Result<(), String> {
-    set_log_level();
-    env_logger::init();
+    set_logger();
 
     let host = matches.value_of("HOST").unwrap();
     let port = matches.value_of("PORT").unwrap().parse::<u16>().unwrap();
@@ -34,19 +31,11 @@ pub fn run_serve_cli(matches: &ArgMatches) -> Result<(), String> {
             })
             .count();
     }
-    if let Some(leader_id_str) = matches.value_of("LEADER_ID") {
-        let leader_id = leader_id_str.parse::<u64>().unwrap();
-        let mut cc = ConfChange::new();
-        cc.set_id(id);
-        cc.set_node_id(id);
-        cc.set_change_type(ConfChangeType::AddNode);
-        let mut req = ConfChangeReq::new();
-        req.set_cc(cc);
-        req.set_ip(host.to_owned());
-        req.set_port(port as u32);
-        conf_change(id, leader_id, &peers, req);
-        info!("the node was successfully added to the cluster");
-    }
+    let leader_id = matches
+        .value_of("LEADER_ID")
+        .unwrap_or("0")
+        .parse::<u64>()
+        .unwrap();
     let data_directory = matches.value_of("DATA_DIRECTORY").unwrap();
     let schema_file = matches.value_of("SCHEMA_FILE").unwrap();
     let unique_key_field_name = matches.value_of("UNIQUE_KEY_FIELD_NAME").unwrap();
@@ -79,6 +68,7 @@ pub fn run_serve_cli(matches: &ArgMatches) -> Result<(), String> {
         id,
         host,
         port,
+        leader_id,
         peers,
         Arc::new(index),
         unique_key_field_name,

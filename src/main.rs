@@ -12,6 +12,7 @@ use bayard::cmd::leave::run_leave_cli;
 use bayard::cmd::search::run_search_cli;
 use bayard::cmd::serve::run_serve_cli;
 use bayard::cmd::set::run_set_cli;
+use bayard::cmd::status::run_status_cli;
 
 fn main() {
     let app = App::new(crate_name!())
@@ -104,6 +105,27 @@ fn main() {
                 )
         )
         .subcommand(
+            SubCommand::with_name("status")
+                .name("status")
+                .setting(AppSettings::DeriveDisplayOrder)
+                .version(crate_version!())
+                .author(crate_authors!())
+                .about("Get cluster status")
+                .arg(
+                    Arg::with_name("SERVERS")
+                        .help("The server addresses. Use `,` to separate address. Example: `127.0.0.1:5000,127.0.0.1:5001`")
+                        .short("s")
+                        .long("servers")
+                        .value_name("IP:PORT")
+                        .default_value("127.0.0.1:5000")
+                        .multiple(true)
+                        .use_delimiter(true)
+                        .require_delimiter(true)
+                        .value_delimiter(",")
+                        .takes_value(true),
+                )
+        )
+        .subcommand(
             SubCommand::with_name("leave")
                 .name("leave")
                 .setting(AppSettings::DeriveDisplayOrder)
@@ -111,21 +133,16 @@ fn main() {
                 .author(crate_authors!())
                 .about("Remove a node from a cluster")
                 .arg(
-                    Arg::with_name("HOST")
-                        .help("The node address")
-                        .short("H")
-                        .long("host")
-                        .value_name("HOST")
-                        .default_value("0.0.0.0")
-                        .takes_value(true),
-                )
-                .arg(
-                    Arg::with_name("PORT")
-                        .help("The gRPC listen port for client connection")
-                        .short("P")
-                        .long("port")
-                        .value_name("PORT")
-                        .default_value("5000")
+                    Arg::with_name("SERVERS")
+                        .help("The server addresses. Use `,` to separate address. Example: `127.0.0.1:5000,127.0.0.1:5001`")
+                        .short("s")
+                        .long("servers")
+                        .value_name("IP:PORT")
+                        .default_value("127.0.0.1:5000")
+                        .multiple(true)
+                        .use_delimiter(true)
+                        .require_delimiter(true)
+                        .value_delimiter(",")
                         .takes_value(true),
                 )
                 .arg(
@@ -135,27 +152,6 @@ fn main() {
                         .long("id")
                         .value_name("ID")
                         .default_value("1")
-                        .takes_value(true),
-                )
-                .arg(
-                    Arg::with_name("PEERS")
-                        .help("Set raft peers address separated by `,`")
-                        .short("p")
-                        .long("peers")
-                        .value_name("ID=IP:PORT")
-                        .default_value("1=0.0.0.0:5000")
-                        .multiple(true)
-                        .takes_value(true)
-                        .use_delimiter(true)
-                        .require_delimiter(true)
-                        .value_delimiter(","),
-                )
-                .arg(
-                    Arg::with_name("LEADER_ID")
-                        .help("The leader node ID")
-                        .short("l")
-                        .long("leader-id")
-                        .value_name("LEADER_ID")
                         .takes_value(true),
                 )
         )
@@ -308,17 +304,13 @@ fn main() {
     let options = some_options.unwrap();
     let run_cli = match subcommand {
         "serve" => run_serve_cli,
+        "status" => run_status_cli,
         "leave" => run_leave_cli,
         "set" => run_set_cli,
         "get" => run_get_cli,
         "delete" => run_delete_cli,
         "search" => run_search_cli,
         //        "version" => run_version_cli,
-        //        "index" => run_index_cli,
-        //        "serve" => run_serve_cli,
-        //        "search" => run_search_cli,
-        //        "merge" => run_merge_cli,
-        //        "bench" => run_bench_cli,
         _ => panic!("Subcommand {} is unknown", subcommand),
     };
 
