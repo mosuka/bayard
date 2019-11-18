@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## 0.1.1
+- Rename status to peers #24 @mosuka
 - Add cluster status command #23 @mosuka
 - Add signal handling #22 @mosuka
 - Restore leave command document #21 @mosuka
