@@ -17,6 +17,6 @@ service Index {
     }
     rpc RaftConfChange (indexrpcpb.ConfChangeReq) returns (indexrpcpb.RaftDone) {
     }
-    rpc Status (indexrpcpb.IndexReq) returns (indexrpcpb.StatusResp) {
+    rpc Peers (indexrpcpb.IndexReq) returns (indexrpcpb.PeersResp) {
     }
 }

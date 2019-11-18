@@ -19,8 +19,8 @@ use tantivy::{Document, Index, Term};
 use crate::client::client::Clerk;
 use crate::proto::indexpb_grpc::{self, Index as IndexService, IndexClient};
 use crate::proto::indexrpcpb::{
-    ConfChangeReq, DeleteResp, GetResp, IndexReq, PutResp, RaftDone, ReqType, RespErr, SearchResp,
-    StatusResp,
+    ConfChangeReq, DeleteResp, GetResp, IndexReq, PeersResp, PutResp, RaftDone, ReqType, RespErr,
+    SearchResp,
 };
 use crate::server::peer::PeerMessage;
 use crate::server::{peer, util};
@@ -367,7 +367,7 @@ impl IndexServer {
 
                 NotifyArgs(term, String::from(""), RespErr::OK)
             }
-            ReqType::Status => {
+            ReqType::Peers => {
                 let prs_addr = peers_addr.lock().unwrap();
                 debug!("{:?}", prs_addr);
                 NotifyArgs(
@@ -479,9 +479,9 @@ impl IndexService for IndexServer {
         )
     }
 
-    fn status(&mut self, ctx: RpcContext, req: IndexReq, sink: UnarySink<StatusResp>) {
+    fn peers(&mut self, ctx: RpcContext, req: IndexReq, sink: UnarySink<PeersResp>) {
         let (err, value) = Self::start_op(self, &req);
-        let mut resp = StatusResp::new();
+        let mut resp = PeersResp::new();
         resp.set_err(err);
         resp.set_value(value);
         ctx.spawn(

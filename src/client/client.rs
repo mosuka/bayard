@@ -8,8 +8,8 @@ use raft::eraftpb::{ConfChange, ConfChangeType};
 
 use crate::proto::indexpb_grpc::IndexClient;
 use crate::proto::indexrpcpb::{
-    ConfChangeReq, DeleteResp, GetResp, IndexReq, PutResp, RaftDone, ReqType, RespErr, SearchResp,
-    StatusResp,
+    ConfChangeReq, DeleteResp, GetResp, IndexReq, PeersResp, PutResp, RaftDone, ReqType, RespErr,
+    SearchResp,
 };
 
 pub fn create_client(addr: &str) -> IndexClient {
@@ -194,18 +194,18 @@ impl Clerk {
         }
     }
 
-    pub fn status(&mut self) -> String {
+    pub fn peers(&mut self) -> String {
         let mut req = IndexReq::new();
         req.set_client_id(self.client_id);
-        req.set_req_type(ReqType::Status);
+        req.set_req_type(ReqType::Peers);
         req.set_seq(self.request_seq);
         self.request_seq += 1;
 
         loop {
             let reply = self.servers[self.leader_id]
-                .status(&req)
+                .peers(&req)
                 .unwrap_or_else(|_e| {
-                    let mut resp = StatusResp::new();
+                    let mut resp = PeersResp::new();
                     resp.set_err(RespErr::ErrWrongLeader);
                     resp
                 });

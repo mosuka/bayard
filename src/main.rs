@@ -9,10 +9,10 @@ use clap::{App, AppSettings, Arg, SubCommand};
 use bayard::cmd::delete::run_delete_cli;
 use bayard::cmd::get::run_get_cli;
 use bayard::cmd::leave::run_leave_cli;
+use bayard::cmd::peers::run_peers_cli;
 use bayard::cmd::search::run_search_cli;
 use bayard::cmd::serve::run_serve_cli;
 use bayard::cmd::set::run_set_cli;
-use bayard::cmd::status::run_status_cli;
 
 fn main() {
     let app = App::new(crate_name!())
@@ -105,12 +105,12 @@ fn main() {
                 )
         )
         .subcommand(
-            SubCommand::with_name("status")
-                .name("status")
+            SubCommand::with_name("peers")
+                .name("peers")
                 .setting(AppSettings::DeriveDisplayOrder)
                 .version(crate_version!())
                 .author(crate_authors!())
-                .about("Get cluster status")
+                .about("Get cluster peers")
                 .arg(
                     Arg::with_name("SERVERS")
                         .help("The server addresses. Use `,` to separate address. Example: `127.0.0.1:5000,127.0.0.1:5001`")
@@ -304,7 +304,7 @@ fn main() {
     let options = some_options.unwrap();
     let run_cli = match subcommand {
         "serve" => run_serve_cli,
-        "status" => run_status_cli,
+        "peers" => run_peers_cli,
         "leave" => run_leave_cli,
         "set" => run_set_cli,
         "get" => run_get_cli,
