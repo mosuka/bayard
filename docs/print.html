@@ -328,7 +328,6 @@ You can start servers in cluster mode with the following command:</p>
     --host=0.0.0.0 \
     --port=5001 \
     --id=1 \
-    --peers=&quot;1=0.0.0.0:5001&quot; \
     --data-directory=./data/1 \
     --schema-file=./etc/schema.json \
     --unique-key-field-name=id
@@ -337,7 +336,7 @@ You can start servers in cluster mode with the following command:</p>
     --host=0.0.0.0 \
     --port=5002 \
     --id=2 \
-    --peers=&quot;1=0.0.0.0:5001,2=0.0.0.0:5002&quot; \
+    --peers=&quot;1=0.0.0.0:5001&quot; \
     --leader-id=1 \
     --data-directory=./data/2 \
     --schema-file=./etc/schema.json \
@@ -347,7 +346,7 @@ You can start servers in cluster mode with the following command:</p>
     --host=0.0.0.0 \
     --port=5003 \
     --id=3 \
-    --peers=&quot;1=0.0.0.0:5001,2=0.0.0.0:5002,3=0.0.0.0:5003&quot; \
+    --peers=&quot;1=0.0.0.0:5001,2=0.0.0.0:5002&quot; \
     --leader-id=1 \
     --data-directory=./data/3 \
     --schema-file=./etc/schema.json \

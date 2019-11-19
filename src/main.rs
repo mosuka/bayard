@@ -29,6 +29,15 @@ fn main() {
                 .author(crate_authors!())
                 .about("Start server")
                 .arg(
+                    Arg::with_name("ID")
+                        .help("The node ID")
+                        .short("i")
+                        .long("id")
+                        .value_name("ID")
+                        .default_value("1")
+                        .takes_value(true),
+                )
+                .arg(
                     Arg::with_name("HOST")
                         .help("The node address")
                         .short("H")
@@ -47,35 +56,16 @@ fn main() {
                         .takes_value(true),
                 )
                 .arg(
-                    Arg::with_name("ID")
-                        .help("The node ID")
-                        .short("i")
-                        .long("id")
-                        .value_name("ID")
-                        .default_value("1")
-                        .takes_value(true),
-                )
-                .arg(
                     Arg::with_name("PEERS")
-                        .help("Set raft peers address separated by `,`")
+                        .help("Set peers address separated by `,`, if join to a cluster")
                         .short("p")
                         .long("peers")
                         .value_name("ID=IP:PORT")
-                        .default_value("1=0.0.0.0:5000")
                         .multiple(true)
                         .takes_value(true)
                         .use_delimiter(true)
                         .require_delimiter(true)
                         .value_delimiter(","),
-                )
-                .arg(
-                    Arg::with_name("LEADER_ID")
-                        .help("The leader node ID")
-                        .short("l")
-                        .long("leader-id")
-                        .value_name("LEADER_ID")
-                        .default_value("1")
-                        .takes_value(true),
                 )
                 .arg(
                     Arg::with_name("DATA_DIRECTORY")
