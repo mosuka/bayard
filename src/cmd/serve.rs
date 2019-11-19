@@ -20,6 +20,7 @@ pub fn run_serve_cli(matches: &ArgMatches) -> Result<(), String> {
     let port = matches.value_of("PORT").unwrap().parse::<u16>().unwrap();
     let id = matches.value_of("ID").unwrap().parse::<u64>().unwrap();
     let mut peers = HashMap::new();
+    peers.insert(id, create_client(&format!("{}:{}", host, port)));
     if let Some(peers_vec) = matches.values_of("PEERS") {
         peers_vec
             .map(|s| {
@@ -30,11 +31,6 @@ pub fn run_serve_cli(matches: &ArgMatches) -> Result<(), String> {
             })
             .count();
     }
-    let leader_id = matches
-        .value_of("LEADER_ID")
-        .unwrap()
-        .parse::<u64>()
-        .unwrap();
     let data_directory = matches.value_of("DATA_DIRECTORY").unwrap();
     let schema_file = matches.value_of("SCHEMA_FILE").unwrap();
     let unique_key_field_name = matches.value_of("UNIQUE_KEY_FIELD_NAME").unwrap();
@@ -67,7 +63,6 @@ pub fn run_serve_cli(matches: &ArgMatches) -> Result<(), String> {
         id,
         host,
         port,
-        leader_id,
         peers,
         Arc::new(index),
         unique_key_field_name,

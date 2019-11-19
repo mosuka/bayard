@@ -53,7 +53,6 @@ impl IndexServer {
         id: u64,
         host: &str,
         port: u16,
-        leader_id: u64,
         peers: HashMap<u64, IndexClient>,
         index: Arc<Index>,
         unique_key_field: &str,
@@ -95,20 +94,13 @@ impl IndexServer {
         let peer = peer::Peer::new(id, apply_sender, peers_id);
         peer::Peer::activate(peer, rpc_sender, rf_receiver);
 
-        debug!("leader_id: {}", leader_id);
-        let mut leaders: Vec<IndexClient> = Vec::new();
-        leaders.push(
-            index_server
-                .peers
-                .clone()
-                .lock()
-                .unwrap()
-                .get(&leader_id)
-                .unwrap()
-                .clone(),
-        );
+        let mut servers: Vec<IndexClient> = Vec::new();
+        for (_, value) in index_server.peers.clone().lock().unwrap().iter() {
+            servers.push(value.clone());
+        }
+
         let client_id = rand::random();
-        let mut client = Clerk::new(&leaders, client_id);
+        let mut client = Clerk::new(&servers, client_id);
         client.join(id, host, port);
 
         // Wait for signals for termination (SIGINT, SIGTERM).

@@ -13,7 +13,6 @@ You can start servers in cluster mode with the following command:
     --host=0.0.0.0 \
     --port=5001 \
     --id=1 \
-    --peers="1=0.0.0.0:5001" \
     --data-directory=./data/1 \
     --schema-file=./etc/schema.json \
     --unique-key-field-name=id
@@ -24,8 +23,7 @@ You can start servers in cluster mode with the following command:
     --host=0.0.0.0 \
     --port=5002 \
     --id=2 \
-    --peers="1=0.0.0.0:5001,2=0.0.0.0:5002" \
-    --leader-id=1 \
+    --peers="1=0.0.0.0:5001" \
     --data-directory=./data/2 \
     --schema-file=./etc/schema.json \
     --unique-key-field-name=id
@@ -36,8 +34,7 @@ You can start servers in cluster mode with the following command:
     --host=0.0.0.0 \
     --port=5003 \
     --id=3 \
-    --peers="1=0.0.0.0:5001,2=0.0.0.0:5002,3=0.0.0.0:5003" \
-    --leader-id=1 \
+    --peers="1=0.0.0.0:5001,2=0.0.0.0:5002" \
     --data-directory=./data/3 \
     --schema-file=./etc/schema.json \
     --unique-key-field-name=id
@@ -73,9 +70,6 @@ The following command deletes the server with `id=3` from the cluster:
 
 ```shell script
 ./bin/bayard leave \
-    --host=127.0.0.1 \
-    --port=5001 \
-    --id=3 \
-    --peers="1=0.0.0.0:5001,2=0.0.0.0:5002" \
-    --leader-id=1
+    --servers=127.0.0.1:5001 \
+    --id=3
 ```

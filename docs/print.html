@@ -328,7 +328,6 @@ You can start servers in cluster mode with the following command:</p>
     --host=0.0.0.0 \
     --port=5001 \
     --id=1 \
-    --peers=&quot;1=0.0.0.0:5001&quot; \
     --data-directory=./data/1 \
     --schema-file=./etc/schema.json \
     --unique-key-field-name=id
@@ -337,8 +336,7 @@ You can start servers in cluster mode with the following command:</p>
     --host=0.0.0.0 \
     --port=5002 \
     --id=2 \
-    --peers=&quot;1=0.0.0.0:5001,2=0.0.0.0:5002&quot; \
-    --leader-id=1 \
+    --peers=&quot;1=0.0.0.0:5001&quot; \
     --data-directory=./data/2 \
     --schema-file=./etc/schema.json \
     --unique-key-field-name=id
@@ -347,8 +345,7 @@ You can start servers in cluster mode with the following command:</p>
     --host=0.0.0.0 \
     --port=5003 \
     --id=3 \
-    --peers=&quot;1=0.0.0.0:5001,2=0.0.0.0:5002,3=0.0.0.0:5003&quot; \
-    --leader-id=1 \
+    --peers=&quot;1=0.0.0.0:5001,2=0.0.0.0:5002&quot; \
     --data-directory=./data/3 \
     --schema-file=./etc/schema.json \
     --unique-key-field-name=id
@@ -372,11 +369,8 @@ When deploying to a single host, if that host goes down due to hardware failure,
 If you want the server to join the cluster again, you must remove it from the cluster.<br />
 The following command deletes the server with <code>id=3</code> from the cluster:</p>
 <pre><code class="language-shellscript">./bin/bayard leave \
-    --host=127.0.0.1 \
-    --port=5001 \
-    --id=3 \
-    --peers=&quot;1=0.0.0.0:5001,2=0.0.0.0:5002&quot; \
-    --leader-id=1
+    --servers=127.0.0.1:5001 \
+    --id=3
 </code></pre>
 <h1><a class="header" href="#running-on-docker" id="running-on-docker">Running on Docker</a></h1>
 <p>See the available Docker container image version at the following URL:</p>
