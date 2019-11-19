@@ -32,7 +32,7 @@ pub fn run_serve_cli(matches: &ArgMatches) -> Result<(), String> {
     }
     let leader_id = matches
         .value_of("LEADER_ID")
-        .unwrap_or("0")
+        .unwrap()
         .parse::<u64>()
         .unwrap();
     let data_directory = matches.value_of("DATA_DIRECTORY").unwrap();

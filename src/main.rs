@@ -74,6 +74,7 @@ fn main() {
                         .short("l")
                         .long("leader-id")
                         .value_name("LEADER_ID")
+                        .default_value("1")
                         .takes_value(true),
                 )
                 .arg(
