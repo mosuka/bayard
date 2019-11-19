@@ -96,22 +96,20 @@ impl IndexServer {
         peer::Peer::activate(peer, rpc_sender, rf_receiver);
 
         debug!("leader_id: {}", leader_id);
-        if leader_id > 0 {
-            let mut leaders: Vec<IndexClient> = Vec::new();
-            leaders.push(
-                index_server
-                    .peers
-                    .clone()
-                    .lock()
-                    .unwrap()
-                    .get(&leader_id)
-                    .unwrap()
-                    .clone(),
-            );
-            let client_id = rand::random();
-            let mut client = Clerk::new(&leaders, client_id);
-            client.join(id, host, port);
-        }
+        let mut leaders: Vec<IndexClient> = Vec::new();
+        leaders.push(
+            index_server
+                .peers
+                .clone()
+                .lock()
+                .unwrap()
+                .get(&leader_id)
+                .unwrap()
+                .clone(),
+        );
+        let client_id = rand::random();
+        let mut client = Clerk::new(&leaders, client_id);
+        client.join(id, host, port);
 
         // Wait for signals for termination (SIGINT, SIGTERM).
         let sigterm_receiver = sigterm_channel().unwrap();
