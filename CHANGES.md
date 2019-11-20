@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## 0.1.1
+- Make index writer to field of struct #28 @mosuka
 - Add command to get schema #27 @mosuka
 - Delete --leader-id from CLI #26 @mosuka
 - Set default leader id #25 @mosuka
