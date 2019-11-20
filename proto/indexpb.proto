@@ -5,6 +5,12 @@ import "indexrpcpb.proto";
 import "eraftpb.proto";
 
 service Index {
+    rpc Raft (eraftpb.Message) returns (indexrpcpb.RaftDone) {
+    }
+    rpc RaftConfChange (indexrpcpb.ConfChangeReq) returns (indexrpcpb.RaftDone) {
+    }
+    rpc Peers (indexrpcpb.IndexReq) returns (indexrpcpb.PeersResp) {
+    }
     rpc Get (indexrpcpb.IndexReq) returns (indexrpcpb.GetResp) {
     }
     rpc Put (indexrpcpb.IndexReq) returns (indexrpcpb.PutResp) {
@@ -13,10 +19,6 @@ service Index {
     }
     rpc Search (indexrpcpb.IndexReq) returns (indexrpcpb.SearchResp) {
     }
-    rpc Raft (eraftpb.Message) returns (indexrpcpb.RaftDone) {
-    }
-    rpc RaftConfChange (indexrpcpb.ConfChangeReq) returns (indexrpcpb.RaftDone) {
-    }
-    rpc Peers (indexrpcpb.IndexReq) returns (indexrpcpb.PeersResp) {
+    rpc Schema (indexrpcpb.IndexReq) returns (indexrpcpb.SchemaResp) {
     }
 }

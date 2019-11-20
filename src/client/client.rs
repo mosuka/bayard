@@ -9,7 +9,7 @@ use raft::eraftpb::{ConfChange, ConfChangeType};
 use crate::proto::indexpb_grpc::IndexClient;
 use crate::proto::indexrpcpb::{
     ConfChangeReq, DeleteResp, GetResp, IndexReq, PeersResp, PutResp, RaftDone, ReqType, RespErr,
-    SearchResp,
+    SchemaResp, SearchResp,
 };
 
 pub fn create_client(addr: &str) -> IndexClient {
@@ -33,6 +33,87 @@ impl Clerk {
             client_id,
             request_seq: 0,
             leader_id: 0,
+        }
+    }
+
+    pub fn join(&mut self, id: u64, ip: &str, port: u16) {
+        let mut cc = ConfChange::new();
+        cc.set_id(id);
+        cc.set_node_id(id);
+        cc.set_change_type(ConfChangeType::AddNode);
+        let mut req = ConfChangeReq::new();
+        req.set_cc(cc);
+        req.set_ip(ip.to_string());
+        req.set_port(port as u32);
+
+        loop {
+            let reply = self.servers[self.leader_id]
+                .raft_conf_change(&req)
+                .unwrap_or_else(|e| {
+                    error!("{:?}", e);
+                    let mut resp = RaftDone::new();
+                    resp.set_err(RespErr::ErrWrongLeader);
+                    resp
+                });
+            match reply.err {
+                RespErr::OK => return,
+                RespErr::ErrWrongLeader => (),
+                RespErr::ErrNoKey => return,
+            }
+            self.leader_id = (self.leader_id + 1) % self.servers.len();
+            thread::sleep(Duration::from_millis(100));
+        }
+    }
+
+    pub fn leave(&mut self, id: u64) {
+        let mut cc = ConfChange::new();
+        cc.set_id(id);
+        cc.set_node_id(id);
+        cc.set_change_type(ConfChangeType::RemoveNode);
+        let mut req = ConfChangeReq::new();
+        req.set_cc(cc);
+
+        loop {
+            let reply = self.servers[self.leader_id]
+                .raft_conf_change(&req)
+                .unwrap_or_else(|e| {
+                    error!("{:?}", e);
+                    let mut resp = RaftDone::new();
+                    resp.set_err(RespErr::ErrWrongLeader);
+                    resp
+                });
+            match reply.err {
+                RespErr::OK => return,
+                RespErr::ErrWrongLeader => (),
+                RespErr::ErrNoKey => return,
+            }
+            self.leader_id = (self.leader_id + 1) % self.servers.len();
+            thread::sleep(Duration::from_millis(100));
+        }
+    }
+
+    pub fn peers(&mut self) -> String {
+        let mut req = IndexReq::new();
+        req.set_client_id(self.client_id);
+        req.set_req_type(ReqType::Peers);
+        req.set_seq(self.request_seq);
+        self.request_seq += 1;
+
+        loop {
+            let reply = self.servers[self.leader_id]
+                .peers(&req)
+                .unwrap_or_else(|_e| {
+                    let mut resp = PeersResp::new();
+                    resp.set_err(RespErr::ErrWrongLeader);
+                    resp
+                });
+            match reply.err {
+                RespErr::OK => return reply.value,
+                RespErr::ErrWrongLeader => (),
+                RespErr::ErrNoKey => return String::from(""),
+            }
+            self.leader_id = (self.leader_id + 1) % self.servers.len();
+            thread::sleep(Duration::from_millis(100));
         }
     }
 
@@ -138,74 +219,18 @@ impl Clerk {
         }
     }
 
-    pub fn join(&mut self, id: u64, ip: &str, port: u16) {
-        let mut cc = ConfChange::new();
-        cc.set_id(id);
-        cc.set_node_id(id);
-        cc.set_change_type(ConfChangeType::AddNode);
-        let mut req = ConfChangeReq::new();
-        req.set_cc(cc);
-        req.set_ip(ip.to_string());
-        req.set_port(port as u32);
-
-        loop {
-            let reply = self.servers[self.leader_id]
-                .raft_conf_change(&req)
-                .unwrap_or_else(|e| {
-                    error!("{:?}", e);
-                    let mut resp = RaftDone::new();
-                    resp.set_err(RespErr::ErrWrongLeader);
-                    resp
-                });
-            match reply.err {
-                RespErr::OK => return,
-                RespErr::ErrWrongLeader => (),
-                RespErr::ErrNoKey => return,
-            }
-            self.leader_id = (self.leader_id + 1) % self.servers.len();
-            thread::sleep(Duration::from_millis(100));
-        }
-    }
-
-    pub fn leave(&mut self, id: u64) {
-        let mut cc = ConfChange::new();
-        cc.set_id(id);
-        cc.set_node_id(id);
-        cc.set_change_type(ConfChangeType::RemoveNode);
-        let mut req = ConfChangeReq::new();
-        req.set_cc(cc);
-
-        loop {
-            let reply = self.servers[self.leader_id]
-                .raft_conf_change(&req)
-                .unwrap_or_else(|e| {
-                    error!("{:?}", e);
-                    let mut resp = RaftDone::new();
-                    resp.set_err(RespErr::ErrWrongLeader);
-                    resp
-                });
-            match reply.err {
-                RespErr::OK => return,
-                RespErr::ErrWrongLeader => (),
-                RespErr::ErrNoKey => return,
-            }
-            self.leader_id = (self.leader_id + 1) % self.servers.len();
-            thread::sleep(Duration::from_millis(100));
-        }
-    }
-
-    pub fn peers(&mut self) -> String {
+    pub fn schema(&mut self) -> String {
         let mut req = IndexReq::new();
         req.set_client_id(self.client_id);
-        req.set_req_type(ReqType::Peers);
+        req.set_req_type(ReqType::Schema);
         req.set_seq(self.request_seq);
         self.request_seq += 1;
 
         loop {
             let reply = self.servers[self.leader_id]
-                .peers(&req)
+                .schema(&req)
                 .unwrap_or_else(|_e| {
-                    let mut resp = PeersResp::new();
+                    let mut resp = SchemaResp::new();
                     resp.set_err(RespErr::ErrWrongLeader);
                     resp
                 });
