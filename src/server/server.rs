@@ -15,7 +15,7 @@ use raft::eraftpb::{ConfChange, ConfChangeType, Entry, EntryType, Message as Raf
 use tantivy::collector::TopDocs;
 use tantivy::query::{QueryParser, TermQuery};
 use tantivy::schema::{Field, FieldType, IndexRecordOption, NamedFieldDocument, Schema};
-use tantivy::{Document, Index, Term};
+use tantivy::{Document, Index, IndexWriter, Term};
 
 use crate::client::client::{create_client, Clerk};
 use crate::proto::indexpb_grpc::{self, Index as IndexService, IndexClient};
@@ -47,6 +47,7 @@ pub struct IndexServer {
     notify_ch_map: Arc<Mutex<HashMap<u64, SyncSender<NotifyArgs>>>>,
     index: Arc<Index>,
     unique_key_field_name: String,
+    index_writer: Arc<Mutex<IndexWriter>>,
 }
 
 impl IndexServer {
@@ -79,6 +80,16 @@ impl IndexServer {
             Index::create_in_dir(index_path.to_str().unwrap(), schema).unwrap()
         };
 
+        let num_threads = 1;
+        let buffer_size_per_thread = 50_000_000;
+        let index_writer = if num_threads > 0 {
+            index
+                .writer_with_num_threads(num_threads, buffer_size_per_thread)
+                .unwrap()
+        } else {
+            index.writer(buffer_size_per_thread).unwrap()
+        };
+
         let (rf_sender, rf_receiver) = mpsc::sync_channel(100);
         let (rpc_sender, rpc_receiver) = mpsc::sync_channel(100);
         let (apply_sender, apply_receiver) = mpsc::sync_channel(100);
@@ -93,6 +104,7 @@ impl IndexServer {
             notify_ch_map: Arc::new(Mutex::new(HashMap::new())),
             index: Arc::new(index),
             unique_key_field_name: unique_key_field_name.to_string(),
+            index_writer: Arc::new(Mutex::new(index_writer)),
         };
 
         index_server.async_rpc_sender(rpc_receiver);
@@ -196,6 +208,7 @@ impl IndexServer {
         let peers_addr = self.peers_addr.clone();
         let index = self.index.clone();
         let unique_key_field_name = self.unique_key_field_name.clone();
+        let index_writer = self.index_writer.clone();
 
         thread::spawn(move || loop {
             match apply_receiver.recv() {
@@ -212,6 +225,7 @@ impl IndexServer {
                                 peers_addr.clone(),
                                 index.clone(),
                                 unique_key_field_name.as_str(),
+                                index_writer.clone(),
                             );
                             debug!("{:?}: {:?}", result.2, req);
                         } else {
@@ -250,6 +264,7 @@ impl IndexServer {
         peers_addr: Arc<Mutex<HashMap<u64, String>>>,
         index: Arc<Index>,
         unique_key_field: &str,
+        index_writer: Arc<Mutex<IndexWriter>>,
     ) -> NotifyArgs {
         match req.req_type {
             ReqType::Join => {
@@ -303,52 +318,42 @@ impl IndexServer {
                 )
             }
             ReqType::Put => {
-                let num_threads = 1;
-                let buffer_size_per_thread = 50_000_000;
-                let mut index_writer = if num_threads > 0 {
-                    index
-                        .writer_with_num_threads(num_threads, buffer_size_per_thread)
-                        .unwrap()
-                } else {
-                    index.writer(buffer_size_per_thread).unwrap()
-                };
+                debug!("put: {}", req.value.as_str());
                 let mut doc = index.schema().parse_document(req.value.as_str()).unwrap();
                 let field = index.schema().get_field(unique_key_field).unwrap();
                 doc.add_text(field, req.key.as_str());
-                index_writer.delete_term(Term::from_field_text(field, req.key.as_str()));
-                index_writer.add_document(doc);
-                match index_writer.commit() {
-                    Ok(opstamp) => {
-                        debug!("Commit succeed, opstamp at {}", opstamp);
+                index_writer
+                    .lock()
+                    .unwrap()
+                    .delete_term(Term::from_field_text(field, req.key.as_str()));
+                index_writer.lock().unwrap().add_document(doc);
+                match index_writer.lock().unwrap().commit() {
+                    Ok(_opstamp) => {
+                        info!("commit succeed");
                         NotifyArgs(term, String::from(""), RespErr::OK)
                     }
                     Err(e) => {
-                        error!("index error: {}", e);
+                        error!("commit failed: {}", e);
                         NotifyArgs(term, String::from(""), RespErr::ErrWrongLeader)
                     }
                 }
             }
             ReqType::Delete => {
-                let num_threads = 1;
-                let buffer_size_per_thread = 50_000_000;
-                let mut index_writer = if num_threads > 0 {
-                    index
-                        .writer_with_num_threads(num_threads, buffer_size_per_thread)
-                        .unwrap()
-                } else {
-                    index.writer(buffer_size_per_thread).unwrap()
-                };
-                index_writer.delete_term(Term::from_field_text(
-                    index.schema().get_field(unique_key_field).unwrap(),
-                    req.key.as_str(),
-                ));
-                match index_writer.commit() {
-                    Ok(opstamp) => {
-                        debug!("Commit succeed, opstamp at {}", opstamp);
+                debug!("delete: {}", req.key.as_str());
+                index_writer
+                    .lock()
+                    .unwrap()
+                    .delete_term(Term::from_field_text(
+                        index.schema().get_field(unique_key_field).unwrap(),
+                        req.key.as_str(),
+                    ));
+                match index_writer.lock().unwrap().commit() {
+                    Ok(_opstamp) => {
+                        info!("commit succeed");
                         NotifyArgs(term, String::from(""), RespErr::OK)
                     }
                     Err(e) => {
-                        error!("index error: {}", e);
+                        error!("commit failed: {}", e);
                         NotifyArgs(term, String::from(""), RespErr::ErrWrongLeader)
                     }
                 }
