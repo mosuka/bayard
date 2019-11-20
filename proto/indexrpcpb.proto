@@ -14,9 +14,10 @@ enum ReqType {
     Put = 1;
     Delete = 2;
     Search = 3;
-    Join = 4;
-    Leave = 5;
-    Peers = 6;
+    Schema = 4;
+    Join = 5;
+    Leave = 6;
+    Peers = 7;
 }
 
 message IndexReq {
@@ -28,17 +29,6 @@ message IndexReq {
     string key = 6;
     string value = 7;
     string query = 8;
-}
-
-message ConfChangeReq {
-    eraftpb.ConfChange cc = 1;
-    string ip = 2;
-    uint32 port = 3;
-}
-
-message PeersResp {
-    string value = 1;
-    RespErr err = 2;
 }
 
 message GetResp {
@@ -55,6 +45,22 @@ message DeleteResp {
 }
 
 message SearchResp {
+    string value = 1;
+    RespErr err = 2;
+}
+
+message SchemaResp {
+    string value = 1;
+    RespErr err = 2;
+}
+
+message ConfChangeReq {
+    eraftpb.ConfChange cc = 1;
+    string ip = 2;
+    uint32 port = 3;
+}
+
+message PeersResp {
     string value = 1;
     RespErr err = 2;
 }

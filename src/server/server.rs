@@ -1,8 +1,9 @@
 use std::collections::HashMap;
+use std::path::Path;
 use std::sync::mpsc::{self, Receiver, SyncSender};
 use std::sync::{Arc, Mutex};
-use std::thread;
 use std::time::Duration;
+use std::{fs, thread};
 
 use crossbeam_channel::{bounded, select, Receiver as CReceiver};
 use ctrlc;
@@ -13,14 +14,14 @@ use protobuf::Message;
 use raft::eraftpb::{ConfChange, ConfChangeType, Entry, EntryType, Message as RaftMessage};
 use tantivy::collector::TopDocs;
 use tantivy::query::{QueryParser, TermQuery};
-use tantivy::schema::{Field, FieldType, IndexRecordOption, NamedFieldDocument};
+use tantivy::schema::{Field, FieldType, IndexRecordOption, NamedFieldDocument, Schema};
 use tantivy::{Document, Index, Term};
 
-use crate::client::client::Clerk;
+use crate::client::client::{create_client, Clerk};
 use crate::proto::indexpb_grpc::{self, Index as IndexService, IndexClient};
 use crate::proto::indexrpcpb::{
     ConfChangeReq, DeleteResp, GetResp, IndexReq, PeersResp, PutResp, RaftDone, ReqType, RespErr,
-    SearchResp,
+    SchemaResp, SearchResp,
 };
 use crate::server::peer::PeerMessage;
 use crate::server::{peer, util};
@@ -45,7 +46,7 @@ pub struct IndexServer {
     rf_message_ch: SyncSender<PeerMessage>,
     notify_ch_map: Arc<Mutex<HashMap<u64, SyncSender<NotifyArgs>>>>,
     index: Arc<Index>,
-    unique_key_field: String,
+    unique_key_field_name: String,
 }
 
 impl IndexServer {
@@ -53,10 +54,31 @@ impl IndexServer {
         id: u64,
         host: &str,
         port: u16,
-        peers: HashMap<u64, IndexClient>,
-        index: Arc<Index>,
-        unique_key_field: &str,
+        peers_addr: HashMap<u64, String>,
+        data_directory: &str,
+        schema_file: &str,
+        unique_key_field_name: &str,
     ) {
+        let mut peers = HashMap::new();
+        peers.insert(id, create_client(&format!("{}:{}", host, port)));
+        for (peer_id, peer_addr) in peers_addr.iter() {
+            peers.insert(*peer_id, create_client(peer_addr));
+        }
+
+        let raft_path = Path::new(data_directory).join(Path::new("raft"));
+        fs::create_dir_all(&raft_path).unwrap_or_default();
+
+        let index_path = Path::new(data_directory).join(Path::new("index"));
+        let index = if index_path.exists() {
+            Index::open_in_dir(index_path.to_str().unwrap()).unwrap()
+        } else {
+            let schema_content = fs::read_to_string(schema_file).unwrap();
+            let schema: Schema =
+                serde_json::from_str(&schema_content).expect("error while reading json");
+            fs::create_dir_all(&index_path).unwrap_or_default();
+            Index::create_in_dir(index_path.to_str().unwrap(), schema).unwrap()
+        };
+
         let (rf_sender, rf_receiver) = mpsc::sync_channel(100);
         let (rpc_sender, rpc_receiver) = mpsc::sync_channel(100);
         let (apply_sender, apply_receiver) = mpsc::sync_channel(100);
@@ -66,11 +88,11 @@ impl IndexServer {
         let mut index_server = IndexServer {
             id,
             peers: Arc::new(Mutex::new(peers)),
-            peers_addr: Arc::new(Mutex::new(HashMap::new())),
+            peers_addr: Arc::new(Mutex::new(peers_addr)),
             rf_message_ch: rf_sender,
             notify_ch_map: Arc::new(Mutex::new(HashMap::new())),
-            index,
-            unique_key_field: unique_key_field.to_string(),
+            index: Arc::new(index),
+            unique_key_field_name: unique_key_field_name.to_string(),
         };
 
         index_server.async_rpc_sender(rpc_receiver);
@@ -173,7 +195,7 @@ impl IndexServer {
         let peers = self.peers.clone();
         let peers_addr = self.peers_addr.clone();
         let index = self.index.clone();
-        let unique_key_field = self.unique_key_field.clone();
+        let unique_key_field_name = self.unique_key_field_name.clone();
 
         thread::spawn(move || loop {
             match apply_receiver.recv() {
@@ -189,7 +211,7 @@ impl IndexServer {
                                 peers.clone(),
                                 peers_addr.clone(),
                                 index.clone(),
-                                unique_key_field.as_str(),
+                                unique_key_field_name.as_str(),
                             );
                             debug!("{:?}: {:?}", result.2, req);
                         } else {
@@ -230,6 +252,37 @@ impl IndexServer {
         unique_key_field: &str,
     ) -> NotifyArgs {
         match req.req_type {
+            ReqType::Join => {
+                debug!("request: {:?}", &req);
+                let mut prs = peers.lock().unwrap();
+                let env = Arc::new(EnvBuilder::new().build());
+                let ch = ChannelBuilder::new(env).connect(&req.peer_addr);
+                prs.insert(req.peer_id, IndexClient::new(ch));
+
+                let mut prs_addr = peers_addr.lock().unwrap();
+                prs_addr.insert(req.peer_id, req.peer_addr.clone());
+
+                NotifyArgs(term, String::from(""), RespErr::OK)
+            }
+            ReqType::Leave => {
+                debug!("request: {:?}", &req);
+                let mut prs = peers.lock().unwrap();
+                prs.remove(&req.peer_id);
+
+                let mut prs_addr = peers_addr.lock().unwrap();
+                prs_addr.remove(&req.peer_id);
+
+                NotifyArgs(term, String::from(""), RespErr::OK)
+            }
+            ReqType::Peers => {
+                let prs_addr = peers_addr.lock().unwrap();
+                debug!("{:?}", prs_addr);
+                NotifyArgs(
+                    term,
+                    serde_json::to_string(&prs_addr.clone()).unwrap(),
+                    RespErr::OK,
+                )
+            }
             ReqType::Get => {
                 let t = Term::from_field_text(
                     index.schema().get_field(unique_key_field).unwrap(),
@@ -335,85 +388,16 @@ impl IndexServer {
                     RespErr::OK,
                 )
             }
-            ReqType::Join => {
-                debug!("request: {:?}", &req);
-                let mut prs = peers.lock().unwrap();
-                let env = Arc::new(EnvBuilder::new().build());
-                let ch = ChannelBuilder::new(env).connect(&req.peer_addr);
-                prs.insert(req.peer_id, IndexClient::new(ch));
-
-                let mut prs_addr = peers_addr.lock().unwrap();
-                prs_addr.insert(req.peer_id, req.peer_addr.clone());
-
-                NotifyArgs(term, String::from(""), RespErr::OK)
-            }
-            ReqType::Leave => {
-                debug!("request: {:?}", &req);
-                let mut prs = peers.lock().unwrap();
-                prs.remove(&req.peer_id);
-
-                let mut prs_addr = peers_addr.lock().unwrap();
-                prs_addr.remove(&req.peer_id);
-
-                NotifyArgs(term, String::from(""), RespErr::OK)
-            }
-            ReqType::Peers => {
-                let prs_addr = peers_addr.lock().unwrap();
-                debug!("{:?}", prs_addr);
-                NotifyArgs(
-                    term,
-                    serde_json::to_string(&prs_addr.clone()).unwrap(),
-                    // String::from(""),
-                    RespErr::OK,
-                )
+            ReqType::Schema => {
+                let schema_json = format!("{}", serde_json::to_string(&index.schema()).unwrap());
+                debug!("{:?}", schema_json);
+                NotifyArgs(term, schema_json, RespErr::OK)
             }
         }
     }
 }
 
 impl IndexService for IndexServer {
-    fn get(&mut self, ctx: RpcContext, req: IndexReq, sink: UnarySink<GetResp>) {
-        let (err, value) = Self::start_op(self, &req);
-        let mut resp = GetResp::new();
-        resp.set_err(err);
-        resp.set_value(value);
-        ctx.spawn(
-            sink.success(resp)
-                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
-        )
-    }
-
-    fn put(&mut self, ctx: RpcContext, req: IndexReq, sink: UnarySink<PutResp>) {
-        let (err, _) = Self::start_op(self, &req);
-        let mut resp = PutResp::new();
-        resp.set_err(err);
-        ctx.spawn(
-            sink.success(resp)
-                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
-        )
-    }
-
-    fn delete(&mut self, ctx: RpcContext, req: IndexReq, sink: UnarySink<DeleteResp>) {
-        let (err, _) = Self::start_op(self, &req);
-        let mut resp = DeleteResp::new();
-        resp.set_err(err);
-        ctx.spawn(
-            sink.success(resp)
-                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
-        )
-    }
-
-    fn search(&mut self, ctx: RpcContext, req: IndexReq, sink: UnarySink<SearchResp>) {
-        let (err, value) = Self::start_op(self, &req);
-        let mut resp = SearchResp::new();
-        resp.set_err(err);
-        resp.set_value(value);
-        ctx.spawn(
-            sink.success(resp)
-                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
-        )
-    }
-
     fn raft(&mut self, ctx: RpcContext, req: RaftMessage, sink: UnarySink<RaftDone>) {
         self.rf_message_ch
             .send(PeerMessage::Message(req.clone()))
@@ -472,6 +456,59 @@ impl IndexService for IndexServer {
     fn peers(&mut self, ctx: RpcContext, req: IndexReq, sink: UnarySink<PeersResp>) {
         let (err, value) = Self::start_op(self, &req);
         let mut resp = PeersResp::new();
+        resp.set_err(err);
+        resp.set_value(value);
+        ctx.spawn(
+            sink.success(resp)
+                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
+        )
+    }
+
+    fn get(&mut self, ctx: RpcContext, req: IndexReq, sink: UnarySink<GetResp>) {
+        let (err, value) = Self::start_op(self, &req);
+        let mut resp = GetResp::new();
+        resp.set_err(err);
+        resp.set_value(value);
+        ctx.spawn(
+            sink.success(resp)
+                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
+        )
+    }
+
+    fn put(&mut self, ctx: RpcContext, req: IndexReq, sink: UnarySink<PutResp>) {
+        let (err, _) = Self::start_op(self, &req);
+        let mut resp = PutResp::new();
+        resp.set_err(err);
+        ctx.spawn(
+            sink.success(resp)
+                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
+        )
+    }
+
+    fn delete(&mut self, ctx: RpcContext, req: IndexReq, sink: UnarySink<DeleteResp>) {
+        let (err, _) = Self::start_op(self, &req);
+        let mut resp = DeleteResp::new();
+        resp.set_err(err);
+        ctx.spawn(
+            sink.success(resp)
+                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
+        )
+    }
+
+    fn search(&mut self, ctx: RpcContext, req: IndexReq, sink: UnarySink<SearchResp>) {
+        let (err, value) = Self::start_op(self, &req);
+        let mut resp = SearchResp::new();
+        resp.set_err(err);
+        resp.set_value(value);
+        ctx.spawn(
+            sink.success(resp)
+                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
+        )
+    }
+
+    fn schema(&mut self, ctx: RpcContext, req: IndexReq, sink: UnarySink<SchemaResp>) {
+        let (err, value) = Self::start_op(self, &req);
+        let mut resp = SchemaResp::new();
         resp.set_err(err);
         resp.set_value(value);
         ctx.spawn(

@@ -10,6 +10,7 @@ use bayard::cmd::delete::run_delete_cli;
 use bayard::cmd::get::run_get_cli;
 use bayard::cmd::leave::run_leave_cli;
 use bayard::cmd::peers::run_peers_cli;
+use bayard::cmd::schema::run_schema_cli;
 use bayard::cmd::search::run_search_cli;
 use bayard::cmd::serve::run_serve_cli;
 use bayard::cmd::set::run_set_cli;
@@ -265,6 +266,27 @@ fn main() {
                         .takes_value(true),
                 )
         )
+        .subcommand(
+            SubCommand::with_name("schema")
+                .name("schema")
+                .setting(AppSettings::DeriveDisplayOrder)
+                .version(crate_version!())
+                .author(crate_authors!())
+                .about("Get schema")
+                .arg(
+                    Arg::with_name("SERVERS")
+                        .help("The server addresses. Use `,` to separate address. Example: `127.0.0.1:5000,127.0.0.1:5001`")
+                        .short("s")
+                        .long("servers")
+                        .value_name("IP:PORT")
+                        .default_value("127.0.0.1:5000")
+                        .multiple(true)
+                        .use_delimiter(true)
+                        .require_delimiter(true)
+                        .value_delimiter(",")
+                        .takes_value(true),
+                )
+        )
 //        .subcommand(
 //            SubCommand::with_name("version")
 //                .name("version")
@@ -301,6 +323,7 @@ fn main() {
         "get" => run_get_cli,
         "delete" => run_delete_cli,
         "search" => run_search_cli,
+        "schema" => run_schema_cli,
         //        "version" => run_version_cli,
         _ => panic!("Subcommand {} is unknown", subcommand),
     };

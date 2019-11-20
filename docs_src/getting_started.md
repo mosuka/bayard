@@ -23,6 +23,43 @@ You'll see a startup message like following:
 [2019-11-11T09:28:26Z INFO  raft::raft]  became leader at term 2
 ```
 
+## Getting schema
+
+You can confirm current schema with the following command:
+
+```shell script
+./bin/bayard schema | jq .
+```
+
+You'll see the result in JSON format. The result of the above command is:
+
+```json
+[
+  {
+    "name": "id",
+    "type": "text",
+    "options": {
+      "indexing": {
+        "record": "basic",
+        "tokenizer": "raw"
+      },
+      "stored": true
+    }
+  },
+  {
+    "name": "text",
+    "type": "text",
+    "options": {
+      "indexing": {
+        "record": "position",
+        "tokenizer": "en_stem"
+      },
+      "stored": true
+    }
+  }
+]
+```
+
 ## Indexing document
 
 You can index documents with the following command:
