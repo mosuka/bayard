@@ -17,6 +17,8 @@ service Index {
     }
     rpc Delete (indexrpcpb.IndexReq) returns (indexrpcpb.DeleteResp) {
     }
+    rpc Commit (indexrpcpb.IndexReq) returns (indexrpcpb.CommitResp) {
+    }
     rpc Search (indexrpcpb.IndexReq) returns (indexrpcpb.SearchResp) {
     }
     rpc Schema (indexrpcpb.IndexReq) returns (indexrpcpb.SchemaResp) {

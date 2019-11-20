@@ -20,8 +20,8 @@ use tantivy::{Document, Index, IndexWriter, Term};
 use crate::client::client::{create_client, Clerk};
 use crate::proto::indexpb_grpc::{self, Index as IndexService, IndexClient};
 use crate::proto::indexrpcpb::{
-    ConfChangeReq, DeleteResp, GetResp, IndexReq, PeersResp, PutResp, RaftDone, ReqType, RespErr,
-    SchemaResp, SearchResp,
+    CommitResp, ConfChangeReq, DeleteResp, GetResp, IndexReq, PeersResp, PutResp, RaftDone,
+    ReqType, RespErr, SchemaResp, SearchResp,
 };
 use crate::server::peer::PeerMessage;
 use crate::server::{peer, util};
@@ -327,16 +327,7 @@ impl IndexServer {
                     .unwrap()
                     .delete_term(Term::from_field_text(field, req.key.as_str()));
                 index_writer.lock().unwrap().add_document(doc);
-                match index_writer.lock().unwrap().commit() {
-                    Ok(_opstamp) => {
-                        info!("commit succeed");
-                        NotifyArgs(term, String::from(""), RespErr::OK)
-                    }
-                    Err(e) => {
-                        error!("commit failed: {}", e);
-                        NotifyArgs(term, String::from(""), RespErr::ErrWrongLeader)
-                    }
-                }
+                NotifyArgs(term, String::from(""), RespErr::OK)
             }
             ReqType::Delete => {
                 debug!("delete: {}", req.key.as_str());
@@ -347,6 +338,10 @@ impl IndexServer {
                         index.schema().get_field(unique_key_field).unwrap(),
                         req.key.as_str(),
                     ));
+                NotifyArgs(term, String::from(""), RespErr::OK)
+            }
+            ReqType::Commit => {
+                debug!("commit");
                 match index_writer.lock().unwrap().commit() {
                     Ok(_opstamp) => {
                         info!("commit succeed");
@@ -493,6 +488,16 @@ impl IndexService for IndexServer {
     fn delete(&mut self, ctx: RpcContext, req: IndexReq, sink: UnarySink<DeleteResp>) {
         let (err, _) = Self::start_op(self, &req);
         let mut resp = DeleteResp::new();
+        resp.set_err(err);
+        ctx.spawn(
+            sink.success(resp)
+                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
+        )
+    }
+
+    fn commit(&mut self, ctx: RpcContext, req: IndexReq, sink: UnarySink<CommitResp>) {
+        let (err, _) = Self::start_op(self, &req);
+        let mut resp = CommitResp::new();
         resp.set_err(err);
         ctx.spawn(
             sink.success(resp)

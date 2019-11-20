@@ -13,11 +13,12 @@ enum ReqType {
     Get = 0;
     Put = 1;
     Delete = 2;
-    Search = 3;
-    Schema = 4;
-    Join = 5;
-    Leave = 6;
-    Peers = 7;
+    Commit = 3;
+    Search = 4;
+    Schema = 5;
+    Join = 6;
+    Leave = 7;
+    Peers = 8;
 }
 
 message IndexReq {
@@ -41,6 +42,10 @@ message PutResp {
 }
 
 message DeleteResp {
+    RespErr err = 1;
+}
+
+message CommitResp {
     RespErr err = 1;
 }
 
