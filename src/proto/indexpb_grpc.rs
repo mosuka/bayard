@@ -60,6 +60,13 @@ const METHOD_INDEX_DELETE: ::grpcio::Method<super::indexrpcpb::IndexReq, super::
     resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
 };
 
+const METHOD_INDEX_COMMIT: ::grpcio::Method<super::indexrpcpb::IndexReq, super::indexrpcpb::CommitResp> = ::grpcio::Method {
+    ty: ::grpcio::MethodType::Unary,
+    name: "/indexpb.Index/Commit",
+    req_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
+    resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
+};
+
 const METHOD_INDEX_SEARCH: ::grpcio::Method<super::indexrpcpb::IndexReq, super::indexrpcpb::SearchResp> = ::grpcio::Method {
     ty: ::grpcio::MethodType::Unary,
     name: "/indexpb.Index/Search",
@@ -182,6 +189,22 @@ impl IndexClient {
         self.delete_async_opt(req, ::grpcio::CallOption::default())
     }
 
+    pub fn commit_opt(&self, req: &super::indexrpcpb::IndexReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::CommitResp> {
+        self.client.unary_call(&METHOD_INDEX_COMMIT, req, opt)
+    }
+
+    pub fn commit(&self, req: &super::indexrpcpb::IndexReq) -> ::grpcio::Result<super::indexrpcpb::CommitResp> {
+        self.commit_opt(req, ::grpcio::CallOption::default())
+    }
+
+    pub fn commit_async_opt(&self, req: &super::indexrpcpb::IndexReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::CommitResp>> {
+        self.client.unary_call_async(&METHOD_INDEX_COMMIT, req, opt)
+    }
+
+    pub fn commit_async(&self, req: &super::indexrpcpb::IndexReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::CommitResp>> {
+        self.commit_async_opt(req, ::grpcio::CallOption::default())
+    }
+
     pub fn search_opt(&self, req: &super::indexrpcpb::IndexReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::SearchResp> {
         self.client.unary_call(&METHOD_INDEX_SEARCH, req, opt)
     }
@@ -225,6 +248,7 @@ pub trait Index {
     fn get(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::IndexReq, sink: ::grpcio::UnarySink<super::indexrpcpb::GetResp>);
     fn put(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::IndexReq, sink: ::grpcio::UnarySink<super::indexrpcpb::PutResp>);
     fn delete(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::IndexReq, sink: ::grpcio::UnarySink<super::indexrpcpb::DeleteResp>);
+    fn commit(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::IndexReq, sink: ::grpcio::UnarySink<super::indexrpcpb::CommitResp>);
     fn search(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::IndexReq, sink: ::grpcio::UnarySink<super::indexrpcpb::SearchResp>);
     fn schema(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::IndexReq, sink: ::grpcio::UnarySink<super::indexrpcpb::SchemaResp>);
 }
@@ -254,6 +278,10 @@ pub fn create_index<S: Index + Send + Clone + 'static>(s: S) -> ::grpcio::Servic
     let mut instance = s.clone();
     builder = builder.add_unary_handler(&METHOD_INDEX_DELETE, move |ctx, req, resp| {
         instance.delete(ctx, req, resp)
+    });
+    let mut instance = s.clone();
+    builder = builder.add_unary_handler(&METHOD_INDEX_COMMIT, move |ctx, req, resp| {
+        instance.commit(ctx, req, resp)
     });
     let mut instance = s.clone();
     builder = builder.add_unary_handler(&METHOD_INDEX_SEARCH, move |ctx, req, resp| {

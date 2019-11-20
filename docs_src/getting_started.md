@@ -76,6 +76,7 @@ You can index documents with the following command:
 ./bin/bayard set 9 '{"text":"Toshi is meant to be a full-text search engine similar to Elasticsearch. Toshi strives to be to Elasticsearch what Tantivy is to Lucene."}'
 ./bin/bayard set 10 '{"text":"Sonic is a fast, lightweight and schema-less search backend."}'
 ./bin/bayard set 11 '{"text":"Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy."}'
+./bin/bayard commit
 ```
 
 ## Getting document
@@ -192,4 +193,5 @@ You can delete document with the following command:
 
 ```shell script
 ./bin/bayard delete 11
+./bin/bayard commit
 ```

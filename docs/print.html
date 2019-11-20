@@ -250,6 +250,7 @@ Bayard makes easy for programmers to develop search applications with advanced f
 ./bin/bayard set 9 '{&quot;text&quot;:&quot;Toshi is meant to be a full-text search engine similar to Elasticsearch. Toshi strives to be to Elasticsearch what Tantivy is to Lucene.&quot;}'
 ./bin/bayard set 10 '{&quot;text&quot;:&quot;Sonic is a fast, lightweight and schema-less search backend.&quot;}'
 ./bin/bayard set 11 '{&quot;text&quot;:&quot;Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.&quot;}'
+./bin/bayard commit
 </code></pre>
 <h2><a class="header" href="#getting-document" id="getting-document">Getting document</a></h2>
 <p>You can get document with the following command:</p>
@@ -348,6 +349,7 @@ Bayard makes easy for programmers to develop search applications with advanced f
 <h2><a class="header" href="#deleting-document" id="deleting-document">Deleting document</a></h2>
 <p>You can delete document with the following command:</p>
 <pre><code class="language-shellscript">./bin/bayard delete 11
+./bin/bayard commit
 </code></pre>
 <h1><a class="header" href="#cluster-mode" id="cluster-mode">Cluster mode</a></h1>
 <p>Bayard supports booting in cluster mode by itself. No external software is required, and you can easily bring up a cluster by adding a command flags.</p>
@@ -355,26 +357,26 @@ Bayard makes easy for programmers to develop search applications with advanced f
 <p>Running in standalone is not fault tolerant. If you need to improve fault tolerance, start servers in cluster mode.
 You can start servers in cluster mode with the following command:</p>
 <pre><code class="language-shellscript">./bin/bayard serve \
+    --id=1 \
     --host=0.0.0.0 \
     --port=5001 \
-    --id=1 \
     --data-directory=./data/1 \
     --schema-file=./etc/schema.json \
     --unique-key-field-name=id
 </code></pre>
 <pre><code class="language-shellscript">./bin/bayard serve \
+    --id=2 \
     --host=0.0.0.0 \
     --port=5002 \
-    --id=2 \
     --peers=&quot;1=0.0.0.0:5001&quot; \
     --data-directory=./data/2 \
     --schema-file=./etc/schema.json \
     --unique-key-field-name=id
 </code></pre>
 <pre><code class="language-shellscript">./bin/bayard serve \
+    --id=3 \
     --host=0.0.0.0 \
     --port=5003 \
-    --id=3 \
     --peers=&quot;1=0.0.0.0:5001,2=0.0.0.0:5002&quot; \
     --data-directory=./data/3 \
     --schema-file=./etc/schema.json \

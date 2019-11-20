@@ -6,6 +6,7 @@ use std::io::Write;
 
 use clap::{App, AppSettings, Arg, SubCommand};
 
+use bayard::cmd::commit::run_commit_cli;
 use bayard::cmd::delete::run_delete_cli;
 use bayard::cmd::get::run_get_cli;
 use bayard::cmd::leave::run_leave_cli;
@@ -239,6 +240,27 @@ fn main() {
                 )
         )
         .subcommand(
+            SubCommand::with_name("commit")
+                .name("commit")
+                .setting(AppSettings::DeriveDisplayOrder)
+                .version(crate_version!())
+                .author(crate_authors!())
+                .about("Commit index")
+                .arg(
+                    Arg::with_name("SERVERS")
+                        .help("The server addresses. Use `,` to separate address. Example: `127.0.0.1:5000,127.0.0.1:5001`")
+                        .short("s")
+                        .long("servers")
+                        .value_name("IP:PORT")
+                        .default_value("127.0.0.1:5000")
+                        .multiple(true)
+                        .use_delimiter(true)
+                        .require_delimiter(true)
+                        .value_delimiter(",")
+                        .takes_value(true),
+                )
+        )
+        .subcommand(
             SubCommand::with_name("search")
                 .name("search")
                 .setting(AppSettings::DeriveDisplayOrder)
@@ -322,6 +344,7 @@ fn main() {
         "set" => run_set_cli,
         "get" => run_get_cli,
         "delete" => run_delete_cli,
+        "commit" => run_commit_cli,
         "search" => run_search_cli,
         "schema" => run_schema_cli,
         //        "version" => run_version_cli,
