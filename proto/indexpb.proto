@@ -11,6 +11,8 @@ service Index {
     }
     rpc Peers (indexrpcpb.IndexReq) returns (indexrpcpb.PeersResp) {
     }
+    rpc Metrics (indexrpcpb.IndexReq) returns (indexrpcpb.MetricsResp) {
+    }
     rpc Get (indexrpcpb.IndexReq) returns (indexrpcpb.GetResp) {
     }
     rpc Put (indexrpcpb.IndexReq) returns (indexrpcpb.PutResp) {

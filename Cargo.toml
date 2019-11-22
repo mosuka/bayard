@@ -27,6 +27,7 @@ env_logger = "0.7.0"
 futures = "0.1.29"
 grpcio = { version = "0.4.5", features = [ "secure" ] }
 log = "0.4.8"
+prometheus = "0.7.0"
 protobuf = "2.8.0"
 raft = "0.4.3"
 rand = "0.7.2"

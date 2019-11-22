@@ -2,6 +2,7 @@ pub mod commit;
 pub mod delete;
 pub mod get;
 pub mod leave;
+pub mod metrics;
 pub mod peers;
 pub mod schema;
 pub mod search;

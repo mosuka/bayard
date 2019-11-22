@@ -10,6 +10,7 @@ use bayard::cmd::commit::run_commit_cli;
 use bayard::cmd::delete::run_delete_cli;
 use bayard::cmd::get::run_get_cli;
 use bayard::cmd::leave::run_leave_cli;
+use bayard::cmd::metrics::run_metrics_cli;
 use bayard::cmd::peers::run_peers_cli;
 use bayard::cmd::schema::run_schema_cli;
 use bayard::cmd::search::run_search_cli;
@@ -104,6 +105,27 @@ fn main() {
                 .version(crate_version!())
                 .author(crate_authors!())
                 .about("Get cluster peers")
+                .arg(
+                    Arg::with_name("SERVERS")
+                        .help("The server addresses. Use `,` to separate address. Example: `127.0.0.1:5000,127.0.0.1:5001`")
+                        .short("s")
+                        .long("servers")
+                        .value_name("IP:PORT")
+                        .default_value("127.0.0.1:5000")
+                        .multiple(true)
+                        .use_delimiter(true)
+                        .require_delimiter(true)
+                        .value_delimiter(",")
+                        .takes_value(true),
+                )
+        )
+        .subcommand(
+            SubCommand::with_name("metrics")
+                .name("metrics")
+                .setting(AppSettings::DeriveDisplayOrder)
+                .version(crate_version!())
+                .author(crate_authors!())
+                .about("Get metrics")
                 .arg(
                     Arg::with_name("SERVERS")
                         .help("The server addresses. Use `,` to separate address. Example: `127.0.0.1:5000,127.0.0.1:5001`")
@@ -340,6 +362,7 @@ fn main() {
     let run_cli = match subcommand {
         "serve" => run_serve_cli,
         "peers" => run_peers_cli,
+        "metrics" => run_metrics_cli,
         "leave" => run_leave_cli,
         "set" => run_set_cli,
         "get" => run_get_cli,
