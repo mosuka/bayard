@@ -1,31 +1,31 @@
-use std::{fs, thread};
 use std::collections::HashMap;
 use std::path::Path;
-use std::sync::{Arc, Mutex};
 use std::sync::mpsc::{self, Receiver, SyncSender};
+use std::sync::{Arc, Mutex};
 use std::time::Duration;
+use std::{fs, thread};
 
-use crossbeam_channel::{bounded, Receiver as CReceiver, select};
+use crossbeam_channel::{bounded, select, Receiver as CReceiver};
 use ctrlc;
 use futures::Future;
 use grpcio::{ChannelBuilder, EnvBuilder, Environment, RpcContext, ServerBuilder, UnarySink};
 use log::*;
 use protobuf::Message;
 use raft::eraftpb::{ConfChange, ConfChangeType, Entry, EntryType, Message as RaftMessage};
-use tantivy::{Document, Index, IndexWriter, Term};
 use tantivy::collector::TopDocs;
 use tantivy::query::{QueryParser, TermQuery};
 use tantivy::schema::{Field, FieldType, IndexRecordOption, NamedFieldDocument, Schema};
+use tantivy::{Document, Index, IndexWriter, Term};
 
-use crate::client::client::{Clerk, create_client};
+use crate::client::client::{create_client, Clerk};
 use crate::proto::indexpb_grpc::{self, Index as IndexService, IndexClient};
 use crate::proto::indexrpcpb::{
     CommitResp, ConfChangeReq, DeleteResp, GetResp, IndexReq, MetricsResp, PeersResp, PutResp,
     RaftDone, ReqType, RespErr, SchemaResp, SearchResp,
 };
-use crate::server::{peer, util};
 use crate::server::metrics::Metrics;
 use crate::server::peer::PeerMessage;
+use crate::server::{peer, util};
 
 struct NotifyArgs(u64, String, RespErr);
 
