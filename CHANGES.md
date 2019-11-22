@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## 0.1.1
+- Bump up Tantivy #32 @mosuka
 - Add metrics command #31 @mosuka
 - Add command to commit index #29 @mosuka
 - Make index writer to field of struct #28 @mosuka
