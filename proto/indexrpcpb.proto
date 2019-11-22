@@ -19,6 +19,7 @@ enum ReqType {
     Join = 6;
     Leave = 7;
     Peers = 8;
+    Metrics = 9;
 }
 
 message IndexReq {
@@ -66,6 +67,11 @@ message ConfChangeReq {
 }
 
 message PeersResp {
+    string value = 1;
+    RespErr err = 2;
+}
+
+message MetricsResp {
     string value = 1;
     RespErr err = 2;
 }

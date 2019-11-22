@@ -1,30 +1,31 @@
+use std::{fs, thread};
 use std::collections::HashMap;
 use std::path::Path;
-use std::sync::mpsc::{self, Receiver, SyncSender};
 use std::sync::{Arc, Mutex};
+use std::sync::mpsc::{self, Receiver, SyncSender};
 use std::time::Duration;
-use std::{fs, thread};
 
-use crossbeam_channel::{bounded, select, Receiver as CReceiver};
+use crossbeam_channel::{bounded, Receiver as CReceiver, select};
 use ctrlc;
 use futures::Future;
 use grpcio::{ChannelBuilder, EnvBuilder, Environment, RpcContext, ServerBuilder, UnarySink};
 use log::*;
 use protobuf::Message;
 use raft::eraftpb::{ConfChange, ConfChangeType, Entry, EntryType, Message as RaftMessage};
+use tantivy::{Document, Index, IndexWriter, Term};
 use tantivy::collector::TopDocs;
 use tantivy::query::{QueryParser, TermQuery};
 use tantivy::schema::{Field, FieldType, IndexRecordOption, NamedFieldDocument, Schema};
-use tantivy::{Document, Index, IndexWriter, Term};
 
-use crate::client::client::{create_client, Clerk};
+use crate::client::client::{Clerk, create_client};
 use crate::proto::indexpb_grpc::{self, Index as IndexService, IndexClient};
 use crate::proto::indexrpcpb::{
-    CommitResp, ConfChangeReq, DeleteResp, GetResp, IndexReq, PeersResp, PutResp, RaftDone,
-    ReqType, RespErr, SchemaResp, SearchResp,
+    CommitResp, ConfChangeReq, DeleteResp, GetResp, IndexReq, MetricsResp, PeersResp, PutResp,
+    RaftDone, ReqType, RespErr, SchemaResp, SearchResp,
 };
-use crate::server::peer::PeerMessage;
 use crate::server::{peer, util};
+use crate::server::metrics::Metrics;
+use crate::server::peer::PeerMessage;
 
 struct NotifyArgs(u64, String, RespErr);
 
@@ -48,6 +49,7 @@ pub struct IndexServer {
     index: Arc<Index>,
     unique_key_field_name: String,
     index_writer: Arc<Mutex<IndexWriter>>,
+    metrics: Arc<Mutex<Metrics>>,
 }
 
 impl IndexServer {
@@ -105,6 +107,7 @@ impl IndexServer {
             index: Arc::new(index),
             unique_key_field_name: unique_key_field_name.to_string(),
             index_writer: Arc::new(Mutex::new(index_writer)),
+            metrics: Arc::new(Mutex::new(Metrics::new(id))),
         };
 
         index_server.async_rpc_sender(rpc_receiver);
@@ -209,6 +212,7 @@ impl IndexServer {
         let index = self.index.clone();
         let unique_key_field_name = self.unique_key_field_name.clone();
         let index_writer = self.index_writer.clone();
+        let metrics = self.metrics.clone();
 
         thread::spawn(move || loop {
             match apply_receiver.recv() {
@@ -226,6 +230,7 @@ impl IndexServer {
                                 index.clone(),
                                 unique_key_field_name.as_str(),
                                 index_writer.clone(),
+                                metrics.clone(),
                             );
                             debug!("{:?}: {:?}", result.2, req);
                         } else {
@@ -265,10 +270,13 @@ impl IndexServer {
         index: Arc<Index>,
         unique_key_field: &str,
         index_writer: Arc<Mutex<IndexWriter>>,
+        metrics: Arc<Mutex<Metrics>>,
     ) -> NotifyArgs {
+        debug!("{:?}", &req);
         match req.req_type {
             ReqType::Join => {
-                debug!("request: {:?}", &req);
+                metrics.lock().unwrap().inc_request_count("join");
+
                 let mut prs = peers.lock().unwrap();
                 let env = Arc::new(EnvBuilder::new().build());
                 let ch = ChannelBuilder::new(env).connect(&req.peer_addr);
@@ -280,7 +288,8 @@ impl IndexServer {
                 NotifyArgs(term, String::from(""), RespErr::OK)
             }
             ReqType::Leave => {
-                debug!("request: {:?}", &req);
+                metrics.lock().unwrap().inc_request_count("leave");
+
                 let mut prs = peers.lock().unwrap();
                 prs.remove(&req.peer_id);
 
@@ -290,15 +299,25 @@ impl IndexServer {
                 NotifyArgs(term, String::from(""), RespErr::OK)
             }
             ReqType::Peers => {
+                metrics.lock().unwrap().inc_request_count("peers");
+
                 let prs_addr = peers_addr.lock().unwrap();
-                debug!("{:?}", prs_addr);
+                debug!("peers_addr: {:?}", prs_addr);
+
                 NotifyArgs(
                     term,
                     serde_json::to_string(&prs_addr.clone()).unwrap(),
                     RespErr::OK,
                 )
             }
+            ReqType::Metrics => {
+                metrics.lock().unwrap().inc_request_count("metrics");
+
+                NotifyArgs(term, metrics.lock().unwrap().get_metrics(), RespErr::OK)
+            }
             ReqType::Get => {
+                metrics.lock().unwrap().inc_request_count("get");
+
                 let t = Term::from_field_text(
                     index.schema().get_field(unique_key_field).unwrap(),
                     req.key.as_str(),
@@ -311,6 +330,7 @@ impl IndexServer {
                     doc = searcher.doc(doc_address).unwrap();
                 }
                 let named_doc = index.schema().to_named_doc(&doc);
+
                 NotifyArgs(
                     term,
                     serde_json::to_string(&named_doc).unwrap(),
@@ -318,7 +338,8 @@ impl IndexServer {
                 )
             }
             ReqType::Put => {
-                debug!("put: {}", req.value.as_str());
+                metrics.lock().unwrap().inc_request_count("put");
+
                 let mut doc = index.schema().parse_document(req.value.as_str()).unwrap();
                 let field = index.schema().get_field(unique_key_field).unwrap();
                 doc.add_text(field, req.key.as_str());
@@ -327,10 +348,12 @@ impl IndexServer {
                     .unwrap()
                     .delete_term(Term::from_field_text(field, req.key.as_str()));
                 index_writer.lock().unwrap().add_document(doc);
+
                 NotifyArgs(term, String::from(""), RespErr::OK)
             }
             ReqType::Delete => {
-                debug!("delete: {}", req.key.as_str());
+                metrics.lock().unwrap().inc_request_count("delete");
+
                 index_writer
                     .lock()
                     .unwrap()
@@ -338,10 +361,12 @@ impl IndexServer {
                         index.schema().get_field(unique_key_field).unwrap(),
                         req.key.as_str(),
                     ));
+
                 NotifyArgs(term, String::from(""), RespErr::OK)
             }
             ReqType::Commit => {
-                debug!("commit");
+                metrics.lock().unwrap().inc_request_count("commit");
+
                 match index_writer.lock().unwrap().commit() {
                     Ok(_opstamp) => {
                         info!("commit succeed");
@@ -354,6 +379,8 @@ impl IndexServer {
                 }
             }
             ReqType::Search => {
+                metrics.lock().unwrap().inc_request_count("search");
+
                 let schema = index.schema();
                 let default_fields: Vec<Field> = schema
                     .fields()
@@ -389,8 +416,11 @@ impl IndexServer {
                 )
             }
             ReqType::Schema => {
+                metrics.lock().unwrap().inc_request_count("schema");
+
                 let schema_json = format!("{}", serde_json::to_string(&index.schema()).unwrap());
                 debug!("{:?}", schema_json);
+
                 NotifyArgs(term, schema_json, RespErr::OK)
             }
         }
@@ -456,6 +486,17 @@ impl IndexService for IndexServer {
     fn peers(&mut self, ctx: RpcContext, req: IndexReq, sink: UnarySink<PeersResp>) {
         let (err, value) = Self::start_op(self, &req);
         let mut resp = PeersResp::new();
+        resp.set_err(err);
+        resp.set_value(value);
+        ctx.spawn(
+            sink.success(resp)
+                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
+        )
+    }
+
+    fn metrics(&mut self, ctx: RpcContext, req: IndexReq, sink: UnarySink<MetricsResp>) {
+        let (err, value) = Self::start_op(self, &req);
+        let mut resp = MetricsResp::new();
         resp.set_err(err);
         resp.set_value(value);
         ctx.spawn(

@@ -8,8 +8,8 @@ use raft::eraftpb::{ConfChange, ConfChangeType};
 
 use crate::proto::indexpb_grpc::IndexClient;
 use crate::proto::indexrpcpb::{
-    CommitResp, ConfChangeReq, DeleteResp, GetResp, IndexReq, PeersResp, PutResp, RaftDone,
-    ReqType, RespErr, SchemaResp, SearchResp,
+    CommitResp, ConfChangeReq, DeleteResp, GetResp, IndexReq, MetricsResp, PeersResp, PutResp,
+    RaftDone, ReqType, RespErr, SchemaResp, SearchResp,
 };
 
 pub fn create_client(addr: &str) -> IndexClient {
@@ -104,6 +104,31 @@ impl Clerk {
                 .peers(&req)
                 .unwrap_or_else(|_e| {
                     let mut resp = PeersResp::new();
+                    resp.set_err(RespErr::ErrWrongLeader);
+                    resp
+                });
+            match reply.err {
+                RespErr::OK => return reply.value,
+                RespErr::ErrWrongLeader => (),
+                RespErr::ErrNoKey => return String::from(""),
+            }
+            self.leader_id = (self.leader_id + 1) % self.servers.len();
+            thread::sleep(Duration::from_millis(100));
+        }
+    }
+
+    pub fn metrics(&mut self) -> String {
+        let mut req = IndexReq::new();
+        req.set_client_id(self.client_id);
+        req.set_req_type(ReqType::Metrics);
+        req.set_seq(self.request_seq);
+        self.request_seq += 1;
+
+        loop {
+            let reply = self.servers[self.leader_id]
+                .metrics(&req)
+                .unwrap_or_else(|_e| {
+                    let mut resp = MetricsResp::new();
                     resp.set_err(RespErr::ErrWrongLeader);
                     resp
                 });

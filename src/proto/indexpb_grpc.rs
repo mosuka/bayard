@@ -39,6 +39,13 @@ const METHOD_INDEX_PEERS: ::grpcio::Method<super::indexrpcpb::IndexReq, super::i
     resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
 };
 
+const METHOD_INDEX_METRICS: ::grpcio::Method<super::indexrpcpb::IndexReq, super::indexrpcpb::MetricsResp> = ::grpcio::Method {
+    ty: ::grpcio::MethodType::Unary,
+    name: "/indexpb.Index/Metrics",
+    req_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
+    resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
+};
+
 const METHOD_INDEX_GET: ::grpcio::Method<super::indexrpcpb::IndexReq, super::indexrpcpb::GetResp> = ::grpcio::Method {
     ty: ::grpcio::MethodType::Unary,
     name: "/indexpb.Index/Get",
@@ -139,6 +146,22 @@ impl IndexClient {
 
     pub fn peers_async(&self, req: &super::indexrpcpb::IndexReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::PeersResp>> {
         self.peers_async_opt(req, ::grpcio::CallOption::default())
+    }
+
+    pub fn metrics_opt(&self, req: &super::indexrpcpb::IndexReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::MetricsResp> {
+        self.client.unary_call(&METHOD_INDEX_METRICS, req, opt)
+    }
+
+    pub fn metrics(&self, req: &super::indexrpcpb::IndexReq) -> ::grpcio::Result<super::indexrpcpb::MetricsResp> {
+        self.metrics_opt(req, ::grpcio::CallOption::default())
+    }
+
+    pub fn metrics_async_opt(&self, req: &super::indexrpcpb::IndexReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::MetricsResp>> {
+        self.client.unary_call_async(&METHOD_INDEX_METRICS, req, opt)
+    }
+
+    pub fn metrics_async(&self, req: &super::indexrpcpb::IndexReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::MetricsResp>> {
+        self.metrics_async_opt(req, ::grpcio::CallOption::default())
     }
 
     pub fn get_opt(&self, req: &super::indexrpcpb::IndexReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::GetResp> {
@@ -245,6 +268,7 @@ pub trait Index {
     fn raft(&mut self, ctx: ::grpcio::RpcContext, req: super::eraftpb::Message, sink: ::grpcio::UnarySink<super::indexrpcpb::RaftDone>);
     fn raft_conf_change(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::ConfChangeReq, sink: ::grpcio::UnarySink<super::indexrpcpb::RaftDone>);
     fn peers(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::IndexReq, sink: ::grpcio::UnarySink<super::indexrpcpb::PeersResp>);
+    fn metrics(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::IndexReq, sink: ::grpcio::UnarySink<super::indexrpcpb::MetricsResp>);
     fn get(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::IndexReq, sink: ::grpcio::UnarySink<super::indexrpcpb::GetResp>);
     fn put(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::IndexReq, sink: ::grpcio::UnarySink<super::indexrpcpb::PutResp>);
     fn delete(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::IndexReq, sink: ::grpcio::UnarySink<super::indexrpcpb::DeleteResp>);
@@ -266,6 +290,10 @@ pub fn create_index<S: Index + Send + Clone + 'static>(s: S) -> ::grpcio::Servic
     let mut instance = s.clone();
     builder = builder.add_unary_handler(&METHOD_INDEX_PEERS, move |ctx, req, resp| {
         instance.peers(ctx, req, resp)
+    });
+    let mut instance = s.clone();
+    builder = builder.add_unary_handler(&METHOD_INDEX_METRICS, move |ctx, req, resp| {
+        instance.metrics(ctx, req, resp)
     });
     let mut instance = s.clone();
     builder = builder.add_unary_handler(&METHOD_INDEX_GET, move |ctx, req, resp| {
