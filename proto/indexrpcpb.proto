@@ -15,6 +15,7 @@ enum ReqType {
     Put = 2;
     Delete = 3;
     Commit = 4;
+    Rollback = 5;
 }
 
 message ApplyReq {
@@ -25,6 +26,7 @@ message ApplyReq {
     PutReq put_req = 5;
     DeleteReq delete_req = 6;
     CommitReq commit_req = 7;
+    RollbackReq rollback_req = 8;
 }
 
 message ConfChangeReq {
@@ -107,6 +109,15 @@ message CommitReq {
 }
 
 message CommitResp {
+    RespErr err = 1;
+}
+
+message RollbackReq {
+    uint64 client_id = 1;
+    uint64 seq = 2;
+}
+
+message RollbackResp {
     RespErr err = 1;
 }
 

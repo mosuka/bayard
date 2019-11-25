@@ -21,8 +21,8 @@ use crate::client::client::{create_client, Clerk};
 use crate::proto::indexpb_grpc::{self, Index as IndexService, IndexClient};
 use crate::proto::indexrpcpb::{
     ApplyReq, CommitResp, ConfChangeReq, DeleteResp, GetReq, GetResp, JoinReq, LeaveReq,
-    MetricsReq, MetricsResp, PeersReq, PeersResp, PutResp, RaftDone, ReqType, RespErr, SchemaReq,
-    SchemaResp, SearchReq, SearchResp,
+    MetricsReq, MetricsResp, PeersReq, PeersResp, PutResp, RaftDone, ReqType, RespErr,
+    RollbackResp, SchemaReq, SchemaResp, SearchReq, SearchResp,
 };
 use crate::server::metrics::Metrics;
 use crate::server::peer::PeerMessage;
@@ -346,6 +346,20 @@ impl IndexServer {
                     }
                 }
             }
+            ReqType::Rollback => {
+                metrics.lock().unwrap().inc_request_count("rollback");
+
+                match index_writer.lock().unwrap().rollback() {
+                    Ok(_opstamp) => {
+                        info!("rollback succeed");
+                        NotifyArgs(term, String::from(""), RespErr::OK)
+                    }
+                    Err(e) => {
+                        error!("rollback failed: {}", e);
+                        NotifyArgs(term, String::from(""), RespErr::ErrWrongLeader)
+                    }
+                }
+            }
         }
     }
 }
@@ -494,6 +508,16 @@ impl IndexService for IndexServer {
     fn commit(&mut self, ctx: RpcContext, req: ApplyReq, sink: UnarySink<CommitResp>) {
         let (err, _) = Self::start_op(self, &req);
         let mut resp = CommitResp::new();
+        resp.set_err(err);
+        ctx.spawn(
+            sink.success(resp)
+                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
+        )
+    }
+
+    fn rollback(&mut self, ctx: RpcContext, req: ApplyReq, sink: UnarySink<RollbackResp>) {
+        let (err, _) = Self::start_op(self, &req);
+        let mut resp = RollbackResp::new();
         resp.set_err(err);
         ctx.spawn(
             sink.success(resp)

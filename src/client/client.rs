@@ -10,7 +10,7 @@ use crate::proto::indexpb_grpc::IndexClient;
 use crate::proto::indexrpcpb::{
     ApplyReq, CommitReq, CommitResp, ConfChangeReq, DeleteReq, DeleteResp, GetReq, GetResp,
     MetricsReq, MetricsResp, PeersReq, PeersResp, PutReq, PutResp, RaftDone, ReqType, RespErr,
-    SchemaReq, SchemaResp, SearchReq, SearchResp,
+    RollbackReq, RollbackResp, SchemaReq, SchemaResp, SearchReq, SearchResp,
 };
 
 pub fn create_client(addr: &str) -> IndexClient {
@@ -244,6 +244,36 @@ impl Clerk {
                 .commit(&req)
                 .unwrap_or_else(|_e| {
                     let mut resp = CommitResp::new();
+                    resp.set_err(RespErr::ErrWrongLeader);
+                    resp
+                });
+            match reply.err {
+                RespErr::OK => return,
+                RespErr::ErrWrongLeader => (),
+                RespErr::ErrNoKey => return,
+            }
+            self.leader_id = (self.leader_id + 1) % self.servers.len();
+            thread::sleep(Duration::from_millis(100));
+        }
+    }
+
+    pub fn rollback(&mut self) {
+        let mut rollback_req = RollbackReq::new();
+        rollback_req.set_client_id(self.client_id);
+        rollback_req.set_seq(self.request_seq);
+
+        let mut req = ApplyReq::new();
+        req.set_client_id(self.client_id);
+        req.set_req_type(ReqType::Rollback);
+        req.set_rollback_req(rollback_req);
+
+        self.request_seq += 1;
+
+        loop {
+            let reply = self.servers[self.leader_id]
+                .rollback(&req)
+                .unwrap_or_else(|_e| {
+                    let mut resp = RollbackResp::new();
                     resp.set_err(RespErr::ErrWrongLeader);
                     resp
                 });
