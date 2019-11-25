@@ -10,54 +10,21 @@ enum RespErr {
 }
 
 enum ReqType {
-    Get = 0;
-    Put = 1;
-    Delete = 2;
-    Commit = 3;
-    Search = 4;
-    Schema = 5;
-    Join = 6;
-    Leave = 7;
-    Peers = 8;
-    Metrics = 9;
+    Join = 0;
+    Leave = 1;
+    Put = 2;
+    Delete = 3;
+    Commit = 4;
 }
 
-message IndexReq {
+message ApplyReq {
     uint64 client_id = 1;
-    uint64 seq = 2;
-    ReqType req_type = 3;
-    uint64 peer_id = 4;
-    string peer_addr = 5;
-    string key = 6;
-    string value = 7;
-    string query = 8;
-}
-
-message GetResp {
-    string value = 1;
-    RespErr err = 2;
-}
-
-message PutResp {
-    RespErr err = 1;
-}
-
-message DeleteResp {
-    RespErr err = 1;
-}
-
-message CommitResp {
-    RespErr err = 1;
-}
-
-message SearchResp {
-    string value = 1;
-    RespErr err = 2;
-}
-
-message SchemaResp {
-    string value = 1;
-    RespErr err = 2;
+    ReqType req_type = 2;
+    JoinReq join_req = 3;
+    LeaveReq leave_req = 4;
+    PutReq put_req = 5;
+    DeleteReq delete_req = 6;
+    CommitReq commit_req = 7;
 }
 
 message ConfChangeReq {
@@ -66,9 +33,35 @@ message ConfChangeReq {
     uint32 port = 3;
 }
 
+message RaftDone {
+    RespErr err = 1;
+}
+
+message JoinReq {
+    uint64 client_id = 1;
+    uint64 peer_id = 2;
+    string peer_addr = 3;
+}
+
+message LeaveReq {
+    uint64 client_id = 1;
+    uint64 peer_id = 2;
+    string peer_addr = 3;
+}
+
+message PeersReq {
+    uint64 client_id = 1;
+    uint64 seq = 2;
+}
+
 message PeersResp {
     string value = 1;
     RespErr err = 2;
+}
+
+message MetricsReq {
+    uint64 client_id = 1;
+    uint64 seq = 2;
 }
 
 message MetricsResp {
@@ -76,6 +69,64 @@ message MetricsResp {
     RespErr err = 2;
 }
 
-message RaftDone {
+message GetReq {
+    uint64 client_id = 1;
+    uint64 seq = 2;
+    string doc_id = 3;
+}
+
+message GetResp {
+    string value = 1;
+    RespErr err = 2;
+}
+
+message PutReq {
+    uint64 client_id = 1;
+    uint64 seq = 2;
+    string doc_id = 3;
+    string fields = 4;
+}
+
+message PutResp {
     RespErr err = 1;
+}
+
+message DeleteReq {
+    uint64 client_id = 1;
+    uint64 seq = 2;
+    string doc_id = 3;
+}
+
+message DeleteResp {
+    RespErr err = 1;
+}
+
+message CommitReq {
+    uint64 client_id = 1;
+    uint64 seq = 2;
+}
+
+message CommitResp {
+    RespErr err = 1;
+}
+
+message SearchReq {
+    uint64 client_id = 1;
+    uint64 seq = 2;
+    string query = 3;
+}
+
+message SearchResp {
+    string value = 1;
+    RespErr err = 2;
+}
+
+message SchemaReq {
+    uint64 client_id = 1;
+    uint64 seq = 2;
+}
+
+message SchemaResp {
+    string value = 1;
+    RespErr err = 2;
 }

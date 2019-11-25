@@ -32,56 +32,56 @@ const METHOD_INDEX_RAFT_CONF_CHANGE: ::grpcio::Method<super::indexrpcpb::ConfCha
     resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
 };
 
-const METHOD_INDEX_PEERS: ::grpcio::Method<super::indexrpcpb::IndexReq, super::indexrpcpb::PeersResp> = ::grpcio::Method {
+const METHOD_INDEX_PEERS: ::grpcio::Method<super::indexrpcpb::PeersReq, super::indexrpcpb::PeersResp> = ::grpcio::Method {
     ty: ::grpcio::MethodType::Unary,
     name: "/indexpb.Index/Peers",
     req_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
     resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
 };
 
-const METHOD_INDEX_METRICS: ::grpcio::Method<super::indexrpcpb::IndexReq, super::indexrpcpb::MetricsResp> = ::grpcio::Method {
+const METHOD_INDEX_METRICS: ::grpcio::Method<super::indexrpcpb::MetricsReq, super::indexrpcpb::MetricsResp> = ::grpcio::Method {
     ty: ::grpcio::MethodType::Unary,
     name: "/indexpb.Index/Metrics",
     req_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
     resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
 };
 
-const METHOD_INDEX_GET: ::grpcio::Method<super::indexrpcpb::IndexReq, super::indexrpcpb::GetResp> = ::grpcio::Method {
+const METHOD_INDEX_GET: ::grpcio::Method<super::indexrpcpb::GetReq, super::indexrpcpb::GetResp> = ::grpcio::Method {
     ty: ::grpcio::MethodType::Unary,
     name: "/indexpb.Index/Get",
     req_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
     resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
 };
 
-const METHOD_INDEX_PUT: ::grpcio::Method<super::indexrpcpb::IndexReq, super::indexrpcpb::PutResp> = ::grpcio::Method {
+const METHOD_INDEX_PUT: ::grpcio::Method<super::indexrpcpb::ApplyReq, super::indexrpcpb::PutResp> = ::grpcio::Method {
     ty: ::grpcio::MethodType::Unary,
     name: "/indexpb.Index/Put",
     req_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
     resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
 };
 
-const METHOD_INDEX_DELETE: ::grpcio::Method<super::indexrpcpb::IndexReq, super::indexrpcpb::DeleteResp> = ::grpcio::Method {
+const METHOD_INDEX_DELETE: ::grpcio::Method<super::indexrpcpb::ApplyReq, super::indexrpcpb::DeleteResp> = ::grpcio::Method {
     ty: ::grpcio::MethodType::Unary,
     name: "/indexpb.Index/Delete",
     req_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
     resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
 };
 
-const METHOD_INDEX_COMMIT: ::grpcio::Method<super::indexrpcpb::IndexReq, super::indexrpcpb::CommitResp> = ::grpcio::Method {
+const METHOD_INDEX_COMMIT: ::grpcio::Method<super::indexrpcpb::ApplyReq, super::indexrpcpb::CommitResp> = ::grpcio::Method {
     ty: ::grpcio::MethodType::Unary,
     name: "/indexpb.Index/Commit",
     req_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
     resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
 };
 
-const METHOD_INDEX_SEARCH: ::grpcio::Method<super::indexrpcpb::IndexReq, super::indexrpcpb::SearchResp> = ::grpcio::Method {
+const METHOD_INDEX_SEARCH: ::grpcio::Method<super::indexrpcpb::SearchReq, super::indexrpcpb::SearchResp> = ::grpcio::Method {
     ty: ::grpcio::MethodType::Unary,
     name: "/indexpb.Index/Search",
     req_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
     resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
 };
 
-const METHOD_INDEX_SCHEMA: ::grpcio::Method<super::indexrpcpb::IndexReq, super::indexrpcpb::SchemaResp> = ::grpcio::Method {
+const METHOD_INDEX_SCHEMA: ::grpcio::Method<super::indexrpcpb::SchemaReq, super::indexrpcpb::SchemaResp> = ::grpcio::Method {
     ty: ::grpcio::MethodType::Unary,
     name: "/indexpb.Index/Schema",
     req_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
@@ -132,131 +132,131 @@ impl IndexClient {
         self.raft_conf_change_async_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn peers_opt(&self, req: &super::indexrpcpb::IndexReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::PeersResp> {
+    pub fn peers_opt(&self, req: &super::indexrpcpb::PeersReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::PeersResp> {
         self.client.unary_call(&METHOD_INDEX_PEERS, req, opt)
     }
 
-    pub fn peers(&self, req: &super::indexrpcpb::IndexReq) -> ::grpcio::Result<super::indexrpcpb::PeersResp> {
+    pub fn peers(&self, req: &super::indexrpcpb::PeersReq) -> ::grpcio::Result<super::indexrpcpb::PeersResp> {
         self.peers_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn peers_async_opt(&self, req: &super::indexrpcpb::IndexReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::PeersResp>> {
+    pub fn peers_async_opt(&self, req: &super::indexrpcpb::PeersReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::PeersResp>> {
         self.client.unary_call_async(&METHOD_INDEX_PEERS, req, opt)
     }
 
-    pub fn peers_async(&self, req: &super::indexrpcpb::IndexReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::PeersResp>> {
+    pub fn peers_async(&self, req: &super::indexrpcpb::PeersReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::PeersResp>> {
         self.peers_async_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn metrics_opt(&self, req: &super::indexrpcpb::IndexReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::MetricsResp> {
+    pub fn metrics_opt(&self, req: &super::indexrpcpb::MetricsReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::MetricsResp> {
         self.client.unary_call(&METHOD_INDEX_METRICS, req, opt)
     }
 
-    pub fn metrics(&self, req: &super::indexrpcpb::IndexReq) -> ::grpcio::Result<super::indexrpcpb::MetricsResp> {
+    pub fn metrics(&self, req: &super::indexrpcpb::MetricsReq) -> ::grpcio::Result<super::indexrpcpb::MetricsResp> {
         self.metrics_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn metrics_async_opt(&self, req: &super::indexrpcpb::IndexReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::MetricsResp>> {
+    pub fn metrics_async_opt(&self, req: &super::indexrpcpb::MetricsReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::MetricsResp>> {
         self.client.unary_call_async(&METHOD_INDEX_METRICS, req, opt)
     }
 
-    pub fn metrics_async(&self, req: &super::indexrpcpb::IndexReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::MetricsResp>> {
+    pub fn metrics_async(&self, req: &super::indexrpcpb::MetricsReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::MetricsResp>> {
         self.metrics_async_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn get_opt(&self, req: &super::indexrpcpb::IndexReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::GetResp> {
+    pub fn get_opt(&self, req: &super::indexrpcpb::GetReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::GetResp> {
         self.client.unary_call(&METHOD_INDEX_GET, req, opt)
     }
 
-    pub fn get(&self, req: &super::indexrpcpb::IndexReq) -> ::grpcio::Result<super::indexrpcpb::GetResp> {
+    pub fn get(&self, req: &super::indexrpcpb::GetReq) -> ::grpcio::Result<super::indexrpcpb::GetResp> {
         self.get_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn get_async_opt(&self, req: &super::indexrpcpb::IndexReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::GetResp>> {
+    pub fn get_async_opt(&self, req: &super::indexrpcpb::GetReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::GetResp>> {
         self.client.unary_call_async(&METHOD_INDEX_GET, req, opt)
     }
 
-    pub fn get_async(&self, req: &super::indexrpcpb::IndexReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::GetResp>> {
+    pub fn get_async(&self, req: &super::indexrpcpb::GetReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::GetResp>> {
         self.get_async_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn put_opt(&self, req: &super::indexrpcpb::IndexReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::PutResp> {
+    pub fn put_opt(&self, req: &super::indexrpcpb::ApplyReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::PutResp> {
         self.client.unary_call(&METHOD_INDEX_PUT, req, opt)
     }
 
-    pub fn put(&self, req: &super::indexrpcpb::IndexReq) -> ::grpcio::Result<super::indexrpcpb::PutResp> {
+    pub fn put(&self, req: &super::indexrpcpb::ApplyReq) -> ::grpcio::Result<super::indexrpcpb::PutResp> {
         self.put_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn put_async_opt(&self, req: &super::indexrpcpb::IndexReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::PutResp>> {
+    pub fn put_async_opt(&self, req: &super::indexrpcpb::ApplyReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::PutResp>> {
         self.client.unary_call_async(&METHOD_INDEX_PUT, req, opt)
     }
 
-    pub fn put_async(&self, req: &super::indexrpcpb::IndexReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::PutResp>> {
+    pub fn put_async(&self, req: &super::indexrpcpb::ApplyReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::PutResp>> {
         self.put_async_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn delete_opt(&self, req: &super::indexrpcpb::IndexReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::DeleteResp> {
+    pub fn delete_opt(&self, req: &super::indexrpcpb::ApplyReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::DeleteResp> {
         self.client.unary_call(&METHOD_INDEX_DELETE, req, opt)
     }
 
-    pub fn delete(&self, req: &super::indexrpcpb::IndexReq) -> ::grpcio::Result<super::indexrpcpb::DeleteResp> {
+    pub fn delete(&self, req: &super::indexrpcpb::ApplyReq) -> ::grpcio::Result<super::indexrpcpb::DeleteResp> {
         self.delete_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn delete_async_opt(&self, req: &super::indexrpcpb::IndexReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::DeleteResp>> {
+    pub fn delete_async_opt(&self, req: &super::indexrpcpb::ApplyReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::DeleteResp>> {
         self.client.unary_call_async(&METHOD_INDEX_DELETE, req, opt)
     }
 
-    pub fn delete_async(&self, req: &super::indexrpcpb::IndexReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::DeleteResp>> {
+    pub fn delete_async(&self, req: &super::indexrpcpb::ApplyReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::DeleteResp>> {
         self.delete_async_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn commit_opt(&self, req: &super::indexrpcpb::IndexReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::CommitResp> {
+    pub fn commit_opt(&self, req: &super::indexrpcpb::ApplyReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::CommitResp> {
         self.client.unary_call(&METHOD_INDEX_COMMIT, req, opt)
     }
 
-    pub fn commit(&self, req: &super::indexrpcpb::IndexReq) -> ::grpcio::Result<super::indexrpcpb::CommitResp> {
+    pub fn commit(&self, req: &super::indexrpcpb::ApplyReq) -> ::grpcio::Result<super::indexrpcpb::CommitResp> {
         self.commit_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn commit_async_opt(&self, req: &super::indexrpcpb::IndexReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::CommitResp>> {
+    pub fn commit_async_opt(&self, req: &super::indexrpcpb::ApplyReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::CommitResp>> {
         self.client.unary_call_async(&METHOD_INDEX_COMMIT, req, opt)
     }
 
-    pub fn commit_async(&self, req: &super::indexrpcpb::IndexReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::CommitResp>> {
+    pub fn commit_async(&self, req: &super::indexrpcpb::ApplyReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::CommitResp>> {
         self.commit_async_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn search_opt(&self, req: &super::indexrpcpb::IndexReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::SearchResp> {
+    pub fn search_opt(&self, req: &super::indexrpcpb::SearchReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::SearchResp> {
         self.client.unary_call(&METHOD_INDEX_SEARCH, req, opt)
     }
 
-    pub fn search(&self, req: &super::indexrpcpb::IndexReq) -> ::grpcio::Result<super::indexrpcpb::SearchResp> {
+    pub fn search(&self, req: &super::indexrpcpb::SearchReq) -> ::grpcio::Result<super::indexrpcpb::SearchResp> {
         self.search_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn search_async_opt(&self, req: &super::indexrpcpb::IndexReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::SearchResp>> {
+    pub fn search_async_opt(&self, req: &super::indexrpcpb::SearchReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::SearchResp>> {
         self.client.unary_call_async(&METHOD_INDEX_SEARCH, req, opt)
     }
 
-    pub fn search_async(&self, req: &super::indexrpcpb::IndexReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::SearchResp>> {
+    pub fn search_async(&self, req: &super::indexrpcpb::SearchReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::SearchResp>> {
         self.search_async_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn schema_opt(&self, req: &super::indexrpcpb::IndexReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::SchemaResp> {
+    pub fn schema_opt(&self, req: &super::indexrpcpb::SchemaReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::SchemaResp> {
         self.client.unary_call(&METHOD_INDEX_SCHEMA, req, opt)
     }
 
-    pub fn schema(&self, req: &super::indexrpcpb::IndexReq) -> ::grpcio::Result<super::indexrpcpb::SchemaResp> {
+    pub fn schema(&self, req: &super::indexrpcpb::SchemaReq) -> ::grpcio::Result<super::indexrpcpb::SchemaResp> {
         self.schema_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn schema_async_opt(&self, req: &super::indexrpcpb::IndexReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::SchemaResp>> {
+    pub fn schema_async_opt(&self, req: &super::indexrpcpb::SchemaReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::SchemaResp>> {
         self.client.unary_call_async(&METHOD_INDEX_SCHEMA, req, opt)
     }
 
-    pub fn schema_async(&self, req: &super::indexrpcpb::IndexReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::SchemaResp>> {
+    pub fn schema_async(&self, req: &super::indexrpcpb::SchemaReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::SchemaResp>> {
         self.schema_async_opt(req, ::grpcio::CallOption::default())
     }
     pub fn spawn<F>(&self, f: F) where F: ::futures::Future<Item = (), Error = ()> + Send + 'static {
@@ -267,14 +267,14 @@ impl IndexClient {
 pub trait Index {
     fn raft(&mut self, ctx: ::grpcio::RpcContext, req: super::eraftpb::Message, sink: ::grpcio::UnarySink<super::indexrpcpb::RaftDone>);
     fn raft_conf_change(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::ConfChangeReq, sink: ::grpcio::UnarySink<super::indexrpcpb::RaftDone>);
-    fn peers(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::IndexReq, sink: ::grpcio::UnarySink<super::indexrpcpb::PeersResp>);
-    fn metrics(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::IndexReq, sink: ::grpcio::UnarySink<super::indexrpcpb::MetricsResp>);
-    fn get(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::IndexReq, sink: ::grpcio::UnarySink<super::indexrpcpb::GetResp>);
-    fn put(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::IndexReq, sink: ::grpcio::UnarySink<super::indexrpcpb::PutResp>);
-    fn delete(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::IndexReq, sink: ::grpcio::UnarySink<super::indexrpcpb::DeleteResp>);
-    fn commit(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::IndexReq, sink: ::grpcio::UnarySink<super::indexrpcpb::CommitResp>);
-    fn search(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::IndexReq, sink: ::grpcio::UnarySink<super::indexrpcpb::SearchResp>);
-    fn schema(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::IndexReq, sink: ::grpcio::UnarySink<super::indexrpcpb::SchemaResp>);
+    fn peers(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::PeersReq, sink: ::grpcio::UnarySink<super::indexrpcpb::PeersResp>);
+    fn metrics(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::MetricsReq, sink: ::grpcio::UnarySink<super::indexrpcpb::MetricsResp>);
+    fn get(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::GetReq, sink: ::grpcio::UnarySink<super::indexrpcpb::GetResp>);
+    fn put(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::ApplyReq, sink: ::grpcio::UnarySink<super::indexrpcpb::PutResp>);
+    fn delete(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::ApplyReq, sink: ::grpcio::UnarySink<super::indexrpcpb::DeleteResp>);
+    fn commit(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::ApplyReq, sink: ::grpcio::UnarySink<super::indexrpcpb::CommitResp>);
+    fn search(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::SearchReq, sink: ::grpcio::UnarySink<super::indexrpcpb::SearchResp>);
+    fn schema(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::SchemaReq, sink: ::grpcio::UnarySink<super::indexrpcpb::SchemaResp>);
 }
 
 pub fn create_index<S: Index + Send + Clone + 'static>(s: S) -> ::grpcio::Service {

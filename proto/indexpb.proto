@@ -9,20 +9,20 @@ service Index {
     }
     rpc RaftConfChange (indexrpcpb.ConfChangeReq) returns (indexrpcpb.RaftDone) {
     }
-    rpc Peers (indexrpcpb.IndexReq) returns (indexrpcpb.PeersResp) {
+    rpc Peers (indexrpcpb.PeersReq) returns (indexrpcpb.PeersResp) {
     }
-    rpc Metrics (indexrpcpb.IndexReq) returns (indexrpcpb.MetricsResp) {
+    rpc Metrics (indexrpcpb.MetricsReq) returns (indexrpcpb.MetricsResp) {
     }
-    rpc Get (indexrpcpb.IndexReq) returns (indexrpcpb.GetResp) {
+    rpc Get (indexrpcpb.GetReq) returns (indexrpcpb.GetResp) {
     }
-    rpc Put (indexrpcpb.IndexReq) returns (indexrpcpb.PutResp) {
+    rpc Put (indexrpcpb.ApplyReq) returns (indexrpcpb.PutResp) {
     }
-    rpc Delete (indexrpcpb.IndexReq) returns (indexrpcpb.DeleteResp) {
+    rpc Delete (indexrpcpb.ApplyReq) returns (indexrpcpb.DeleteResp) {
     }
-    rpc Commit (indexrpcpb.IndexReq) returns (indexrpcpb.CommitResp) {
+    rpc Commit (indexrpcpb.ApplyReq) returns (indexrpcpb.CommitResp) {
     }
-    rpc Search (indexrpcpb.IndexReq) returns (indexrpcpb.SearchResp) {
+    rpc Search (indexrpcpb.SearchReq) returns (indexrpcpb.SearchResp) {
     }
-    rpc Schema (indexrpcpb.IndexReq) returns (indexrpcpb.SchemaResp) {
+    rpc Schema (indexrpcpb.SchemaReq) returns (indexrpcpb.SchemaResp) {
     }
 }

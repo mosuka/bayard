@@ -20,8 +20,9 @@ use tantivy::{Document, Index, IndexWriter, Term};
 use crate::client::client::{create_client, Clerk};
 use crate::proto::indexpb_grpc::{self, Index as IndexService, IndexClient};
 use crate::proto::indexrpcpb::{
-    CommitResp, ConfChangeReq, DeleteResp, GetResp, IndexReq, MetricsResp, PeersResp, PutResp,
-    RaftDone, ReqType, RespErr, SchemaResp, SearchResp,
+    ApplyReq, CommitResp, ConfChangeReq, DeleteResp, GetReq, GetResp, JoinReq, LeaveReq,
+    MetricsReq, MetricsResp, PeersReq, PeersResp, PutResp, RaftDone, ReqType, RespErr, SchemaReq,
+    SchemaResp, SearchReq, SearchResp,
 };
 use crate::server::metrics::Metrics;
 use crate::server::peer::PeerMessage;
@@ -175,7 +176,7 @@ impl IndexServer {
         });
     }
 
-    fn start_op(&mut self, req: &IndexReq) -> (RespErr, String) {
+    fn start_op(&mut self, req: &ApplyReq) -> (RespErr, String) {
         let (sh, rh) = mpsc::sync_channel(0);
         {
             let mut map = self.notify_ch_map.lock().unwrap();
@@ -219,7 +220,7 @@ impl IndexServer {
                 Ok(e) => match e.get_entry_type() {
                     EntryType::EntryNormal => {
                         let result: NotifyArgs;
-                        let req: IndexReq = util::parse_data(e.get_data());
+                        let req: ApplyReq = util::parse_data(e.get_data());
                         let client_id = req.get_client_id();
                         if e.data.len() > 0 {
                             result = Self::apply_entry(
@@ -264,7 +265,7 @@ impl IndexServer {
 
     fn apply_entry(
         term: u64,
-        req: &IndexReq,
+        req: &ApplyReq,
         peers: Arc<Mutex<HashMap<u64, IndexClient>>>,
         peers_addr: Arc<Mutex<HashMap<u64, String>>>,
         index: Arc<Index>,
@@ -279,11 +280,14 @@ impl IndexServer {
 
                 let mut prs = peers.lock().unwrap();
                 let env = Arc::new(EnvBuilder::new().build());
-                let ch = ChannelBuilder::new(env).connect(&req.peer_addr);
-                prs.insert(req.peer_id, IndexClient::new(ch));
+                let ch = ChannelBuilder::new(env).connect(&req.get_join_req().peer_addr);
+                prs.insert(req.get_join_req().peer_id, IndexClient::new(ch));
 
                 let mut prs_addr = peers_addr.lock().unwrap();
-                prs_addr.insert(req.peer_id, req.peer_addr.clone());
+                prs_addr.insert(
+                    req.get_join_req().peer_id,
+                    req.get_join_req().peer_addr.clone(),
+                );
 
                 NotifyArgs(term, String::from(""), RespErr::OK)
             }
@@ -291,62 +295,26 @@ impl IndexServer {
                 metrics.lock().unwrap().inc_request_count("leave");
 
                 let mut prs = peers.lock().unwrap();
-                prs.remove(&req.peer_id);
+                prs.remove(&req.get_leave_req().peer_id);
 
                 let mut prs_addr = peers_addr.lock().unwrap();
-                prs_addr.remove(&req.peer_id);
+                prs_addr.remove(&req.get_leave_req().peer_id);
 
                 NotifyArgs(term, String::from(""), RespErr::OK)
-            }
-            ReqType::Peers => {
-                metrics.lock().unwrap().inc_request_count("peers");
-
-                let prs_addr = peers_addr.lock().unwrap();
-                debug!("peers_addr: {:?}", prs_addr);
-
-                NotifyArgs(
-                    term,
-                    serde_json::to_string(&prs_addr.clone()).unwrap(),
-                    RespErr::OK,
-                )
-            }
-            ReqType::Metrics => {
-                metrics.lock().unwrap().inc_request_count("metrics");
-
-                NotifyArgs(term, metrics.lock().unwrap().get_metrics(), RespErr::OK)
-            }
-            ReqType::Get => {
-                metrics.lock().unwrap().inc_request_count("get");
-
-                let t = Term::from_field_text(
-                    index.schema().get_field(unique_key_field).unwrap(),
-                    req.key.as_str(),
-                );
-                let tq = TermQuery::new(t, IndexRecordOption::Basic);
-                let searcher = index.reader().unwrap().searcher();
-                let top_docs = searcher.search(&tq, &TopDocs::with_limit(10)).unwrap();
-                let mut doc = Document::default();
-                for (_score, doc_address) in top_docs {
-                    doc = searcher.doc(doc_address).unwrap();
-                }
-                let named_doc = index.schema().to_named_doc(&doc);
-
-                NotifyArgs(
-                    term,
-                    serde_json::to_string(&named_doc).unwrap(),
-                    RespErr::OK,
-                )
             }
             ReqType::Put => {
                 metrics.lock().unwrap().inc_request_count("put");
 
-                let mut doc = index.schema().parse_document(req.value.as_str()).unwrap();
+                let mut doc = index
+                    .schema()
+                    .parse_document(req.get_put_req().get_fields())
+                    .unwrap();
                 let field = index.schema().get_field(unique_key_field).unwrap();
-                doc.add_text(field, req.key.as_str());
+                doc.add_text(field, req.get_put_req().get_doc_id());
                 index_writer
                     .lock()
                     .unwrap()
-                    .delete_term(Term::from_field_text(field, req.key.as_str()));
+                    .delete_term(Term::from_field_text(field, req.get_put_req().get_doc_id()));
                 index_writer.lock().unwrap().add_document(doc);
 
                 NotifyArgs(term, String::from(""), RespErr::OK)
@@ -359,7 +327,7 @@ impl IndexServer {
                     .unwrap()
                     .delete_term(Term::from_field_text(
                         index.schema().get_field(unique_key_field).unwrap(),
-                        req.key.as_str(),
+                        req.get_delete_req().get_doc_id(),
                     ));
 
                 NotifyArgs(term, String::from(""), RespErr::OK)
@@ -378,57 +346,14 @@ impl IndexServer {
                     }
                 }
             }
-            ReqType::Search => {
-                metrics.lock().unwrap().inc_request_count("search");
-
-                let schema = index.schema();
-                let default_fields: Vec<Field> = schema
-                    .fields()
-                    .iter()
-                    .enumerate()
-                    .filter(|&(_, ref field_entry)| match *field_entry.field_type() {
-                        FieldType::Str(ref text_field_options) => {
-                            text_field_options.get_indexing_options().is_some()
-                        }
-                        _ => false,
-                    })
-                    .map(|(i, _)| Field(i as u32))
-                    .collect();
-                let query_parser = QueryParser::for_index(&index, default_fields);
-                let query = query_parser.parse_query(req.query.as_str()).unwrap();
-                let searcher = index.reader().unwrap().searcher();
-                let top_docs = searcher.search(&query, &TopDocs::with_limit(10)).unwrap();
-                let mut named_docs: Vec<NamedFieldDocument> = Vec::new();
-                for (score, doc_address) in top_docs {
-                    let doc = searcher.doc(doc_address).unwrap();
-                    let named_doc = schema.to_named_doc(&doc);
-                    debug!(
-                        "score={} doc={}",
-                        score,
-                        serde_json::to_string(&named_doc).unwrap()
-                    );
-                    named_docs.push(named_doc);
-                }
-                NotifyArgs(
-                    term,
-                    serde_json::to_string(&named_docs).unwrap(),
-                    RespErr::OK,
-                )
-            }
-            ReqType::Schema => {
-                metrics.lock().unwrap().inc_request_count("schema");
-
-                let schema_json = format!("{}", serde_json::to_string(&index.schema()).unwrap());
-                debug!("{:?}", schema_json);
-
-                NotifyArgs(term, schema_json, RespErr::OK)
-            }
         }
     }
 }
 
 impl IndexService for IndexServer {
     fn raft(&mut self, ctx: RpcContext, req: RaftMessage, sink: UnarySink<RaftDone>) {
+        self.metrics.lock().unwrap().inc_request_count("raft");
+
         self.rf_message_ch
             .send(PeerMessage::Message(req.clone()))
             .unwrap_or_else(|e| {
@@ -442,23 +367,34 @@ impl IndexService for IndexServer {
     }
 
     fn raft_conf_change(&mut self, ctx: RpcContext, req: ConfChangeReq, sink: UnarySink<RaftDone>) {
-        debug!("request: {:?}", req);
+        self.metrics
+            .lock()
+            .unwrap()
+            .inc_request_count("raft_conf_change");
+
         let cc = req.cc.clone().unwrap();
         let mut resp = RaftDone::new();
-        let mut peer_req = IndexReq::new();
+        let mut apply_req = ApplyReq::new();
 
         match cc.change_type {
             ConfChangeType::AddNode | ConfChangeType::AddLearnerNode => {
-                peer_req.set_req_type(ReqType::Join);
+                apply_req.set_req_type(ReqType::Join);
+                let mut join_req = JoinReq::new();
+                join_req.set_client_id(cc.get_node_id());
+                join_req.set_peer_id(cc.get_node_id());
+                join_req.set_peer_addr(format!("{}:{}", req.ip, req.port));
+                apply_req.set_join_req(join_req);
             }
             ConfChangeType::RemoveNode => {
-                peer_req.set_req_type(ReqType::Leave);
+                apply_req.set_req_type(ReqType::Leave);
+                let mut leave_req = LeaveReq::new();
+                leave_req.set_client_id(cc.get_node_id());
+                leave_req.set_peer_id(cc.get_node_id());
+                leave_req.set_peer_addr(format!("{}:{}", req.ip, req.port));
+                apply_req.set_leave_req(leave_req);
             }
         }
-        peer_req.set_peer_addr(format!("{}:{}", req.ip, req.port));
-        peer_req.set_peer_id(cc.get_node_id());
-        peer_req.set_client_id(cc.get_node_id());
-        let (err, _) = self.start_op(&peer_req);
+        let (err, _) = self.start_op(&apply_req);
         match err {
             RespErr::OK => {
                 let (sh, rh) = mpsc::sync_channel(0);
@@ -483,40 +419,59 @@ impl IndexService for IndexServer {
         )
     }
 
-    fn peers(&mut self, ctx: RpcContext, req: IndexReq, sink: UnarySink<PeersResp>) {
-        let (err, value) = Self::start_op(self, &req);
+    fn peers(&mut self, ctx: RpcContext, req: PeersReq, sink: UnarySink<PeersResp>) {
+        self.metrics.lock().unwrap().inc_request_count("peers");
+
         let mut resp = PeersResp::new();
-        resp.set_err(err);
-        resp.set_value(value);
+        resp.set_err(RespErr::OK);
+        resp.set_value(serde_json::to_string(&self.peers_addr.lock().unwrap().clone()).unwrap());
         ctx.spawn(
             sink.success(resp)
                 .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
         )
     }
 
-    fn metrics(&mut self, ctx: RpcContext, req: IndexReq, sink: UnarySink<MetricsResp>) {
-        let (err, value) = Self::start_op(self, &req);
+    fn metrics(&mut self, ctx: RpcContext, req: MetricsReq, sink: UnarySink<MetricsResp>) {
+        self.metrics.lock().unwrap().inc_request_count("metrics");
+
         let mut resp = MetricsResp::new();
-        resp.set_err(err);
-        resp.set_value(value);
+        resp.set_err(RespErr::OK);
+        resp.set_value(self.metrics.lock().unwrap().get_metrics());
         ctx.spawn(
             sink.success(resp)
                 .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
         )
     }
 
-    fn get(&mut self, ctx: RpcContext, req: IndexReq, sink: UnarySink<GetResp>) {
-        let (err, value) = Self::start_op(self, &req);
+    fn get(&mut self, ctx: RpcContext, req: GetReq, sink: UnarySink<GetResp>) {
+        self.metrics.lock().unwrap().inc_request_count("get");
+
+        let t = Term::from_field_text(
+            self.index
+                .schema()
+                .get_field(&self.unique_key_field_name)
+                .unwrap(),
+            req.get_doc_id(),
+        );
+        let tq = TermQuery::new(t, IndexRecordOption::Basic);
+        let searcher = self.index.reader().unwrap().searcher();
+        let top_docs = searcher.search(&tq, &TopDocs::with_limit(10)).unwrap();
+        let mut doc = Document::default();
+        for (_score, doc_address) in top_docs {
+            doc = searcher.doc(doc_address).unwrap();
+        }
+        let named_doc = self.index.schema().to_named_doc(&doc);
+
         let mut resp = GetResp::new();
-        resp.set_err(err);
-        resp.set_value(value);
+        resp.set_err(RespErr::OK);
+        resp.set_value(serde_json::to_string(&named_doc).unwrap());
         ctx.spawn(
             sink.success(resp)
                 .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
         )
     }
 
-    fn put(&mut self, ctx: RpcContext, req: IndexReq, sink: UnarySink<PutResp>) {
+    fn put(&mut self, ctx: RpcContext, req: ApplyReq, sink: UnarySink<PutResp>) {
         let (err, _) = Self::start_op(self, &req);
         let mut resp = PutResp::new();
         resp.set_err(err);
@@ -526,7 +481,7 @@ impl IndexService for IndexServer {
         )
     }
 
-    fn delete(&mut self, ctx: RpcContext, req: IndexReq, sink: UnarySink<DeleteResp>) {
+    fn delete(&mut self, ctx: RpcContext, req: ApplyReq, sink: UnarySink<DeleteResp>) {
         let (err, _) = Self::start_op(self, &req);
         let mut resp = DeleteResp::new();
         resp.set_err(err);
@@ -536,7 +491,7 @@ impl IndexService for IndexServer {
         )
     }
 
-    fn commit(&mut self, ctx: RpcContext, req: IndexReq, sink: UnarySink<CommitResp>) {
+    fn commit(&mut self, ctx: RpcContext, req: ApplyReq, sink: UnarySink<CommitResp>) {
         let (err, _) = Self::start_op(self, &req);
         let mut resp = CommitResp::new();
         resp.set_err(err);
@@ -546,22 +501,56 @@ impl IndexService for IndexServer {
         )
     }
 
-    fn search(&mut self, ctx: RpcContext, req: IndexReq, sink: UnarySink<SearchResp>) {
-        let (err, value) = Self::start_op(self, &req);
+    fn search(&mut self, ctx: RpcContext, req: SearchReq, sink: UnarySink<SearchResp>) {
+        self.metrics.lock().unwrap().inc_request_count("search");
+
+        let schema = self.index.schema();
+        let default_fields: Vec<Field> = schema
+            .fields()
+            .iter()
+            .enumerate()
+            .filter(|&(_, ref field_entry)| match *field_entry.field_type() {
+                FieldType::Str(ref text_field_options) => {
+                    text_field_options.get_indexing_options().is_some()
+                }
+                _ => false,
+            })
+            .map(|(i, _)| Field(i as u32))
+            .collect();
+        let query_parser = QueryParser::for_index(&self.index, default_fields);
+        let query = query_parser.parse_query(req.query.as_str()).unwrap();
+        let searcher = self.index.reader().unwrap().searcher();
+        let top_docs = searcher.search(&query, &TopDocs::with_limit(10)).unwrap();
+        let mut named_docs: Vec<NamedFieldDocument> = Vec::new();
+        for (score, doc_address) in top_docs {
+            let doc = searcher.doc(doc_address).unwrap();
+            let named_doc = schema.to_named_doc(&doc);
+            debug!(
+                "score={} doc={}",
+                score,
+                serde_json::to_string(&named_doc).unwrap()
+            );
+            named_docs.push(named_doc);
+        }
+
         let mut resp = SearchResp::new();
-        resp.set_err(err);
-        resp.set_value(value);
+        resp.set_err(RespErr::OK);
+        resp.set_value(serde_json::to_string(&named_docs).unwrap());
         ctx.spawn(
             sink.success(resp)
                 .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
         )
     }
 
-    fn schema(&mut self, ctx: RpcContext, req: IndexReq, sink: UnarySink<SchemaResp>) {
-        let (err, value) = Self::start_op(self, &req);
+    fn schema(&mut self, ctx: RpcContext, req: SchemaReq, sink: UnarySink<SchemaResp>) {
+        self.metrics.lock().unwrap().inc_request_count("schema");
+
         let mut resp = SchemaResp::new();
-        resp.set_err(err);
-        resp.set_value(value);
+        resp.set_err(RespErr::OK);
+        resp.set_value(format!(
+            "{}",
+            serde_json::to_string(&self.index.schema()).unwrap()
+        ));
         ctx.spawn(
             sink.success(resp)
                 .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
