@@ -16,6 +16,7 @@ enum ReqType {
     Delete = 3;
     Commit = 4;
     Rollback = 5;
+    Merge = 6;
 }
 
 message ApplyReq {
@@ -27,6 +28,7 @@ message ApplyReq {
     DeleteReq delete_req = 6;
     CommitReq commit_req = 7;
     RollbackReq rollback_req = 8;
+    MergeReq merge_req = 9;
 }
 
 message ConfChangeReq {
@@ -118,6 +120,15 @@ message RollbackReq {
 }
 
 message RollbackResp {
+    RespErr err = 1;
+}
+
+message MergeReq {
+    uint64 client_id = 1;
+    uint64 seq = 2;
+}
+
+message MergeResp {
     RespErr err = 1;
 }
 

@@ -10,6 +10,7 @@ use bayard::cmd::commit::run_commit_cli;
 use bayard::cmd::delete::run_delete_cli;
 use bayard::cmd::get::run_get_cli;
 use bayard::cmd::leave::run_leave_cli;
+use bayard::cmd::merge::run_merge_cli;
 use bayard::cmd::metrics::run_metrics_cli;
 use bayard::cmd::peers::run_peers_cli;
 use bayard::cmd::rollback::run_rollback_cli;
@@ -305,6 +306,27 @@ fn main() {
                 )
         )
         .subcommand(
+            SubCommand::with_name("merge")
+                .name("merge")
+                .setting(AppSettings::DeriveDisplayOrder)
+                .version(crate_version!())
+                .author(crate_authors!())
+                .about("Merge index")
+                .arg(
+                    Arg::with_name("SERVERS")
+                        .help("The server addresses. Use `,` to separate address. Example: `127.0.0.1:5000,127.0.0.1:5001`")
+                        .short("s")
+                        .long("servers")
+                        .value_name("IP:PORT")
+                        .default_value("127.0.0.1:5000")
+                        .multiple(true)
+                        .use_delimiter(true)
+                        .require_delimiter(true)
+                        .value_delimiter(",")
+                        .takes_value(true),
+                )
+        )
+        .subcommand(
             SubCommand::with_name("search")
                 .name("search")
                 .setting(AppSettings::DeriveDisplayOrder)
@@ -353,30 +375,6 @@ fn main() {
                         .takes_value(true),
                 )
         )
-//        .subcommand(
-//            SubCommand::with_name("version")
-//                .name("version")
-//                .setting(AppSettings::DeriveDisplayOrder)
-//                .version(crate_version!())
-//                .author(crate_authors!())
-//                .about("Show remote server version")
-//                .arg(
-//                    Arg::with_name("HOST")
-//                        .help("The node address")
-//                        .short("H")
-//                        .long("host")
-//                        .default_value("0.0.0.0")
-//                        .takes_value(true),
-//                )
-//                .arg(
-//                    Arg::with_name("CLIENT_PORT")
-//                        .help("The gRPC listen port for client connection")
-//                        .short("c")
-//                        .long("client-port")
-//                        .default_value("5000")
-//                        .takes_value(true),
-//                )
-//        )
         .get_matches();
 
     let (subcommand, some_options) = app.subcommand();
@@ -391,9 +389,9 @@ fn main() {
         "delete" => run_delete_cli,
         "commit" => run_commit_cli,
         "rollback" => run_rollback_cli,
+        "merge" => run_merge_cli,
         "search" => run_search_cli,
         "schema" => run_schema_cli,
-        //        "version" => run_version_cli,
         _ => panic!("Subcommand {} is unknown", subcommand),
     };
 

@@ -23,6 +23,8 @@ service Index {
     }
     rpc Rollback (indexrpcpb.ApplyReq) returns (indexrpcpb.RollbackResp) {
     }
+    rpc Merge (indexrpcpb.ApplyReq) returns (indexrpcpb.MergeResp) {
+    }
     rpc Search (indexrpcpb.SearchReq) returns (indexrpcpb.SearchResp) {
     }
     rpc Schema (indexrpcpb.SchemaReq) returns (indexrpcpb.SchemaResp) {

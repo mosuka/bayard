@@ -81,6 +81,13 @@ const METHOD_INDEX_ROLLBACK: ::grpcio::Method<super::indexrpcpb::ApplyReq, super
     resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
 };
 
+const METHOD_INDEX_MERGE: ::grpcio::Method<super::indexrpcpb::ApplyReq, super::indexrpcpb::MergeResp> = ::grpcio::Method {
+    ty: ::grpcio::MethodType::Unary,
+    name: "/indexpb.Index/Merge",
+    req_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
+    resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
+};
+
 const METHOD_INDEX_SEARCH: ::grpcio::Method<super::indexrpcpb::SearchReq, super::indexrpcpb::SearchResp> = ::grpcio::Method {
     ty: ::grpcio::MethodType::Unary,
     name: "/indexpb.Index/Search",
@@ -251,6 +258,22 @@ impl IndexClient {
         self.rollback_async_opt(req, ::grpcio::CallOption::default())
     }
 
+    pub fn merge_opt(&self, req: &super::indexrpcpb::ApplyReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::MergeResp> {
+        self.client.unary_call(&METHOD_INDEX_MERGE, req, opt)
+    }
+
+    pub fn merge(&self, req: &super::indexrpcpb::ApplyReq) -> ::grpcio::Result<super::indexrpcpb::MergeResp> {
+        self.merge_opt(req, ::grpcio::CallOption::default())
+    }
+
+    pub fn merge_async_opt(&self, req: &super::indexrpcpb::ApplyReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::MergeResp>> {
+        self.client.unary_call_async(&METHOD_INDEX_MERGE, req, opt)
+    }
+
+    pub fn merge_async(&self, req: &super::indexrpcpb::ApplyReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::MergeResp>> {
+        self.merge_async_opt(req, ::grpcio::CallOption::default())
+    }
+
     pub fn search_opt(&self, req: &super::indexrpcpb::SearchReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::SearchResp> {
         self.client.unary_call(&METHOD_INDEX_SEARCH, req, opt)
     }
@@ -297,6 +320,7 @@ pub trait Index {
     fn delete(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::ApplyReq, sink: ::grpcio::UnarySink<super::indexrpcpb::DeleteResp>);
     fn commit(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::ApplyReq, sink: ::grpcio::UnarySink<super::indexrpcpb::CommitResp>);
     fn rollback(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::ApplyReq, sink: ::grpcio::UnarySink<super::indexrpcpb::RollbackResp>);
+    fn merge(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::ApplyReq, sink: ::grpcio::UnarySink<super::indexrpcpb::MergeResp>);
     fn search(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::SearchReq, sink: ::grpcio::UnarySink<super::indexrpcpb::SearchResp>);
     fn schema(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::SchemaReq, sink: ::grpcio::UnarySink<super::indexrpcpb::SchemaResp>);
 }
@@ -338,6 +362,10 @@ pub fn create_index<S: Index + Send + Clone + 'static>(s: S) -> ::grpcio::Servic
     let mut instance = s.clone();
     builder = builder.add_unary_handler(&METHOD_INDEX_ROLLBACK, move |ctx, req, resp| {
         instance.rollback(ctx, req, resp)
+    });
+    let mut instance = s.clone();
+    builder = builder.add_unary_handler(&METHOD_INDEX_MERGE, move |ctx, req, resp| {
+        instance.merge(ctx, req, resp)
     });
     let mut instance = s.clone();
     builder = builder.add_unary_handler(&METHOD_INDEX_SEARCH, move |ctx, req, resp| {
