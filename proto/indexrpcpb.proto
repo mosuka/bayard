@@ -53,6 +53,16 @@ message LeaveReq {
     string peer_addr = 3;
 }
 
+message ProbeReq {
+    uint64 client_id = 1;
+    uint64 seq = 2;
+}
+
+message ProbeResp {
+    string value = 1;
+    RespErr err = 2;
+}
+
 message PeersReq {
     uint64 client_id = 1;
     uint64 seq = 2;

@@ -9,15 +9,18 @@ use raft::eraftpb::{ConfChange, ConfChangeType};
 use crate::proto::indexpb_grpc::IndexClient;
 use crate::proto::indexrpcpb::{
     ApplyReq, CommitReq, CommitResp, ConfChangeReq, DeleteReq, DeleteResp, GetReq, GetResp,
-    MergeReq, MergeResp, MetricsReq, MetricsResp, PeersReq, PeersResp, PutReq, PutResp, RaftDone,
-    ReqType, RespErr, RollbackReq, RollbackResp, SchemaReq, SchemaResp, SearchReq, SearchResp,
+    MergeReq, MergeResp, MetricsReq, MetricsResp, PeersReq, PeersResp, ProbeReq, ProbeResp, PutReq,
+    PutResp, RaftDone, ReqType, RespErr, RollbackReq, RollbackResp, SchemaReq, SchemaResp,
+    SearchReq, SearchResp,
 };
 
 pub fn create_client(addr: &str) -> IndexClient {
     let env = Arc::new(EnvBuilder::new().build());
     let ch = ChannelBuilder::new(env).connect(&addr);
+    debug!("create channel for {}", addr);
+    let index_client = IndexClient::new(ch);
     debug!("create index client for {}", addr);
-    IndexClient::new(ch)
+    index_client
 }
 
 pub struct Clerk {
@@ -88,6 +91,30 @@ impl Clerk {
                 RespErr::OK => return,
                 RespErr::ErrWrongLeader => (),
                 RespErr::ErrNoKey => return,
+            }
+            self.leader_id = (self.leader_id + 1) % self.servers.len();
+            thread::sleep(Duration::from_millis(100));
+        }
+    }
+
+    pub fn probe(&mut self) -> String {
+        let mut req = ProbeReq::new();
+        req.set_client_id(self.client_id);
+        req.set_seq(self.request_seq);
+        self.request_seq += 1;
+
+        loop {
+            let reply = self.servers[self.leader_id]
+                .probe(&req)
+                .unwrap_or_else(|_e| {
+                    let mut resp = ProbeResp::new();
+                    resp.set_err(RespErr::ErrWrongLeader);
+                    resp
+                });
+            match reply.err {
+                RespErr::OK => return reply.value,
+                RespErr::ErrWrongLeader => (),
+                RespErr::ErrNoKey => return String::from(""),
             }
             self.leader_id = (self.leader_id + 1) % self.servers.len();
             thread::sleep(Duration::from_millis(100));

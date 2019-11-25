@@ -1,32 +1,32 @@
-use std::{fs, thread};
 use std::collections::HashMap;
 use std::path::Path;
-use std::sync::{Arc, Mutex};
 use std::sync::mpsc::{self, Receiver, SyncSender};
+use std::sync::{Arc, Mutex};
 use std::time::Duration;
+use std::{fs, thread};
 
-use crossbeam_channel::{bounded, Receiver as CReceiver, select};
+use crossbeam_channel::{bounded, select, Receiver as CReceiver};
 use ctrlc;
 use futures::Future;
 use grpcio::{ChannelBuilder, EnvBuilder, Environment, RpcContext, ServerBuilder, UnarySink};
 use log::*;
 use protobuf::Message;
 use raft::eraftpb::{ConfChange, ConfChangeType, Entry, EntryType, Message as RaftMessage};
-use tantivy::{Document, Index, IndexWriter, SegmentMeta, Term};
 use tantivy::collector::TopDocs;
 use tantivy::query::{QueryParser, TermQuery};
 use tantivy::schema::{Field, FieldType, IndexRecordOption, NamedFieldDocument, Schema};
+use tantivy::{Document, Index, IndexWriter, SegmentMeta, Term};
 
-use crate::client::client::{Clerk, create_client};
+use crate::client::client::{create_client, Clerk};
 use crate::proto::indexpb_grpc::{self, Index as IndexService, IndexClient};
 use crate::proto::indexrpcpb::{
     ApplyReq, CommitResp, ConfChangeReq, DeleteResp, GetReq, GetResp, JoinReq, LeaveReq, MergeResp,
-    MetricsReq, MetricsResp, PeersReq, PeersResp, PutResp, RaftDone, ReqType, RespErr,
-    RollbackResp, SchemaReq, SchemaResp, SearchReq, SearchResp,
+    MetricsReq, MetricsResp, PeersReq, PeersResp, ProbeReq, ProbeResp, PutResp, RaftDone, ReqType,
+    RespErr, RollbackResp, SchemaReq, SchemaResp, SearchReq, SearchResp,
 };
-use crate::server::{peer, util};
 use crate::server::metrics::Metrics;
 use crate::server::peer::PeerMessage;
+use crate::server::{peer, util};
 
 struct NotifyArgs(u64, String, RespErr);
 
@@ -269,7 +269,7 @@ impl IndexServer {
         peers: Arc<Mutex<HashMap<u64, IndexClient>>>,
         peers_addr: Arc<Mutex<HashMap<u64, String>>>,
         index: Arc<Index>,
-        unique_key_field: &str,
+        unique_key_field_name: &str,
         index_writer: Arc<Mutex<IndexWriter>>,
         metrics: Arc<Mutex<Metrics>>,
     ) -> NotifyArgs {
@@ -309,7 +309,7 @@ impl IndexServer {
                     .schema()
                     .parse_document(req.get_put_req().get_fields())
                     .unwrap();
-                let field = index.schema().get_field(unique_key_field).unwrap();
+                let field = index.schema().get_field(unique_key_field_name).unwrap();
                 doc.add_text(field, req.get_put_req().get_doc_id());
                 index_writer
                     .lock()
@@ -326,7 +326,7 @@ impl IndexServer {
                     .lock()
                     .unwrap()
                     .delete_term(Term::from_field_text(
-                        index.schema().get_field(unique_key_field).unwrap(),
+                        index.schema().get_field(unique_key_field_name).unwrap(),
                         req.get_delete_req().get_doc_id(),
                     ));
 
@@ -449,6 +449,18 @@ impl IndexService for IndexServer {
             _ => resp.set_err(RespErr::ErrWrongLeader),
         }
 
+        ctx.spawn(
+            sink.success(resp)
+                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
+        )
+    }
+
+    fn probe(&mut self, ctx: RpcContext, req: ProbeReq, sink: UnarySink<ProbeResp>) {
+        self.metrics.lock().unwrap().inc_request_count("probe");
+
+        let mut resp = ProbeResp::new();
+        resp.set_err(RespErr::OK);
+        resp.set_value("OK".to_string());
         ctx.spawn(
             sink.success(resp)
                 .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),

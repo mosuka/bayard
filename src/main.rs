@@ -13,6 +13,7 @@ use bayard::cmd::leave::run_leave_cli;
 use bayard::cmd::merge::run_merge_cli;
 use bayard::cmd::metrics::run_metrics_cli;
 use bayard::cmd::peers::run_peers_cli;
+use bayard::cmd::probe::run_probe_cli;
 use bayard::cmd::rollback::run_rollback_cli;
 use bayard::cmd::schema::run_schema_cli;
 use bayard::cmd::search::run_search_cli;
@@ -97,6 +98,27 @@ fn main() {
                         .long("unique-key-field-name")
                         .value_name("UNIQUE_KEY_FIELD_NAME")
                         .default_value("id")
+                        .takes_value(true),
+                )
+        )
+        .subcommand(
+            SubCommand::with_name("probe")
+                .name("probe")
+                .setting(AppSettings::DeriveDisplayOrder)
+                .version(crate_version!())
+                .author(crate_authors!())
+                .about("Probe a server")
+                .arg(
+                    Arg::with_name("SERVERS")
+                        .help("The server addresses. Use `,` to separate address. Example: `127.0.0.1:5000,127.0.0.1:5001`")
+                        .short("s")
+                        .long("servers")
+                        .value_name("IP:PORT")
+                        .default_value("127.0.0.1:5000")
+                        .multiple(true)
+                        .use_delimiter(true)
+                        .require_delimiter(true)
+                        .value_delimiter(",")
                         .takes_value(true),
                 )
         )
@@ -381,6 +403,7 @@ fn main() {
     let options = some_options.unwrap();
     let run_cli = match subcommand {
         "serve" => run_serve_cli,
+        "probe" => run_probe_cli,
         "peers" => run_peers_cli,
         "metrics" => run_metrics_cli,
         "leave" => run_leave_cli,

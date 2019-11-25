@@ -5,6 +5,7 @@ pub mod leave;
 pub mod merge;
 pub mod metrics;
 pub mod peers;
+pub mod probe;
 pub mod rollback;
 pub mod schema;
 pub mod search;
