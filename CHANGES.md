@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## 0.1.1
+- Add probe command #39 @mosuka
 - Add merge command #38 @mosuka
 - Add rollback command #37 @mosuka
 - Protobuf refactoring #33 @mosuka
