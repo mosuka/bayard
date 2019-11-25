@@ -1,32 +1,32 @@
+use std::{fs, thread};
 use std::collections::HashMap;
 use std::path::Path;
-use std::sync::mpsc::{self, Receiver, SyncSender};
 use std::sync::{Arc, Mutex};
+use std::sync::mpsc::{self, Receiver, SyncSender};
 use std::time::Duration;
-use std::{fs, thread};
 
-use crossbeam_channel::{bounded, select, Receiver as CReceiver};
+use crossbeam_channel::{bounded, Receiver as CReceiver, select};
 use ctrlc;
 use futures::Future;
 use grpcio::{ChannelBuilder, EnvBuilder, Environment, RpcContext, ServerBuilder, UnarySink};
 use log::*;
 use protobuf::Message;
 use raft::eraftpb::{ConfChange, ConfChangeType, Entry, EntryType, Message as RaftMessage};
+use tantivy::{Document, Index, IndexWriter, SegmentMeta, Term};
 use tantivy::collector::TopDocs;
 use tantivy::query::{QueryParser, TermQuery};
 use tantivy::schema::{Field, FieldType, IndexRecordOption, NamedFieldDocument, Schema};
-use tantivy::{Document, Index, IndexWriter, Term};
 
-use crate::client::client::{create_client, Clerk};
+use crate::client::client::{Clerk, create_client};
 use crate::proto::indexpb_grpc::{self, Index as IndexService, IndexClient};
 use crate::proto::indexrpcpb::{
-    ApplyReq, CommitResp, ConfChangeReq, DeleteResp, GetReq, GetResp, JoinReq, LeaveReq,
+    ApplyReq, CommitResp, ConfChangeReq, DeleteResp, GetReq, GetResp, JoinReq, LeaveReq, MergeResp,
     MetricsReq, MetricsResp, PeersReq, PeersResp, PutResp, RaftDone, ReqType, RespErr,
     RollbackResp, SchemaReq, SchemaResp, SearchReq, SearchResp,
 };
+use crate::server::{peer, util};
 use crate::server::metrics::Metrics;
 use crate::server::peer::PeerMessage;
-use crate::server::{peer, util};
 
 struct NotifyArgs(u64, String, RespErr);
 
@@ -360,6 +360,28 @@ impl IndexServer {
                     }
                 }
             }
+            ReqType::Merge => {
+                metrics.lock().unwrap().inc_request_count("merge");
+
+                let segments = index.searchable_segment_ids().unwrap();
+                let segment_meta: SegmentMeta = index_writer
+                    .lock()
+                    .unwrap()
+                    .merge(&segments)
+                    .unwrap()
+                    .wait()
+                    .expect("merge failed");
+                info!("merge finished with segment meta {:?}", segment_meta);
+
+                index_writer
+                    .lock()
+                    .unwrap()
+                    .garbage_collect_files()
+                    .unwrap();
+                info!("garbage collent irrelevant segments");
+
+                NotifyArgs(term, String::from(""), RespErr::OK)
+            }
         }
     }
 }
@@ -518,6 +540,16 @@ impl IndexService for IndexServer {
     fn rollback(&mut self, ctx: RpcContext, req: ApplyReq, sink: UnarySink<RollbackResp>) {
         let (err, _) = Self::start_op(self, &req);
         let mut resp = RollbackResp::new();
+        resp.set_err(err);
+        ctx.spawn(
+            sink.success(resp)
+                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
+        )
+    }
+
+    fn merge(&mut self, ctx: RpcContext, req: ApplyReq, sink: UnarySink<MergeResp>) {
+        let (err, _) = Self::start_op(self, &req);
+        let mut resp = MergeResp::new();
         resp.set_err(err);
         ctx.spawn(
             sink.success(resp)

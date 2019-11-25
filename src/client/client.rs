@@ -9,8 +9,8 @@ use raft::eraftpb::{ConfChange, ConfChangeType};
 use crate::proto::indexpb_grpc::IndexClient;
 use crate::proto::indexrpcpb::{
     ApplyReq, CommitReq, CommitResp, ConfChangeReq, DeleteReq, DeleteResp, GetReq, GetResp,
-    MetricsReq, MetricsResp, PeersReq, PeersResp, PutReq, PutResp, RaftDone, ReqType, RespErr,
-    RollbackReq, RollbackResp, SchemaReq, SchemaResp, SearchReq, SearchResp,
+    MergeReq, MergeResp, MetricsReq, MetricsResp, PeersReq, PeersResp, PutReq, PutResp, RaftDone,
+    ReqType, RespErr, RollbackReq, RollbackResp, SchemaReq, SchemaResp, SearchReq, SearchResp,
 };
 
 pub fn create_client(addr: &str) -> IndexClient {
@@ -274,6 +274,36 @@ impl Clerk {
                 .rollback(&req)
                 .unwrap_or_else(|_e| {
                     let mut resp = RollbackResp::new();
+                    resp.set_err(RespErr::ErrWrongLeader);
+                    resp
+                });
+            match reply.err {
+                RespErr::OK => return,
+                RespErr::ErrWrongLeader => (),
+                RespErr::ErrNoKey => return,
+            }
+            self.leader_id = (self.leader_id + 1) % self.servers.len();
+            thread::sleep(Duration::from_millis(100));
+        }
+    }
+
+    pub fn merge(&mut self) {
+        let mut merge_req = MergeReq::new();
+        merge_req.set_client_id(self.client_id);
+        merge_req.set_seq(self.request_seq);
+
+        let mut req = ApplyReq::new();
+        req.set_client_id(self.client_id);
+        req.set_req_type(ReqType::Merge);
+        req.set_merge_req(merge_req);
+
+        self.request_seq += 1;
+
+        loop {
+            let reply = self.servers[self.leader_id]
+                .merge(&req)
+                .unwrap_or_else(|_e| {
+                    let mut resp = MergeResp::new();
                     resp.set_err(RespErr::ErrWrongLeader);
                     resp
                 });
