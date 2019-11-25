@@ -12,6 +12,7 @@ use bayard::cmd::get::run_get_cli;
 use bayard::cmd::leave::run_leave_cli;
 use bayard::cmd::metrics::run_metrics_cli;
 use bayard::cmd::peers::run_peers_cli;
+use bayard::cmd::rollback::run_rollback_cli;
 use bayard::cmd::schema::run_schema_cli;
 use bayard::cmd::search::run_search_cli;
 use bayard::cmd::serve::run_serve_cli;
@@ -283,6 +284,27 @@ fn main() {
                 )
         )
         .subcommand(
+            SubCommand::with_name("rollback")
+                .name("rollback")
+                .setting(AppSettings::DeriveDisplayOrder)
+                .version(crate_version!())
+                .author(crate_authors!())
+                .about("Rollback index")
+                .arg(
+                    Arg::with_name("SERVERS")
+                        .help("The server addresses. Use `,` to separate address. Example: `127.0.0.1:5000,127.0.0.1:5001`")
+                        .short("s")
+                        .long("servers")
+                        .value_name("IP:PORT")
+                        .default_value("127.0.0.1:5000")
+                        .multiple(true)
+                        .use_delimiter(true)
+                        .require_delimiter(true)
+                        .value_delimiter(",")
+                        .takes_value(true),
+                )
+        )
+        .subcommand(
             SubCommand::with_name("search")
                 .name("search")
                 .setting(AppSettings::DeriveDisplayOrder)
@@ -368,6 +390,7 @@ fn main() {
         "get" => run_get_cli,
         "delete" => run_delete_cli,
         "commit" => run_commit_cli,
+        "rollback" => run_rollback_cli,
         "search" => run_search_cli,
         "schema" => run_schema_cli,
         //        "version" => run_version_cli,

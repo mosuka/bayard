@@ -4,6 +4,7 @@ pub mod get;
 pub mod leave;
 pub mod metrics;
 pub mod peers;
+pub mod rollback;
 pub mod schema;
 pub mod search;
 pub mod serve;
