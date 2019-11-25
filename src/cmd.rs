@@ -7,6 +7,7 @@ pub mod metrics;
 pub mod peers;
 pub mod probe;
 pub mod rollback;
+pub mod schedule;
 pub mod schema;
 pub mod search;
 pub mod serve;

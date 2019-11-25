@@ -5,8 +5,7 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 use std::{fs, thread};
 
-use crossbeam_channel::{bounded, select, Receiver as CReceiver};
-use ctrlc;
+use crossbeam_channel::select;
 use futures::Future;
 use grpcio::{ChannelBuilder, EnvBuilder, Environment, RpcContext, ServerBuilder, UnarySink};
 use log::*;
@@ -27,18 +26,9 @@ use crate::proto::indexrpcpb::{
 use crate::server::metrics::Metrics;
 use crate::server::peer::PeerMessage;
 use crate::server::{peer, util};
+use crate::util::signal::sigterm_channel;
 
 struct NotifyArgs(u64, String, RespErr);
-
-fn sigterm_channel() -> Result<CReceiver<()>, ctrlc::Error> {
-    let (sender, receiver) = bounded(100);
-    ctrlc::set_handler(move || {
-        let _ = sender.send(());
-    })
-    .unwrap();
-
-    Ok(receiver)
-}
 
 #[derive(Clone)]
 pub struct IndexServer {
