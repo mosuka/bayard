@@ -32,6 +32,13 @@ const METHOD_INDEX_RAFT_CONF_CHANGE: ::grpcio::Method<super::indexrpcpb::ConfCha
     resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
 };
 
+const METHOD_INDEX_PROBE: ::grpcio::Method<super::indexrpcpb::ProbeReq, super::indexrpcpb::ProbeResp> = ::grpcio::Method {
+    ty: ::grpcio::MethodType::Unary,
+    name: "/indexpb.Index/Probe",
+    req_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
+    resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
+};
+
 const METHOD_INDEX_PEERS: ::grpcio::Method<super::indexrpcpb::PeersReq, super::indexrpcpb::PeersResp> = ::grpcio::Method {
     ty: ::grpcio::MethodType::Unary,
     name: "/indexpb.Index/Peers",
@@ -144,6 +151,22 @@ impl IndexClient {
 
     pub fn raft_conf_change_async(&self, req: &super::indexrpcpb::ConfChangeReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::RaftDone>> {
         self.raft_conf_change_async_opt(req, ::grpcio::CallOption::default())
+    }
+
+    pub fn probe_opt(&self, req: &super::indexrpcpb::ProbeReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::ProbeResp> {
+        self.client.unary_call(&METHOD_INDEX_PROBE, req, opt)
+    }
+
+    pub fn probe(&self, req: &super::indexrpcpb::ProbeReq) -> ::grpcio::Result<super::indexrpcpb::ProbeResp> {
+        self.probe_opt(req, ::grpcio::CallOption::default())
+    }
+
+    pub fn probe_async_opt(&self, req: &super::indexrpcpb::ProbeReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::ProbeResp>> {
+        self.client.unary_call_async(&METHOD_INDEX_PROBE, req, opt)
+    }
+
+    pub fn probe_async(&self, req: &super::indexrpcpb::ProbeReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::ProbeResp>> {
+        self.probe_async_opt(req, ::grpcio::CallOption::default())
     }
 
     pub fn peers_opt(&self, req: &super::indexrpcpb::PeersReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::PeersResp> {
@@ -313,6 +336,7 @@ impl IndexClient {
 pub trait Index {
     fn raft(&mut self, ctx: ::grpcio::RpcContext, req: super::eraftpb::Message, sink: ::grpcio::UnarySink<super::indexrpcpb::RaftDone>);
     fn raft_conf_change(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::ConfChangeReq, sink: ::grpcio::UnarySink<super::indexrpcpb::RaftDone>);
+    fn probe(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::ProbeReq, sink: ::grpcio::UnarySink<super::indexrpcpb::ProbeResp>);
     fn peers(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::PeersReq, sink: ::grpcio::UnarySink<super::indexrpcpb::PeersResp>);
     fn metrics(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::MetricsReq, sink: ::grpcio::UnarySink<super::indexrpcpb::MetricsResp>);
     fn get(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::GetReq, sink: ::grpcio::UnarySink<super::indexrpcpb::GetResp>);
@@ -334,6 +358,10 @@ pub fn create_index<S: Index + Send + Clone + 'static>(s: S) -> ::grpcio::Servic
     let mut instance = s.clone();
     builder = builder.add_unary_handler(&METHOD_INDEX_RAFT_CONF_CHANGE, move |ctx, req, resp| {
         instance.raft_conf_change(ctx, req, resp)
+    });
+    let mut instance = s.clone();
+    builder = builder.add_unary_handler(&METHOD_INDEX_PROBE, move |ctx, req, resp| {
+        instance.probe(ctx, req, resp)
     });
     let mut instance = s.clone();
     builder = builder.add_unary_handler(&METHOD_INDEX_PEERS, move |ctx, req, resp| {
