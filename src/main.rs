@@ -8,6 +8,7 @@ use clap::{App, AppSettings, Arg, SubCommand};
 
 use bayard::cmd::commit::run_commit_cli;
 use bayard::cmd::delete::run_delete_cli;
+use bayard::cmd::gateway::run_gateway_cli;
 use bayard::cmd::get::run_get_cli;
 use bayard::cmd::leave::run_leave_cli;
 use bayard::cmd::merge::run_merge_cli;
@@ -437,6 +438,45 @@ fn main() {
                         .takes_value(true),
                 )
         )
+        .subcommand(
+            SubCommand::with_name("gateway")
+                .name("gateway")
+                .setting(AppSettings::DeriveDisplayOrder)
+                .version(crate_version!())
+                .author(crate_authors!())
+                .about("Schedule jobs")
+                .arg(
+                    Arg::with_name("HOST")
+                        .help("The node address")
+                        .short("H")
+                        .long("host")
+                        .value_name("HOST")
+                        .default_value("0.0.0.0")
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("PORT")
+                        .help("The HTTP listen port for client connection")
+                        .short("P")
+                        .long("port")
+                        .value_name("PORT")
+                        .default_value("8000")
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("SERVERS")
+                        .help("The server addresses. Use `,` to separate address. Example: `127.0.0.1:5000,127.0.0.1:5001`")
+                        .short("s")
+                        .long("servers")
+                        .value_name("IP:PORT")
+                        .default_value("127.0.0.1:5000")
+                        .multiple(true)
+                        .use_delimiter(true)
+                        .require_delimiter(true)
+                        .value_delimiter(",")
+                        .takes_value(true),
+                )
+        )
         .get_matches();
 
     let (subcommand, some_options) = app.subcommand();
@@ -456,6 +496,7 @@ fn main() {
         "search" => run_search_cli,
         "schema" => run_schema_cli,
         "schedule" => run_schedule_cli,
+        "gateway" => run_gateway_cli,
         _ => panic!("Subcommand {} is unknown", subcommand),
     };
 

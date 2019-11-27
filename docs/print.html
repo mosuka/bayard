@@ -196,16 +196,17 @@ Bayard makes easy for programmers to develop search applications with advanced f
 <pre><code class="language-shellscript">./bin/bayard serve
 </code></pre>
 <p>You'll see a startup message like following:</p>
-<pre><code class="language-text">[2019-11-11T09:28:24Z INFO  tantivy::indexer::segment_updater] save metas
-[2019-11-11T09:28:24Z INFO  bayard::cmd::serve] starting a server...
-[2019-11-11T09:28:24Z INFO  raft::raft]  became follower at term 0
-[2019-11-11T09:28:24Z INFO  raft::raft]  newRaft [peers: [1], term: 0, commit: 0, applied: 0, last_index: 0, last_term: 0]
-[2019-11-11T09:28:24Z INFO  raft::raft]  became follower at term 1
-[2019-11-11T09:28:24Z INFO  bayard::server::server] listening on 0.0.0.0:5000
-[2019-11-11T09:28:26Z INFO  raft::raft]  is starting a new election at term 1
-[2019-11-11T09:28:26Z INFO  raft::raft]  became candidate at term 2
-[2019-11-11T09:28:26Z INFO  raft::raft]  received MsgRequestVoteResponse from 1 at term 2
-[2019-11-11T09:28:26Z INFO  raft::raft]  became leader at term 2
+<pre><code class="language-text">[2019-11-27T00:30:45Z INFO bayard::server::server src/server/server.rs:119] listening on 0.0.0.0:5000
+[2019-11-27T00:30:45Z INFO raft::raft /Users/m-osuka/.cargo/registry/src/github.com-1ecc6299db9ec823/raft-0.4.3/src/raft.rs:723]  became follower at term 0
+[2019-11-27T00:30:45Z INFO raft::raft /Users/m-osuka/.cargo/registry/src/github.com-1ecc6299db9ec823/raft-0.4.3/src/raft.rs:295]  newRaft [peers: [1], term: 0, commit: 0, applied: 0, last_index: 0, last_term: 0]
+[2019-11-27T00:30:45Z INFO raft::raft /Users/m-osuka/.cargo/registry/src/github.com-1ecc6299db9ec823/raft-0.4.3/src/raft.rs:723]  became follower at term 1
+
+...
+
+[2019-11-27T00:30:48Z INFO raft::raft /Users/m-osuka/.cargo/registry/src/github.com-1ecc6299db9ec823/raft-0.4.3/src/raft.rs:1094]  is starting a new election at term 1
+[2019-11-27T00:30:48Z INFO raft::raft /Users/m-osuka/.cargo/registry/src/github.com-1ecc6299db9ec823/raft-0.4.3/src/raft.rs:743]  became candidate at term 2
+[2019-11-27T00:30:48Z INFO raft::raft /Users/m-osuka/.cargo/registry/src/github.com-1ecc6299db9ec823/raft-0.4.3/src/raft.rs:858]  received MsgRequestVoteResponse from 1 at term 2
+[2019-11-27T00:30:48Z INFO raft::raft /Users/m-osuka/.cargo/registry/src/github.com-1ecc6299db9ec823/raft-0.4.3/src/raft.rs:793]  became leader at term 2
 </code></pre>
 <h2><a class="header" href="#getting-schema" id="getting-schema">Getting schema</a></h2>
 <p>You can confirm current schema with the following command:</p>
@@ -239,27 +240,27 @@ Bayard makes easy for programmers to develop search applications with advanced f
 </code></pre>
 <h2><a class="header" href="#indexing-document" id="indexing-document">Indexing document</a></h2>
 <p>You can index documents with the following command:</p>
-<pre><code class="language-shellscript">./bin/bayard set 1 '{&quot;text&quot;:&quot;Tantivy is a full-text search engine library inspired by Apache Lucene and written in Rust.&quot;}'
-./bin/bayard set 2 '{&quot;text&quot;:&quot;Apache Lucene is a high-performance, full-featured text search engine library written entirely in Java.&quot;}'
-./bin/bayard set 3 '{&quot;text&quot;:&quot;Bleve is a modern text indexing library for go.&quot;}'
-./bin/bayard set 4 '{&quot;text&quot;:&quot;Whoosh is a fast, pure Python search engine library.&quot;}'
-./bin/bayard set 5 '{&quot;text&quot;:&quot;Solr is highly reliable, scalable and fault tolerant, providing distributed indexing, replication and load-balanced querying, automated failover and recovery, centralized configuration and more.&quot;}'
-./bin/bayard set 6 '{&quot;text&quot;:&quot;Elasticsearch is a distributed, open source search and analytics engine for all types of data, including textual, numerical, geospatial, structured, and unstructured.&quot;}'
-./bin/bayard set 7 '{&quot;text&quot;:&quot;Riot is Go Open Source, Distributed, Simple and efficient full text search engine.&quot;}'
-./bin/bayard set 8 '{&quot;text&quot;:&quot;Blast is a full text search and indexing server, written in Go, built on top of Bleve.&quot;}'
-./bin/bayard set 9 '{&quot;text&quot;:&quot;Toshi is meant to be a full-text search engine similar to Elasticsearch. Toshi strives to be to Elasticsearch what Tantivy is to Lucene.&quot;}'
-./bin/bayard set 10 '{&quot;text&quot;:&quot;Sonic is a fast, lightweight and schema-less search backend.&quot;}'
-./bin/bayard set 11 '{&quot;text&quot;:&quot;Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.&quot;}'
+<pre><code class="language-shellscript">./bin/bayard set 1 '{&quot;text&quot;:&quot;Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.&quot;}'
+./bin/bayard set 2 '{&quot;text&quot;:&quot;Solr is highly reliable, scalable and fault tolerant, providing distributed indexing, replication and load-balanced querying, automated failover and recovery, centralized configuration and more.&quot;}'
+./bin/bayard set 3 '{&quot;text&quot;:&quot;Elasticsearch is a distributed, open source search and analytics engine for all types of data, including textual, numerical, geospatial, structured, and unstructured.&quot;}'
+./bin/bayard set 4 '{&quot;text&quot;:&quot;Blast is a full text search and indexing server, written in Go, built on top of Bleve.&quot;}'
+./bin/bayard set 5 '{&quot;text&quot;:&quot;Riot is Go Open Source, Distributed, Simple and efficient full text search engine.&quot;}'
+./bin/bayard set 6 '{&quot;text&quot;:&quot;Toshi is meant to be a full-text search engine similar to Elasticsearch. Toshi strives to be to Elasticsearch what Tantivy is to Lucene.&quot;}'
+./bin/bayard set 7 '{&quot;text&quot;:&quot;Sonic is a fast, lightweight and schema-less search backend.&quot;}'
+./bin/bayard set 8 '{&quot;text&quot;:&quot;Tantivy is a full-text search engine library inspired by Apache Lucene and written in Rust.&quot;}'
+./bin/bayard set 9 '{&quot;text&quot;:&quot;Apache Lucene is a high-performance, full-featured text search engine library written entirely in Java.&quot;}'
+./bin/bayard set 10 '{&quot;text&quot;:&quot;Bleve is a modern text indexing library for go.&quot;}'
+./bin/bayard set 11 '{&quot;text&quot;:&quot;Whoosh is a fast, pure Python search engine library.&quot;}'
 ./bin/bayard commit
 </code></pre>
 <h2><a class="header" href="#getting-document" id="getting-document">Getting document</a></h2>
 <p>You can get document with the following command:</p>
-<pre><code class="language-shellscript">./bin/bayard get 11 | jq .
+<pre><code class="language-shellscript">./bin/bayard get 1 | jq .
 </code></pre>
 <p>You'll see the result in JSON format. The result of the above command is:</p>
 <pre><code class="language-json">{
   &quot;id&quot;: [
-    &quot;11&quot;
+    &quot;1&quot;
   ],
   &quot;text&quot;: [
     &quot;Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.&quot;
@@ -268,29 +269,13 @@ Bayard makes easy for programmers to develop search applications with advanced f
 </code></pre>
 <h2><a class="header" href="#searching-documents" id="searching-documents">Searching documents</a></h2>
 <p>You can search documents with the following command:</p>
-<pre><code class="language-shellscript">./bin/bayard search text:&quot;search engine&quot; | jq .
+<pre><code class="language-shellscript">./bin/bayard search text:&quot;rust&quot; | jq .
 </code></pre>
 <p>You'll see the result in JSON format. The result of the above command is:</p>
 <pre><code class="language-json">[
   {
     &quot;id&quot;: [
-      &quot;4&quot;
-    ],
-    &quot;text&quot;: [
-      &quot;Whoosh is a fast, pure Python search engine library.&quot;
-    ]
-  },
-  {
-    &quot;id&quot;: [
-      &quot;7&quot;
-    ],
-    &quot;text&quot;: [
-      &quot;Riot is Go Open Source, Distributed, Simple and efficient full text search engine.&quot;
-    ]
-  },
-  {
-    &quot;id&quot;: [
-      &quot;1&quot;
+      &quot;8&quot;
     ],
     &quot;text&quot;: [
       &quot;Tantivy is a full-text search engine library inspired by Apache Lucene and written in Rust.&quot;
@@ -298,57 +283,27 @@ Bayard makes easy for programmers to develop search applications with advanced f
   },
   {
     &quot;id&quot;: [
-      &quot;2&quot;
-    ],
-    &quot;text&quot;: [
-      &quot;Apache Lucene is a high-performance, full-featured text search engine library written entirely in Java.&quot;
-    ]
-  },
-  {
-    &quot;id&quot;: [
-      &quot;6&quot;
-    ],
-    &quot;text&quot;: [
-      &quot;Elasticsearch is a distributed, open source search and analytics engine for all types of data, including textual, numerical, geospatial, structured, and unstructured.&quot;
-    ]
-  },
-  {
-    &quot;id&quot;: [
-      &quot;9&quot;
-    ],
-    &quot;text&quot;: [
-      &quot;Toshi is meant to be a full-text search engine similar to Elasticsearch. Toshi strives to be to Elasticsearch what Tantivy is to Lucene.&quot;
-    ]
-  },
-  {
-    &quot;id&quot;: [
-      &quot;10&quot;
-    ],
-    &quot;text&quot;: [
-      &quot;Sonic is a fast, lightweight and schema-less search backend.&quot;
-    ]
-  },
-  {
-    &quot;id&quot;: [
-      &quot;11&quot;
+      &quot;1&quot;
     ],
     &quot;text&quot;: [
       &quot;Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.&quot;
-    ]
-  },
-  {
-    &quot;id&quot;: [
-      &quot;8&quot;
-    ],
-    &quot;text&quot;: [
-      &quot;Blast is a full text search and indexing server, written in Go, built on top of Bleve.&quot;
     ]
   }
 ]
 </code></pre>
 <h2><a class="header" href="#deleting-document" id="deleting-document">Deleting document</a></h2>
 <p>You can delete document with the following command:</p>
-<pre><code class="language-shellscript">./bin/bayard delete 11
+<pre><code class="language-shellscript">./bin/bayard delete 1
+./bin/bayard delete 2
+./bin/bayard delete 3
+./bin/bayard delete 4
+./bin/bayard delete 5
+./bin/bayard delete 6
+./bin/bayard delete 7
+./bin/bayard delete 8
+./bin/bayard delete 9
+./bin/bayard delete 10
+./bin/bayard delete 11
 ./bin/bayard commit
 </code></pre>
 <h1><a class="header" href="#cluster-mode" id="cluster-mode">Cluster mode</a></h1>
