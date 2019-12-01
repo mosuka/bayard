@@ -192,12 +192,12 @@ impl Clerk {
         }
     }
 
-    pub fn put(&mut self, key: &str, value: &str) {
+    pub fn put(&mut self, doc_id: &str, fields: &str) -> String {
         let mut put_req = PutReq::new();
         put_req.set_client_id(self.client_id);
         put_req.set_seq(self.request_seq);
-        put_req.set_doc_id(key.to_owned());
-        put_req.set_fields(value.to_owned());
+        put_req.set_doc_id(doc_id.to_owned());
+        put_req.set_fields(fields.to_owned());
 
         let mut req = ApplyReq::new();
         req.set_client_id(self.client_id);
@@ -213,9 +213,9 @@ impl Clerk {
                 resp
             });
             match reply.err {
-                RespErr::OK => return,
+                RespErr::OK => return reply.value,
                 RespErr::ErrWrongLeader => (),
-                RespErr::ErrNoKey => return,
+                RespErr::ErrNoKey => return String::from(""),
             }
             debug!("put redo: {}", self.leader_id);
             self.leader_id = (self.leader_id + 1) % self.servers.len();
@@ -223,11 +223,11 @@ impl Clerk {
         }
     }
 
-    pub fn delete(&mut self, key: &str) {
+    pub fn delete(&mut self, doc_id: &str) -> String {
         let mut delete_req = DeleteReq::new();
         delete_req.set_client_id(self.client_id);
         delete_req.set_seq(self.request_seq);
-        delete_req.set_doc_id(key.to_owned());
+        delete_req.set_doc_id(doc_id.to_owned());
 
         let mut req = ApplyReq::new();
         req.set_client_id(self.client_id);
@@ -245,16 +245,16 @@ impl Clerk {
                     resp
                 });
             match reply.err {
-                RespErr::OK => return,
+                RespErr::OK => return reply.value,
                 RespErr::ErrWrongLeader => (),
-                RespErr::ErrNoKey => return,
+                RespErr::ErrNoKey => return reply.value,
             }
             self.leader_id = (self.leader_id + 1) % self.servers.len();
             thread::sleep(Duration::from_millis(100));
         }
     }
 
-    pub fn commit(&mut self) {
+    pub fn commit(&mut self) -> String {
         let mut commit_req = CommitReq::new();
         commit_req.set_client_id(self.client_id);
         commit_req.set_seq(self.request_seq);
@@ -275,16 +275,16 @@ impl Clerk {
                     resp
                 });
             match reply.err {
-                RespErr::OK => return,
+                RespErr::OK => return reply.value,
                 RespErr::ErrWrongLeader => (),
-                RespErr::ErrNoKey => return,
+                RespErr::ErrNoKey => return reply.value,
             }
             self.leader_id = (self.leader_id + 1) % self.servers.len();
             thread::sleep(Duration::from_millis(100));
         }
     }
 
-    pub fn rollback(&mut self) {
+    pub fn rollback(&mut self) -> String {
         let mut rollback_req = RollbackReq::new();
         rollback_req.set_client_id(self.client_id);
         rollback_req.set_seq(self.request_seq);
@@ -305,16 +305,16 @@ impl Clerk {
                     resp
                 });
             match reply.err {
-                RespErr::OK => return,
+                RespErr::OK => return reply.value,
                 RespErr::ErrWrongLeader => (),
-                RespErr::ErrNoKey => return,
+                RespErr::ErrNoKey => return reply.value,
             }
             self.leader_id = (self.leader_id + 1) % self.servers.len();
             thread::sleep(Duration::from_millis(100));
         }
     }
 
-    pub fn merge(&mut self) {
+    pub fn merge(&mut self) -> String {
         let mut merge_req = MergeReq::new();
         merge_req.set_client_id(self.client_id);
         merge_req.set_seq(self.request_seq);
@@ -335,20 +335,22 @@ impl Clerk {
                     resp
                 });
             match reply.err {
-                RespErr::OK => return,
+                RespErr::OK => return reply.value,
                 RespErr::ErrWrongLeader => (),
-                RespErr::ErrNoKey => return,
+                RespErr::ErrNoKey => return reply.value,
             }
             self.leader_id = (self.leader_id + 1) % self.servers.len();
             thread::sleep(Duration::from_millis(100));
         }
     }
 
-    pub fn search(&mut self, query: &str) -> String {
+    pub fn search(&mut self, query: &str, from: u64, limit: u64) -> String {
         let mut req = SearchReq::new();
         req.set_client_id(self.client_id);
         req.set_seq(self.request_seq);
         req.set_query(query.to_owned());
+        req.set_from(from);
+        req.set_limit(limit);
         self.request_seq += 1;
 
         loop {

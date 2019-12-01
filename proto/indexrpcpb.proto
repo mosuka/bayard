@@ -102,7 +102,8 @@ message PutReq {
 }
 
 message PutResp {
-    RespErr err = 1;
+    string value = 1;
+    RespErr err = 2;
 }
 
 message DeleteReq {
@@ -112,7 +113,8 @@ message DeleteReq {
 }
 
 message DeleteResp {
-    RespErr err = 1;
+    string value = 1;
+    RespErr err = 2;
 }
 
 message CommitReq {
@@ -121,7 +123,8 @@ message CommitReq {
 }
 
 message CommitResp {
-    RespErr err = 1;
+    string value = 1;
+    RespErr err = 2;
 }
 
 message RollbackReq {
@@ -130,7 +133,8 @@ message RollbackReq {
 }
 
 message RollbackResp {
-    RespErr err = 1;
+    string value = 1;
+    RespErr err = 2;
 }
 
 message MergeReq {
@@ -139,13 +143,16 @@ message MergeReq {
 }
 
 message MergeResp {
-    RespErr err = 1;
+    string value = 1;
+    RespErr err = 2;
 }
 
 message SearchReq {
     uint64 client_id = 1;
     uint64 seq = 2;
     string query = 3;
+    uint64 from = 4;
+    uint64 limit = 5;
 }
 
 message SearchResp {

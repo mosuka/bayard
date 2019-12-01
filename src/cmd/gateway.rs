@@ -8,6 +8,7 @@ use iron::{status, Chain, Iron, IronResult, Request, Response};
 use logger::Logger;
 use persistent::Write;
 use router::Router;
+use urlencoded::UrlEncodedQuery;
 
 use crate::client::client::{create_client, Clerk};
 use crate::util::log::set_http_logger;
@@ -82,9 +83,9 @@ fn put(req: &mut Request) -> IronResult<Response> {
 
     let client_arc = req.get::<Write<Client>>().unwrap();
     let mut client = client_arc.lock().unwrap();
-    client.put(&doc_id, &body);
+    let value = client.put(&doc_id, &body);
 
-    Ok(Response::with((ContentType::json().0, status::Ok, "")))
+    Ok(Response::with((ContentType::json().0, status::Ok, value)))
 }
 
 fn delete(req: &mut Request) -> IronResult<Response> {
@@ -98,20 +99,39 @@ fn delete(req: &mut Request) -> IronResult<Response> {
 
     let client_arc = req.get::<Write<Client>>().unwrap();
     let mut client = client_arc.lock().unwrap();
-    client.delete(&doc_id);
+    let value = client.delete(&doc_id);
 
-    Ok(Response::with((ContentType::json().0, status::Ok, "")))
+    Ok(Response::with((ContentType::json().0, status::Ok, value)))
 }
 
 fn search(req: &mut Request) -> IronResult<Response> {
-    let mut body = String::new();
-    req.body
-        .read_to_string(&mut body)
-        .expect("Failed to read line");
+    let map = req.get_ref::<UrlEncodedQuery>().unwrap().to_owned();
+    let query = map.get("query").unwrap().get(0).unwrap();
+
+    let mut from = 0;
+    if map.contains_key("from") {
+        from = map
+            .get("from")
+            .unwrap()
+            .get(0)
+            .unwrap_or(&String::from("0"))
+            .parse::<u64>()
+            .unwrap();
+    }
+    let mut limit = 10;
+    if map.contains_key("limit") {
+        limit = map
+            .get("limit")
+            .unwrap()
+            .get(0)
+            .unwrap_or(&String::from("10"))
+            .parse::<u64>()
+            .unwrap();
+    }
 
     let client_arc = req.get::<Write<Client>>().unwrap();
     let mut client = client_arc.lock().unwrap();
-    let value = client.search(&body);
+    let value = client.search(query, from, limit);
 
     Ok(Response::with((ContentType::json().0, status::Ok, value)))
 }
@@ -119,25 +139,25 @@ fn search(req: &mut Request) -> IronResult<Response> {
 fn commit(req: &mut Request) -> IronResult<Response> {
     let client_arc = req.get::<Write<Client>>().unwrap();
     let mut client = client_arc.lock().unwrap();
-    client.commit();
+    let value = client.commit();
 
-    Ok(Response::with((ContentType::json().0, status::Ok, "")))
+    Ok(Response::with((ContentType::json().0, status::Ok, value)))
 }
 
 fn rollback(req: &mut Request) -> IronResult<Response> {
     let client_arc = req.get::<Write<Client>>().unwrap();
     let mut client = client_arc.lock().unwrap();
-    client.rollback();
+    let value = client.rollback();
 
-    Ok(Response::with((ContentType::json().0, status::Ok, "")))
+    Ok(Response::with((ContentType::json().0, status::Ok, value)))
 }
 
 fn merge(req: &mut Request) -> IronResult<Response> {
     let client_arc = req.get::<Write<Client>>().unwrap();
     let mut client = client_arc.lock().unwrap();
-    client.merge();
+    let value = client.merge();
 
-    Ok(Response::with((ContentType::json().0, status::Ok, "")))
+    Ok(Response::with((ContentType::json().0, status::Ok, value)))
 }
 
 fn schema(req: &mut Request) -> IronResult<Response> {
@@ -174,7 +194,7 @@ pub fn run_gateway_cli(matches: &ArgMatches) -> Result<(), String> {
     router.get("/index/docs/:doc_id", get, "get");
     router.put("/index/docs/:doc_id", put, "put");
     router.delete("/index/docs/:doc_id", delete, "delete");
-    router.post("/index/search", search, "search");
+    router.get("/index/search", search, "search");
     router.get("/index/commit", commit, "commit");
     router.get("/index/rollback", rollback, "rollback");
     router.get("/index/merge", merge, "merge");

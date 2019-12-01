@@ -13,8 +13,8 @@ use protobuf::Message;
 use raft::eraftpb::{ConfChange, ConfChangeType, Entry, EntryType, Message as RaftMessage};
 use tantivy::collector::TopDocs;
 use tantivy::query::{QueryParser, TermQuery};
-use tantivy::schema::{Field, FieldType, IndexRecordOption, NamedFieldDocument, Schema};
-use tantivy::{Document, Index, IndexWriter, SegmentMeta, Term};
+use tantivy::schema::{Field, FieldType, IndexRecordOption, Schema};
+use tantivy::{Document, Index, IndexWriter, Term};
 
 use crate::client::client::{create_client, Clerk};
 use crate::proto::indexpb_grpc::{self, Index as IndexService, IndexClient};
@@ -305,14 +305,17 @@ impl IndexServer {
                     .lock()
                     .unwrap()
                     .delete_term(Term::from_field_text(field, req.get_put_req().get_doc_id()));
-                index_writer.lock().unwrap().add_document(doc);
+                let opstamp = index_writer.lock().unwrap().add_document(doc);
 
-                NotifyArgs(term, String::from(""), RespErr::OK)
+                let mut ret = HashMap::new();
+                ret.insert("opstamp", opstamp);
+
+                NotifyArgs(term, serde_json::to_string(&ret).unwrap(), RespErr::OK)
             }
             ReqType::Delete => {
                 metrics.lock().unwrap().inc_request_count("delete");
 
-                index_writer
+                let opstamp = index_writer
                     .lock()
                     .unwrap()
                     .delete_term(Term::from_field_text(
@@ -320,19 +323,36 @@ impl IndexServer {
                         req.get_delete_req().get_doc_id(),
                     ));
 
-                NotifyArgs(term, String::from(""), RespErr::OK)
+                let mut ret = HashMap::new();
+                ret.insert("opstamp", opstamp);
+
+                NotifyArgs(term, serde_json::to_string(&ret).unwrap(), RespErr::OK)
             }
             ReqType::Commit => {
                 metrics.lock().unwrap().inc_request_count("commit");
 
                 match index_writer.lock().unwrap().commit() {
-                    Ok(_opstamp) => {
-                        info!("commit succeed");
-                        NotifyArgs(term, String::from(""), RespErr::OK)
+                    Ok(opstamp) => {
+                        info!("commit succeeded");
+
+                        let mut ret = HashMap::new();
+                        ret.insert("opstamp", opstamp);
+
+                        NotifyArgs(term, serde_json::to_string(&ret).unwrap(), RespErr::OK)
                     }
                     Err(e) => {
-                        error!("commit failed: {}", e);
-                        NotifyArgs(term, String::from(""), RespErr::ErrWrongLeader)
+                        error!("commit failed: {:?}", e);
+
+                        // TODO: rollback index
+
+                        let mut ret = HashMap::new();
+                        ret.insert("error", format!("{:?}", e));
+
+                        NotifyArgs(
+                            term,
+                            serde_json::to_string(&ret).unwrap(),
+                            RespErr::ErrWrongLeader,
+                        )
                     }
                 }
             }
@@ -340,13 +360,25 @@ impl IndexServer {
                 metrics.lock().unwrap().inc_request_count("rollback");
 
                 match index_writer.lock().unwrap().rollback() {
-                    Ok(_opstamp) => {
+                    Ok(opstamp) => {
                         info!("rollback succeed");
-                        NotifyArgs(term, String::from(""), RespErr::OK)
+
+                        let mut ret = HashMap::new();
+                        ret.insert("opstamp", opstamp);
+
+                        NotifyArgs(term, serde_json::to_string(&ret).unwrap(), RespErr::OK)
                     }
                     Err(e) => {
-                        error!("rollback failed: {}", e);
-                        NotifyArgs(term, String::from(""), RespErr::ErrWrongLeader)
+                        error!("rollback failed: {:?}", e);
+
+                        let mut ret = HashMap::new();
+                        ret.insert("error", format!("{:?}", e));
+
+                        NotifyArgs(
+                            term,
+                            serde_json::to_string(&ret).unwrap(),
+                            RespErr::ErrWrongLeader,
+                        )
                     }
                 }
             }
@@ -354,23 +386,51 @@ impl IndexServer {
                 metrics.lock().unwrap().inc_request_count("merge");
 
                 let segments = index.searchable_segment_ids().unwrap();
-                let segment_meta: SegmentMeta = index_writer
+
+                // check segments length
+                if segments.len() <= 0 {
+                    // do not merge segments
+                    let mut ret = HashMap::new();
+                    ret.insert("segments", segments);
+
+                    return NotifyArgs(term, serde_json::to_string(&ret).unwrap(), RespErr::OK);
+                }
+
+                match index_writer
                     .lock()
                     .unwrap()
                     .merge(&segments)
                     .unwrap()
                     .wait()
-                    .expect("merge failed");
-                info!("merge finished with segment meta {:?}", segment_meta);
+                {
+                    Ok(segment_meta) => {
+                        info!("merge succeed: {:?}", segment_meta);
 
-                index_writer
-                    .lock()
-                    .unwrap()
-                    .garbage_collect_files()
-                    .unwrap();
-                info!("garbage collent irrelevant segments");
+                        let mut ret = HashMap::new();
+                        ret.insert("segment_meta", segment_meta);
 
-                NotifyArgs(term, String::from(""), RespErr::OK)
+                        //                        index_writer
+                        //                            .lock()
+                        //                            .unwrap()
+                        //                            .garbage_collect_files()
+                        //                            .unwrap();
+                        //                        info!("collect garbage from the index");
+
+                        NotifyArgs(term, serde_json::to_string(&ret).unwrap(), RespErr::OK)
+                    }
+                    Err(e) => {
+                        error!("merge failed: {:?}", e);
+
+                        let mut ret = HashMap::new();
+                        ret.insert("error", format!("{:?}", e));
+
+                        NotifyArgs(
+                            term,
+                            serde_json::to_string(&ret).unwrap(),
+                            RespErr::ErrWrongLeader,
+                        )
+                    }
+                }
             }
         }
     }
@@ -448,9 +508,12 @@ impl IndexService for IndexServer {
     fn probe(&mut self, ctx: RpcContext, req: ProbeReq, sink: UnarySink<ProbeResp>) {
         self.metrics.lock().unwrap().inc_request_count("probe");
 
+        let mut ret = HashMap::new();
+        ret.insert("health", "OK");
+
         let mut resp = ProbeResp::new();
         resp.set_err(RespErr::OK);
-        resp.set_value("OK".to_string());
+        resp.set_value(serde_json::to_string(&ret).unwrap());
         ctx.spawn(
             sink.success(resp)
                 .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
@@ -510,9 +573,10 @@ impl IndexService for IndexServer {
     }
 
     fn put(&mut self, ctx: RpcContext, req: ApplyReq, sink: UnarySink<PutResp>) {
-        let (err, _) = Self::start_op(self, &req);
+        let (err, ret) = Self::start_op(self, &req);
         let mut resp = PutResp::new();
         resp.set_err(err);
+        resp.set_value(ret);
         ctx.spawn(
             sink.success(resp)
                 .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
@@ -520,9 +584,10 @@ impl IndexService for IndexServer {
     }
 
     fn delete(&mut self, ctx: RpcContext, req: ApplyReq, sink: UnarySink<DeleteResp>) {
-        let (err, _) = Self::start_op(self, &req);
+        let (err, ret) = Self::start_op(self, &req);
         let mut resp = DeleteResp::new();
         resp.set_err(err);
+        resp.set_value(ret);
         ctx.spawn(
             sink.success(resp)
                 .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
@@ -530,9 +595,10 @@ impl IndexService for IndexServer {
     }
 
     fn commit(&mut self, ctx: RpcContext, req: ApplyReq, sink: UnarySink<CommitResp>) {
-        let (err, _) = Self::start_op(self, &req);
+        let (err, ret) = Self::start_op(self, &req);
         let mut resp = CommitResp::new();
         resp.set_err(err);
+        resp.set_value(ret);
         ctx.spawn(
             sink.success(resp)
                 .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
@@ -540,9 +606,10 @@ impl IndexService for IndexServer {
     }
 
     fn rollback(&mut self, ctx: RpcContext, req: ApplyReq, sink: UnarySink<RollbackResp>) {
-        let (err, _) = Self::start_op(self, &req);
+        let (err, ret) = Self::start_op(self, &req);
         let mut resp = RollbackResp::new();
         resp.set_err(err);
+        resp.set_value(ret);
         ctx.spawn(
             sink.success(resp)
                 .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
@@ -550,9 +617,10 @@ impl IndexService for IndexServer {
     }
 
     fn merge(&mut self, ctx: RpcContext, req: ApplyReq, sink: UnarySink<MergeResp>) {
-        let (err, _) = Self::start_op(self, &req);
+        let (err, ret) = Self::start_op(self, &req);
         let mut resp = MergeResp::new();
         resp.set_err(err);
+        resp.set_value(ret);
         ctx.spawn(
             sink.success(resp)
                 .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
@@ -575,20 +643,31 @@ impl IndexService for IndexServer {
             })
             .map(|(i, _)| Field(i as u32))
             .collect();
+
+        let limit = req.get_from() + req.get_limit();
+
         let query_parser = QueryParser::for_index(&self.index, default_fields);
         let query = query_parser.parse_query(req.query.as_str()).unwrap();
         let searcher = self.index.reader().unwrap().searcher();
-        let top_docs = searcher.search(&query, &TopDocs::with_limit(10)).unwrap();
-        let mut named_docs: Vec<NamedFieldDocument> = Vec::new();
+        let top_docs = searcher
+            .search(&query, &TopDocs::with_limit(limit as usize))
+            .unwrap();
+        let mut named_docs: Vec<_> = Vec::new();
+
+        let mut count: u64 = 0;
         for (score, doc_address) in top_docs {
-            let doc = searcher.doc(doc_address).unwrap();
-            let named_doc = schema.to_named_doc(&doc);
-            debug!(
-                "score={} doc={}",
-                score,
-                serde_json::to_string(&named_doc).unwrap()
-            );
-            named_docs.push(named_doc);
+            if count >= req.get_from() {
+                let doc = searcher.doc(doc_address).unwrap();
+                let named_doc = schema.to_named_doc(&doc);
+                debug!(
+                    "score: {:?} doc: {:?}",
+                    score,
+                    serde_json::to_string(&named_doc).unwrap()
+                );
+
+                named_docs.push(named_doc);
+            }
+            count += 1;
         }
 
         let mut resp = SearchResp::new();

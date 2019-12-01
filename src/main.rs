@@ -15,12 +15,12 @@ use bayard::cmd::merge::run_merge_cli;
 use bayard::cmd::metrics::run_metrics_cli;
 use bayard::cmd::peers::run_peers_cli;
 use bayard::cmd::probe::run_probe_cli;
+use bayard::cmd::put::run_put_cli;
 use bayard::cmd::rollback::run_rollback_cli;
 use bayard::cmd::schedule::run_schedule_cli;
 use bayard::cmd::schema::run_schema_cli;
 use bayard::cmd::search::run_search_cli;
 use bayard::cmd::serve::run_serve_cli;
-use bayard::cmd::set::run_set_cli;
 
 fn main() {
     let app = App::new(crate_name!())
@@ -28,17 +28,24 @@ fn main() {
         .setting(AppSettings::SubcommandRequiredElseHelp)
         .version(crate_version!())
         .author(crate_authors!())
-        .about(crate_description!())
+//        .about(crate_description!())
+        .about("The `bayard` CLI manages server, cluster and index.")
+        .help_message("Prints help information.")
+        .version_message("Prints version information.")
+        .version_short("v")
         .subcommand(
             SubCommand::with_name("serve")
                 .name("serve")
                 .setting(AppSettings::DeriveDisplayOrder)
                 .version(crate_version!())
                 .author(crate_authors!())
-                .about("Start server")
+                .about("The `bayard serve` CLI starts the server.")
+                .help_message("Prints help information.")
+                .version_message("Prints version information.")
+                .version_short("v")
                 .arg(
                     Arg::with_name("ID")
-                        .help("The node ID")
+                        .help("Server ID. Must specify a numeric ID that is unique within the cluster. If not specified, use the default ID.")
                         .short("i")
                         .long("id")
                         .value_name("ID")
@@ -47,7 +54,7 @@ fn main() {
                 )
                 .arg(
                     Arg::with_name("HOST")
-                        .help("The node address")
+                        .help("Host address. Must specify the host name or IP address. If not specified, use the default address.")
                         .short("H")
                         .long("host")
                         .value_name("HOST")
@@ -56,7 +63,7 @@ fn main() {
                 )
                 .arg(
                     Arg::with_name("PORT")
-                        .help("The gRPC listen port for client connection")
+                        .help("Port number. This port is used for communication via gRPC. If not specified, use the default port.")
                         .short("P")
                         .long("port")
                         .value_name("PORT")
@@ -65,7 +72,7 @@ fn main() {
                 )
                 .arg(
                     Arg::with_name("PEERS")
-                        .help("Set peers address separated by `,`, if join to a cluster")
+                        .help("Server ID and addresses in an existing cluster separated by \",\". If specified, the server will join the cluster.")
                         .short("p")
                         .long("peers")
                         .value_name("ID=IP:PORT")
@@ -77,7 +84,7 @@ fn main() {
                 )
                 .arg(
                     Arg::with_name("DATA_DIRECTORY")
-                        .help("The data directory")
+                        .help("Data directory. Stores index, snapshots, and raft logs. If not specified, use the default directory.")
                         .short("d")
                         .long("data-directory")
                         .value_name("DATA_DIRECTORY")
@@ -86,7 +93,7 @@ fn main() {
                 )
                 .arg(
                     Arg::with_name("SCHEMA_FILE")
-                        .help("The schema file")
+                        .help("Schema file. Must specify An existing file name. If not specified, use the default schema file.")
                         .short("s")
                         .long("schema-file")
                         .value_name("SCHEMA_FILE")
@@ -95,7 +102,7 @@ fn main() {
                 )
                 .arg(
                     Arg::with_name("UNIQUE_KEY_FIELD_NAME")
-                        .help("The unique key field name")
+                        .help("Unique key field name. Specify the field name to be treated as a unique key in the field defined in the schema. If not specified, use the default unique key field name.")
                         .short("u")
                         .long("unique-key-field-name")
                         .value_name("UNIQUE_KEY_FIELD_NAME")
@@ -109,10 +116,13 @@ fn main() {
                 .setting(AppSettings::DeriveDisplayOrder)
                 .version(crate_version!())
                 .author(crate_authors!())
-                .about("Probe a server")
+                .about("The `bayard probe` CLI probes the server.")
+                .help_message("Prints help information.")
+                .version_message("Prints version information.")
+                .version_short("v")
                 .arg(
                     Arg::with_name("SERVERS")
-                        .help("The server addresses. Use `,` to separate address. Example: `127.0.0.1:5000,127.0.0.1:5001`")
+                        .help("Server addresses in an existing cluster separated by \",\". If not specified, use default servers.")
                         .short("s")
                         .long("servers")
                         .value_name("IP:PORT")
@@ -130,10 +140,13 @@ fn main() {
                 .setting(AppSettings::DeriveDisplayOrder)
                 .version(crate_version!())
                 .author(crate_authors!())
-                .about("Get cluster peers")
+                .about("The `bayard peers` CLI shows the peer addresses of the cluster that the specified server is joining.")
+                .help_message("Prints help information.")
+                .version_message("Prints version information.")
+                .version_short("v")
                 .arg(
                     Arg::with_name("SERVERS")
-                        .help("The server addresses. Use `,` to separate address. Example: `127.0.0.1:5000,127.0.0.1:5001`")
+                        .help("Server addresses in an existing cluster separated by \",\". If not specified, use default servers.")
                         .short("s")
                         .long("servers")
                         .value_name("IP:PORT")
@@ -151,10 +164,13 @@ fn main() {
                 .setting(AppSettings::DeriveDisplayOrder)
                 .version(crate_version!())
                 .author(crate_authors!())
-                .about("Get metrics")
+                .about("The `bayard metrics` CLI shows the server metrics of the specified server. The metrics are output in Prometheus exposition format.")
+                .help_message("Prints help information.")
+                .version_message("Prints version information.")
+                .version_short("v")
                 .arg(
                     Arg::with_name("SERVERS")
-                        .help("The server addresses. Use `,` to separate address. Example: `127.0.0.1:5000,127.0.0.1:5001`")
+                        .help("Server addresses in an existing cluster separated by \",\". If not specified, use default servers.")
                         .short("s")
                         .long("servers")
                         .value_name("IP:PORT")
@@ -172,10 +188,13 @@ fn main() {
                 .setting(AppSettings::DeriveDisplayOrder)
                 .version(crate_version!())
                 .author(crate_authors!())
-                .about("Remove a node from a cluster")
+                .about("The `bayard leave` CLI removes the server with the specified ID from the cluster that the specified server is joining.")
+                .help_message("Prints help information.")
+                .version_message("Prints version information.")
+                .version_short("v")
                 .arg(
                     Arg::with_name("SERVERS")
-                        .help("The server addresses. Use `,` to separate address. Example: `127.0.0.1:5000,127.0.0.1:5001`")
+                        .help("Server addresses in an existing cluster separated by \",\". If not specified, use default servers.")
                         .short("s")
                         .long("servers")
                         .value_name("IP:PORT")
@@ -188,7 +207,7 @@ fn main() {
                 )
                 .arg(
                     Arg::with_name("ID")
-                        .help("Node ID to be removed from the cluster")
+                        .help("Node ID to be removed from the cluster that specified server is joining.")
                         .short("i")
                         .long("id")
                         .value_name("ID")
@@ -197,15 +216,18 @@ fn main() {
                 )
         )
         .subcommand(
-            SubCommand::with_name("set")
-                .name("set")
+            SubCommand::with_name("put")
+                .name("put")
                 .setting(AppSettings::DeriveDisplayOrder)
                 .version(crate_version!())
                 .author(crate_authors!())
-                .about("Index document")
+                .about("The `bayard put` CLI puts a document with the specified ID and field. If specify an existing ID, it will be overwritten with the new document.")
+                .help_message("Prints help information.")
+                .version_message("Prints version information.")
+                .version_short("v")
                 .arg(
                     Arg::with_name("SERVERS")
-                        .help("The server addresses. Use `,` to separate address. Example: `127.0.0.1:5000,127.0.0.1:5001`")
+                        .help("Server addresses in an existing cluster separated by \",\". If not specified, use default servers.")
                         .short("s")
                         .long("servers")
                         .value_name("IP:PORT")
@@ -217,16 +239,16 @@ fn main() {
                         .takes_value(true),
                 )
                 .arg(
-                    Arg::with_name("KEY")
-                        .help("The key")
-                        .value_name("KEY")
+                    Arg::with_name("DOC_ID")
+                        .help("A unique value that identifies the document in the index. If specify an existing ID, the existing document in the index is overwritten.")
+                        .value_name("DOC_ID")
                         .required(true)
                         .takes_value(true),
                 )
                 .arg(
-                    Arg::with_name("VALUE")
-                        .help("The value")
-                        .value_name("VALUE")
+                    Arg::with_name("FIELDS")
+                        .help("Document fields expressed in JSON format.")
+                        .value_name("FIELDS")
                         .required(true)
                         .takes_value(true),
                 )
@@ -237,10 +259,13 @@ fn main() {
                 .setting(AppSettings::DeriveDisplayOrder)
                 .version(crate_version!())
                 .author(crate_authors!())
-                .about("Get document")
+                .about("The `bayard get` CLI gets a document with the specified ID.")
+                .help_message("Prints help information.")
+                .version_message("Prints version information.")
+                .version_short("v")
                 .arg(
                     Arg::with_name("SERVERS")
-                        .help("The server addresses. Use `,` to separate address. Example: `127.0.0.1:5000,127.0.0.1:5001`")
+                        .help("Server addresses in an existing cluster separated by \",\". If not specified, use default servers.")
                         .short("s")
                         .long("servers")
                         .value_name("IP:PORT")
@@ -252,9 +277,9 @@ fn main() {
                         .takes_value(true),
                 )
                 .arg(
-                    Arg::with_name("KEY")
-                        .help("The key")
-                        .value_name("KEY")
+                    Arg::with_name("DOC_ID")
+                        .help("A unique value that identifies the document in the index.")
+                        .value_name("DOC_ID")
                         .required(true)
                         .takes_value(true),
                 )
@@ -265,10 +290,13 @@ fn main() {
                 .setting(AppSettings::DeriveDisplayOrder)
                 .version(crate_version!())
                 .author(crate_authors!())
-                .about("Delete document")
+                .about("The `bayard delete` CLI deletes a document with the specified ID.")
+                .help_message("Prints help information.")
+                .version_message("Prints version information.")
+                .version_short("v")
                 .arg(
                     Arg::with_name("SERVERS")
-                        .help("The server addresses. Use `,` to separate address. Example: `127.0.0.1:5000,127.0.0.1:5001`")
+                        .help("Server addresses in an existing cluster separated by \",\". If not specified, use default servers.")
                         .short("s")
                         .long("servers")
                         .value_name("IP:PORT")
@@ -280,9 +308,9 @@ fn main() {
                         .takes_value(true),
                 )
                 .arg(
-                    Arg::with_name("KEY")
-                        .help("The key")
-                        .value_name("KEY")
+                    Arg::with_name("DOC_ID")
+                        .help("A unique value that identifies the document in the index.")
+                        .value_name("DOC_ID")
                         .required(true)
                         .takes_value(true),
                 )
@@ -293,10 +321,13 @@ fn main() {
                 .setting(AppSettings::DeriveDisplayOrder)
                 .version(crate_version!())
                 .author(crate_authors!())
-                .about("Commit index")
+                .about("The `bayard commit` CLI commits updates made to the index.")
+                .help_message("Prints help information.")
+                .version_message("Prints version information.")
+                .version_short("v")
                 .arg(
                     Arg::with_name("SERVERS")
-                        .help("The server addresses. Use `,` to separate address. Example: `127.0.0.1:5000,127.0.0.1:5001`")
+                        .help("Server addresses in an existing cluster separated by \",\". If not specified, use default servers.")
                         .short("s")
                         .long("servers")
                         .value_name("IP:PORT")
@@ -314,10 +345,13 @@ fn main() {
                 .setting(AppSettings::DeriveDisplayOrder)
                 .version(crate_version!())
                 .author(crate_authors!())
-                .about("Rollback index")
+                .about("The `bayard rollback` CLI rolls back any updates made to the index to the last committed state.")
+                .help_message("Prints help information.")
+                .version_message("Prints version information.")
+                .version_short("v")
                 .arg(
                     Arg::with_name("SERVERS")
-                        .help("The server addresses. Use `,` to separate address. Example: `127.0.0.1:5000,127.0.0.1:5001`")
+                        .help("Server addresses in an existing cluster separated by \",\". If not specified, use default servers.")
                         .short("s")
                         .long("servers")
                         .value_name("IP:PORT")
@@ -335,10 +369,13 @@ fn main() {
                 .setting(AppSettings::DeriveDisplayOrder)
                 .version(crate_version!())
                 .author(crate_authors!())
-                .about("Merge index")
+                .about("The `bayard merge` CLI merges fragmented segments in the index.")
+                .help_message("Prints help information.")
+                .version_message("Prints version information.")
+                .version_short("v")
                 .arg(
                     Arg::with_name("SERVERS")
-                        .help("The server addresses. Use `,` to separate address. Example: `127.0.0.1:5000,127.0.0.1:5001`")
+                        .help("Server addresses in an existing cluster separated by \",\". If not specified, use default servers.")
                         .short("s")
                         .long("servers")
                         .value_name("IP:PORT")
@@ -356,10 +393,13 @@ fn main() {
                 .setting(AppSettings::DeriveDisplayOrder)
                 .version(crate_version!())
                 .author(crate_authors!())
-                .about("Search documents")
+                .about("The `bayard search` CLI searches documents from the index.")
+                .help_message("Prints help information.")
+                .version_message("Prints version information.")
+                .version_short("v")
                 .arg(
                     Arg::with_name("SERVERS")
-                        .help("The server addresses. Use `,` to separate address. Example: `127.0.0.1:5000,127.0.0.1:5001`")
+                        .help("Server addresses in an existing cluster separated by \",\". If not specified, use default servers.")
                         .short("s")
                         .long("servers")
                         .value_name("IP:PORT")
@@ -371,8 +411,26 @@ fn main() {
                         .takes_value(true),
                 )
                 .arg(
+                    Arg::with_name("FROM")
+                        .help("Start position of fetching results. If not specified, use default value.")
+                        .short("f")
+                        .long("from")
+                        .value_name("FROM")
+                        .default_value("0")
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("LIMIT")
+                        .help("Limitation of amount that document to be returned. If not specified, use default value.")
+                        .short("l")
+                        .long("limit")
+                        .value_name("LIMIT")
+                        .default_value("10")
+                        .takes_value(true),
+                )
+                .arg(
                     Arg::with_name("QUERY")
-                        .help("The query")
+                        .help("Query string to search the index.")
                         .value_name("QUERY")
                         .required(true)
                         .takes_value(true),
@@ -384,10 +442,13 @@ fn main() {
                 .setting(AppSettings::DeriveDisplayOrder)
                 .version(crate_version!())
                 .author(crate_authors!())
-                .about("Get schema")
+                .about("The `bayard schema` CLI shows the index schema that the server applied.")
+                .help_message("Prints help information.")
+                .version_message("Prints version information.")
+                .version_short("v")
                 .arg(
                     Arg::with_name("SERVERS")
-                        .help("The server addresses. Use `,` to separate address. Example: `127.0.0.1:5000,127.0.0.1:5001`")
+                        .help("Server addresses in an existing cluster separated by \",\". If not specified, use default servers.")
                         .short("s")
                         .long("servers")
                         .value_name("IP:PORT")
@@ -405,10 +466,13 @@ fn main() {
                 .setting(AppSettings::DeriveDisplayOrder)
                 .version(crate_version!())
                 .author(crate_authors!())
-                .about("Schedule jobs")
+                .about("The `bayard schedule` CLI starts the job scheduler.")
+                .help_message("Prints help information.")
+                .version_message("Prints version information.")
+                .version_short("v")
                 .arg(
                     Arg::with_name("SERVERS")
-                        .help("The server addresses. Use `,` to separate address. Example: `127.0.0.1:5000,127.0.0.1:5001`")
+                        .help("Server addresses in an existing cluster separated by \",\". If not specified, use default servers.")
                         .short("s")
                         .long("servers")
                         .value_name("IP:PORT")
@@ -421,7 +485,7 @@ fn main() {
                 )
                 .arg(
                     Arg::with_name("COMMIT_SCHEDULE")
-                        .help("The commit schedule")
+                        .help("Schedule for automatic commit in a cron-like format. If not specified, use default schedule.")
                         .short("c")
                         .long("commit")
                         .value_name("COMMIT_SCHEDULE")
@@ -430,7 +494,7 @@ fn main() {
                 )
                 .arg(
                     Arg::with_name("MERGE_SCHEDULE")
-                        .help("The merge schedule")
+                        .help("Schedule for automatic merge in a cron-like format. If not specified, use default schedule.")
                         .short("m")
                         .long("merge")
                         .value_name("MERGE_SCHEDULE")
@@ -444,10 +508,13 @@ fn main() {
                 .setting(AppSettings::DeriveDisplayOrder)
                 .version(crate_version!())
                 .author(crate_authors!())
-                .about("Schedule jobs")
+                .about("The `bayard gateway` CLI starts a gateway for access the server over HTTP.")
+                .help_message("Prints help information.")
+                .version_message("Prints version information.")
+                .version_short("v")
                 .arg(
                     Arg::with_name("HOST")
-                        .help("The node address")
+                        .help("Host address. Must specify the host name or IP address. If not specified, use the default address.")
                         .short("H")
                         .long("host")
                         .value_name("HOST")
@@ -456,7 +523,7 @@ fn main() {
                 )
                 .arg(
                     Arg::with_name("PORT")
-                        .help("The HTTP listen port for client connection")
+                        .help("Port number. This port is used for communication via HTTP. If not specified, use the default port.")
                         .short("P")
                         .long("port")
                         .value_name("PORT")
@@ -465,7 +532,7 @@ fn main() {
                 )
                 .arg(
                     Arg::with_name("SERVERS")
-                        .help("The server addresses. Use `,` to separate address. Example: `127.0.0.1:5000,127.0.0.1:5001`")
+                        .help("Server addresses in an existing cluster separated by \",\". If not specified, use default servers.")
                         .short("s")
                         .long("servers")
                         .value_name("IP:PORT")
@@ -487,7 +554,7 @@ fn main() {
         "peers" => run_peers_cli,
         "metrics" => run_metrics_cli,
         "leave" => run_leave_cli,
-        "set" => run_set_cli,
+        "put" => run_put_cli,
         "get" => run_get_cli,
         "delete" => run_delete_cli,
         "commit" => run_commit_cli,

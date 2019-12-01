@@ -83,7 +83,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div id="sidebar-scrollbox" class="sidebar-scrollbox">
-                <ol class="chapter"><li class="expanded affix "><a href="overview.html">Overview</a></li><li class="expanded "><a href="building_bayard.html"><strong aria-hidden="true">1.</strong> Building Bayard</a></li><li class="expanded "><a href="getting_started.html"><strong aria-hidden="true">2.</strong> Getting started</a></li><li class="expanded "><a href="cluster_mode.html"><strong aria-hidden="true">3.</strong> Cluster mode</a></li><li class="expanded "><a href="running_on_docker.html"><strong aria-hidden="true">4.</strong> Running on Docker</a></li></ol>
+                <ol class="chapter"><li class="expanded affix "><a href="overview.html">Overview</a></li><li class="expanded "><a href="building_bayard.html"><strong aria-hidden="true">1.</strong> Building Bayard</a></li><li class="expanded "><a href="getting_started.html"><strong aria-hidden="true">2.</strong> Getting started</a></li><li class="expanded "><a href="cluster_mode.html"><strong aria-hidden="true">3.</strong> Cluster mode</a></li><li class="expanded "><a href="running_on_docker.html"><strong aria-hidden="true">4.</strong> Running on Docker</a></li><li class="expanded "><a href="reference.html"><strong aria-hidden="true">5.</strong> Reference</a></li><li><ol class="section"><li class="expanded "><a href="reference/bayard.html"><strong aria-hidden="true">5.1.</strong> bayard</a></li><li><ol class="section"><li class="expanded "><a href="reference/bayard/serve.html"><strong aria-hidden="true">5.1.1.</strong> bayard serve</a></li><li class="expanded "><a href="reference/bayard/probe.html"><strong aria-hidden="true">5.1.2.</strong> bayard probe</a></li><li class="expanded "><a href="reference/bayard/peers.html"><strong aria-hidden="true">5.1.3.</strong> bayard peers</a></li><li class="expanded "><a href="reference/bayard/metrics.html"><strong aria-hidden="true">5.1.4.</strong> bayard metrics</a></li><li class="expanded "><a href="reference/bayard/leave.html"><strong aria-hidden="true">5.1.5.</strong> bayard leave</a></li><li class="expanded "><a href="reference/bayard/put.html"><strong aria-hidden="true">5.1.6.</strong> bayard put</a></li><li class="expanded "><a href="reference/bayard/get.html"><strong aria-hidden="true">5.1.7.</strong> bayard get</a></li><li class="expanded "><a href="reference/bayard/commit.html"><strong aria-hidden="true">5.1.8.</strong> bayard commit</a></li><li class="expanded "><a href="reference/bayard/rollback.html"><strong aria-hidden="true">5.1.9.</strong> bayard rollback</a></li><li class="expanded "><a href="reference/bayard/merge.html"><strong aria-hidden="true">5.1.10.</strong> bayard merge</a></li><li class="expanded "><a href="reference/bayard/search.html"><strong aria-hidden="true">5.1.11.</strong> bayard search</a></li><li class="expanded "><a href="reference/bayard/schema.html"><strong aria-hidden="true">5.1.12.</strong> bayard schema</a></li><li class="expanded "><a href="reference/bayard/schedule.html"><strong aria-hidden="true">5.1.13.</strong> bayard schedule</a></li><li class="expanded "><a href="reference/bayard/gateway.html"><strong aria-hidden="true">5.1.14.</strong> bayard gateway</a></li></ol></li><li class="expanded "><a href="reference/apis.html"><strong aria-hidden="true">5.2.</strong> APIs</a></li><li><ol class="section"><li class="expanded "><a href="reference/apis/probe.html"><strong aria-hidden="true">5.2.1.</strong> Probe API</a></li><li class="expanded "><a href="reference/apis/peers.html"><strong aria-hidden="true">5.2.2.</strong> Peers API</a></li><li class="expanded "><a href="reference/apis/metrics.html"><strong aria-hidden="true">5.2.3.</strong> Metrics API</a></li><li class="expanded "><a href="reference/apis/put.html"><strong aria-hidden="true">5.2.4.</strong> Put API</a></li><li class="expanded "><a href="reference/apis/get.html"><strong aria-hidden="true">5.2.5.</strong> Get API</a></li><li class="expanded "><a href="reference/apis/delete.html"><strong aria-hidden="true">5.2.6.</strong> Delete API</a></li><li class="expanded "><a href="reference/apis/search.html"><strong aria-hidden="true">5.2.7.</strong> Search API</a></li><li class="expanded "><a href="reference/apis/commit.html"><strong aria-hidden="true">5.2.8.</strong> Commit API</a></li><li class="expanded "><a href="reference/apis/rollback.html"><strong aria-hidden="true">5.2.9.</strong> Rollback API</a></li><li class="expanded "><a href="reference/apis/merge.html"><strong aria-hidden="true">5.2.10.</strong> Merge API</a></li><li class="expanded "><a href="reference/apis/schema.html"><strong aria-hidden="true">5.2.11.</strong> Schema API</a></li></ol></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -193,7 +193,7 @@ Bayard makes easy for programmers to develop search applications with advanced f
 <h1><a class="header" href="#getting-started" id="getting-started">Getting started</a></h1>
 <h2><a class="header" href="#starting-in-standalone-mode-single-node-cluster" id="starting-in-standalone-mode-single-node-cluster">Starting in standalone mode (Single node cluster)</a></h2>
 <p>Running node in standalone mode is easy. You can start server with the following command:</p>
-<pre><code class="language-shellscript">./bin/bayard serve
+<pre><code class="language-text">$ ./bin/bayard serve
 </code></pre>
 <p>You'll see a startup message like following:</p>
 <pre><code class="language-text">[2019-11-27T00:30:45Z INFO bayard::server::server src/server/server.rs:119] listening on 0.0.0.0:5000
@@ -210,7 +210,7 @@ Bayard makes easy for programmers to develop search applications with advanced f
 </code></pre>
 <h2><a class="header" href="#getting-schema" id="getting-schema">Getting schema</a></h2>
 <p>You can confirm current schema with the following command:</p>
-<pre><code class="language-shellscript">./bin/bayard schema | jq .
+<pre><code class="language-text">$ ./bin/bayard schema | jq .
 </code></pre>
 <p>You'll see the result in JSON format. The result of the above command is:</p>
 <pre><code class="language-json">[
@@ -240,22 +240,22 @@ Bayard makes easy for programmers to develop search applications with advanced f
 </code></pre>
 <h2><a class="header" href="#indexing-document" id="indexing-document">Indexing document</a></h2>
 <p>You can index documents with the following command:</p>
-<pre><code class="language-shellscript">./bin/bayard set 1 '{&quot;text&quot;:&quot;Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.&quot;}'
-./bin/bayard set 2 '{&quot;text&quot;:&quot;Solr is highly reliable, scalable and fault tolerant, providing distributed indexing, replication and load-balanced querying, automated failover and recovery, centralized configuration and more.&quot;}'
-./bin/bayard set 3 '{&quot;text&quot;:&quot;Elasticsearch is a distributed, open source search and analytics engine for all types of data, including textual, numerical, geospatial, structured, and unstructured.&quot;}'
-./bin/bayard set 4 '{&quot;text&quot;:&quot;Blast is a full text search and indexing server, written in Go, built on top of Bleve.&quot;}'
-./bin/bayard set 5 '{&quot;text&quot;:&quot;Riot is Go Open Source, Distributed, Simple and efficient full text search engine.&quot;}'
-./bin/bayard set 6 '{&quot;text&quot;:&quot;Toshi is meant to be a full-text search engine similar to Elasticsearch. Toshi strives to be to Elasticsearch what Tantivy is to Lucene.&quot;}'
-./bin/bayard set 7 '{&quot;text&quot;:&quot;Sonic is a fast, lightweight and schema-less search backend.&quot;}'
-./bin/bayard set 8 '{&quot;text&quot;:&quot;Tantivy is a full-text search engine library inspired by Apache Lucene and written in Rust.&quot;}'
-./bin/bayard set 9 '{&quot;text&quot;:&quot;Apache Lucene is a high-performance, full-featured text search engine library written entirely in Java.&quot;}'
-./bin/bayard set 10 '{&quot;text&quot;:&quot;Bleve is a modern text indexing library for go.&quot;}'
-./bin/bayard set 11 '{&quot;text&quot;:&quot;Whoosh is a fast, pure Python search engine library.&quot;}'
-./bin/bayard commit
+<pre><code class="language-text">$ ./bin/bayard put 1 '{&quot;text&quot;:&quot;Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.&quot;}'
+$ ./bin/bayard put 2 '{&quot;text&quot;:&quot;Solr is highly reliable, scalable and fault tolerant, providing distributed indexing, replication and load-balanced querying, automated failover and recovery, centralized configuration and more.&quot;}'
+$ ./bin/bayard put 3 '{&quot;text&quot;:&quot;Elasticsearch is a distributed, open source search and analytics engine for all types of data, including textual, numerical, geospatial, structured, and unstructured.&quot;}'
+$ ./bin/bayard put 4 '{&quot;text&quot;:&quot;Blast is a full text search and indexing server, written in Go, built on top of Bleve.&quot;}'
+$ ./bin/bayard put 5 '{&quot;text&quot;:&quot;Riot is Go Open Source, Distributed, Simple and efficient full text search engine.&quot;}'
+$ ./bin/bayard put 6 '{&quot;text&quot;:&quot;Toshi is meant to be a full-text search engine similar to Elasticsearch. Toshi strives to be to Elasticsearch what Tantivy is to Lucene.&quot;}'
+$ ./bin/bayard put 7 '{&quot;text&quot;:&quot;Sonic is a fast, lightweight and schema-less search backend.&quot;}'
+$ ./bin/bayard put 8 '{&quot;text&quot;:&quot;Tantivy is a full-text search engine library inspired by Apache Lucene and written in Rust.&quot;}'
+$ ./bin/bayard put 9 '{&quot;text&quot;:&quot;Apache Lucene is a high-performance, full-featured text search engine library written entirely in Java.&quot;}'
+$ ./bin/bayard put 10 '{&quot;text&quot;:&quot;Bleve is a modern text indexing library for go.&quot;}'
+$ ./bin/bayard put 11 '{&quot;text&quot;:&quot;Whoosh is a fast, pure Python search engine library.&quot;}'
+$ ./bin/bayard commit
 </code></pre>
 <h2><a class="header" href="#getting-document" id="getting-document">Getting document</a></h2>
 <p>You can get document with the following command:</p>
-<pre><code class="language-shellscript">./bin/bayard get 1 | jq .
+<pre><code class="language-text">$ ./bin/bayard get 1 | jq .
 </code></pre>
 <p>You'll see the result in JSON format. The result of the above command is:</p>
 <pre><code class="language-json">{
@@ -269,7 +269,7 @@ Bayard makes easy for programmers to develop search applications with advanced f
 </code></pre>
 <h2><a class="header" href="#searching-documents" id="searching-documents">Searching documents</a></h2>
 <p>You can search documents with the following command:</p>
-<pre><code class="language-shellscript">./bin/bayard search text:&quot;rust&quot; | jq .
+<pre><code class="language-text">$ ./bin/bayard search text:&quot;rust&quot; | jq .
 </code></pre>
 <p>You'll see the result in JSON format. The result of the above command is:</p>
 <pre><code class="language-json">[
@@ -293,25 +293,25 @@ Bayard makes easy for programmers to develop search applications with advanced f
 </code></pre>
 <h2><a class="header" href="#deleting-document" id="deleting-document">Deleting document</a></h2>
 <p>You can delete document with the following command:</p>
-<pre><code class="language-shellscript">./bin/bayard delete 1
-./bin/bayard delete 2
-./bin/bayard delete 3
-./bin/bayard delete 4
-./bin/bayard delete 5
-./bin/bayard delete 6
-./bin/bayard delete 7
-./bin/bayard delete 8
-./bin/bayard delete 9
-./bin/bayard delete 10
-./bin/bayard delete 11
-./bin/bayard commit
+<pre><code class="language-text">$ ./bin/bayard delete 1
+$ ./bin/bayard delete 2
+$ ./bin/bayard delete 3
+$ ./bin/bayard delete 4
+$ ./bin/bayard delete 5
+$ ./bin/bayard delete 6
+$ ./bin/bayard delete 7
+$ ./bin/bayard delete 8
+$ ./bin/bayard delete 9
+$ ./bin/bayard delete 10
+$ ./bin/bayard delete 11
+$ ./bin/bayard commit
 </code></pre>
 <h1><a class="header" href="#cluster-mode" id="cluster-mode">Cluster mode</a></h1>
 <p>Bayard supports booting in cluster mode by itself. No external software is required, and you can easily bring up a cluster by adding a command flags.</p>
 <h2><a class="header" href="#starting-in-cluster-mode-3-node-cluster" id="starting-in-cluster-mode-3-node-cluster">Starting in cluster mode (3-node cluster)</a></h2>
 <p>Running in standalone is not fault tolerant. If you need to improve fault tolerance, start servers in cluster mode.
 You can start servers in cluster mode with the following command:</p>
-<pre><code class="language-shellscript">./bin/bayard serve \
+<pre><code class="language-text">$ ./bin/bayard serve \
     --id=1 \
     --host=0.0.0.0 \
     --port=5001 \
@@ -319,7 +319,7 @@ You can start servers in cluster mode with the following command:</p>
     --schema-file=./etc/schema.json \
     --unique-key-field-name=id
 </code></pre>
-<pre><code class="language-shellscript">./bin/bayard serve \
+<pre><code class="language-text">$ ./bin/bayard serve \
     --id=2 \
     --host=0.0.0.0 \
     --port=5002 \
@@ -328,7 +328,7 @@ You can start servers in cluster mode with the following command:</p>
     --schema-file=./etc/schema.json \
     --unique-key-field-name=id
 </code></pre>
-<pre><code class="language-shellscript">./bin/bayard serve \
+<pre><code class="language-text">$ ./bin/bayard serve \
     --id=3 \
     --host=0.0.0.0 \
     --port=5003 \
@@ -342,7 +342,7 @@ Recommend 3 or more odd number of servers in the cluster to avoid split-brain.<b
 When deploying to a single host, if that host goes down due to hardware failure, all of the servers in the cluster will be stopped, so recommend deploying to a different host.</p>
 <h2><a class="header" href="#cluster-peers" id="cluster-peers">Cluster peers</a></h2>
 <p>You can check the peers in the cluster with the following command:</p>
-<pre><code class="language-shellscript">./bin/bayard peers --servers localhost:5001 | jq .
+<pre><code class="language-text">$ ./bin/bayard peers --servers localhost:5001 | jq .
 </code></pre>
 <p>You'll see the result in JSON format. The result of the above command is:</p>
 <pre><code class="language-json">{
@@ -355,7 +355,7 @@ When deploying to a single host, if that host goes down due to hardware failure,
 <p>If one of the servers in a cluster goes down due to a hardware failure and raft logs and metadata is lost, that server cannot join the cluster again.<br />
 If you want the server to join the cluster again, you must remove it from the cluster.<br />
 The following command deletes the server with <code>id=3</code> from the cluster:</p>
-<pre><code class="language-shellscript">./bin/bayard leave \
+<pre><code class="language-text">$ ./bin/bayard leave \
     --servers=127.0.0.1:5001 \
     --id=3
 </code></pre>
@@ -366,13 +366,515 @@ The following command deletes the server with <code>id=3</code> from the cluster
 </ul>
 <h2><a class="header" href="#pulling-docker-container" id="pulling-docker-container">Pulling Docker container</a></h2>
 <p>You can pull the Docker container image with the following command:</p>
-<pre><code class="language-shellscript">docker pull bayardsearch/bayard:latest
+<pre><code class="language-text">$ docker pull bayardsearch/bayard:latest
 </code></pre>
 <h2><a class="header" href="#running-docker-container" id="running-docker-container">Running Docker container</a></h2>
 <p>You can run the Docker container image with the following command:</p>
-<pre><code class="language-shellscript">docker run --rm --name bayard \
+<pre><code class="language-text">$ docker run --rm --name bayard \
     -p 5000:5000 \
     bayardsearch/bayard:latest serve
+</code></pre>
+<h1><a class="header" href="#reference" id="reference">Reference</a></h1>
+<ul>
+<li><a href="reference/bayard.html">bayard</a></li>
+<li><a href="reference/apis.html">APIs</a></li>
+</ul>
+<h1><a class="header" href="#bayard-1" id="bayard-1">bayard</a></h1>
+<p>The <code>bayard</code> CLI manages server, cluster and index.</p>
+<h2><a class="header" href="#usage" id="usage">USAGE</a></h2>
+<pre><code>bayard &lt;SUBCOMMAND&gt;
+</code></pre>
+<h2><a class="header" href="#flags" id="flags">FLAGS</a></h2>
+<pre><code>-h, --help       Prints help information.
+-v, --version    Prints version information.
+</code></pre>
+<h2><a class="header" href="#subcommands" id="subcommands">SUBCOMMANDS</a></h2>
+<pre><code>serve       Start server
+probe       Probe a server
+peers       Get cluster peers
+metrics     Get metrics
+leave       Remove a node from a cluster
+set         Index document
+get         Get document
+delete      Delete document
+commit      Commit index
+rollback    Rollback index
+merge       Merge index
+search      Search documents
+schema      Get schema
+schedule    Schedule jobs
+gateway     Schedule jobs
+help        Prints this message or the help of the given subcommand(s)
+</code></pre>
+<h2><a class="header" href="#examples" id="examples">EXAMPLES</a></h2>
+<p>To print version information:</p>
+<pre><code class="language-text">$ ./bin/bayard -V
+</code></pre>
+<h1><a class="header" href="#bayard-serve" id="bayard-serve">bayard serve</a></h1>
+<p>The <code>bayard serve</code> CLI starts the server.</p>
+<h2><a class="header" href="#usage-1" id="usage-1">USAGE</a></h2>
+<pre><code>bayard serve [OPTIONS]
+</code></pre>
+<h2><a class="header" href="#flags-1" id="flags-1">FLAGS</a></h2>
+<pre><code>-h, --help       Prints help information.
+-v, --version    Prints version information.
+</code></pre>
+<h2><a class="header" href="#options" id="options">OPTIONS</a></h2>
+<pre><code>-i, --id &lt;ID&gt;
+        Server ID. Must specify a numeric ID that is unique within the cluster. If not specified, use the default ID. [default: 1]
+-H, --host &lt;HOST&gt;
+        Host address. Must specify the host name or IP address. If not specified, use the default address. [default: 0.0.0.0]
+-P, --port &lt;PORT&gt;
+        Port number. This port is used for communication via gRPC. If not specified, use the default port. [default: 5000]
+-p, --peers &lt;ID=IP:PORT&gt;...
+        Server ID and addresses in an existing cluster separated by &quot;,&quot;. If specified, the server will join the cluster.
+-d, --data-directory &lt;DATA_DIRECTORY&gt;
+        Data directory. Stores index, snapshots, and raft logs. If not specified, use the default directory. [default: ./data]
+-s, --schema-file &lt;SCHEMA_FILE&gt;
+        Schema file. Must specify An existing file name. If not specified, use the default schema file. [default: ./etc/schema.json]
+-u, --unique-key-field-name &lt;UNIQUE_KEY_FIELD_NAME&gt;
+        Unique key field name. Specify the field name to be treated as a unique key in the field defined in the schema. If not specified, use the default unique key field name. [default: id]
+</code></pre>
+<h2><a class="header" href="#examples-1" id="examples-1">EXAMPLES</a></h2>
+<p>To start a server with default options:</p>
+<pre><code class="language-text">$ ./bin/bayard serve
+</code></pre>
+<p>To start a server with options:</p>
+<pre><code class="language-text">$ ./bin/bayard serve \
+      --id=1 \
+      --host=0.0.0.0 \
+      --port=5001 \
+      --data-directory=./data/1 \
+      --schema-file=./etc/schema.json \
+      --unique-key-field-name=id
+</code></pre>
+<h1><a class="header" href="#bayard-probe" id="bayard-probe">bayard probe</a></h1>
+<p>The <code>bayard probe</code> CLI probes the server.</p>
+<h2><a class="header" href="#usage-2" id="usage-2">USAGE</a></h2>
+<pre><code>bayard probe [OPTIONS]
+</code></pre>
+<h2><a class="header" href="#flags-2" id="flags-2">FLAGS</a></h2>
+<pre><code>-h, --help       Prints help information.
+-v, --version    Prints version information.
+</code></pre>
+<h2><a class="header" href="#options-1" id="options-1">OPTIONS</a></h2>
+<pre><code>-s, --servers &lt;IP:PORT&gt;...    Server addresses in an existing cluster separated by &quot;,&quot;. If not specified, use
+                              default servers. [default: 127.0.0.1:5000]
+</code></pre>
+<h2><a class="header" href="#examples-2" id="examples-2">EXAMPLES</a></h2>
+<p>To probe a server with default options:</p>
+<pre><code class="language-text">$ ./bin/bayard probe
+</code></pre>
+<p>To probe a server with options:</p>
+<pre><code class="language-text">$ ./bin/bayard probe --servers=127.0.0.1:5001
+</code></pre>
+<h1><a class="header" href="#bayard-peers" id="bayard-peers">bayard peers</a></h1>
+<p>The <code>bayard peers</code> CLI shows the peer addresses of the cluster that the specified server is joining.</p>
+<h2><a class="header" href="#usage-3" id="usage-3">USAGE</a></h2>
+<pre><code>bayard peers [OPTIONS]
+</code></pre>
+<h2><a class="header" href="#flags-3" id="flags-3">FLAGS</a></h2>
+<pre><code>-h, --help       Prints help information.
+-v, --version    Prints version information.
+</code></pre>
+<h2><a class="header" href="#options-2" id="options-2">OPTIONS</a></h2>
+<pre><code>-s, --servers &lt;IP:PORT&gt;...    Server addresses in an existing cluster separated by &quot;,&quot;. If not specified, use
+                              default servers. [default: 127.0.0.1:5000]
+</code></pre>
+<h2><a class="header" href="#examples-3" id="examples-3">EXAMPLES</a></h2>
+<p>To show peers of the cluster with default options:</p>
+<pre><code class="language-text">$ ./bin/bayard peers
+</code></pre>
+<p>To show peers of the cluster with options:</p>
+<pre><code class="language-text">$ ./bin/bayard peers --servers=127.0.0.1:5001
+</code></pre>
+<h1><a class="header" href="#bayard-metrics" id="bayard-metrics">bayard metrics</a></h1>
+<p>The <code>bayard metrics</code> CLI shows the server metrics of the specified server. The metrics are output in Prometheus exposition format.</p>
+<h2><a class="header" href="#usage-4" id="usage-4">USAGE</a></h2>
+<pre><code>bayard metrics [OPTIONS]
+</code></pre>
+<h2><a class="header" href="#flags-4" id="flags-4">FLAGS</a></h2>
+<pre><code>-h, --help       Prints help information.
+-v, --version    Prints version information.
+</code></pre>
+<h2><a class="header" href="#options-3" id="options-3">OPTIONS</a></h2>
+<pre><code>-s, --servers &lt;IP:PORT&gt;...    Server addresses in an existing cluster separated by &quot;,&quot;. If not specified, use
+                              default servers. [default: 127.0.0.1:5000]
+</code></pre>
+<h2><a class="header" href="#examples-4" id="examples-4">EXAMPLES</a></h2>
+<p>To show metrics with default options:</p>
+<pre><code class="language-text">$ ./bin/bayard metrics
+</code></pre>
+<p>To show metrics with options:</p>
+<pre><code class="language-text">$ ./bin/bayard metrics --servers=127.0.0.1:5001
+</code></pre>
+<h1><a class="header" href="#bayard-leave" id="bayard-leave">bayard leave</a></h1>
+<p>The <code>bayard leave</code> CLI removes the server with the specified ID from the cluster that the specified server is joining.</p>
+<h2><a class="header" href="#usage-5" id="usage-5">USAGE</a></h2>
+<pre><code>bayard leave [OPTIONS]
+</code></pre>
+<h2><a class="header" href="#flags-5" id="flags-5">FLAGS</a></h2>
+<pre><code>-h, --help       Prints help information.
+-v, --version    Prints version information.
+</code></pre>
+<h2><a class="header" href="#options-4" id="options-4">OPTIONS</a></h2>
+<pre><code>-s, --servers &lt;IP:PORT&gt;...    Server addresses in an existing cluster separated by &quot;,&quot;. If not specified, use
+                              default servers. [default: 127.0.0.1:5000]
+-i, --id &lt;ID&gt;                 Node ID to be removed from the cluster that specified server is joining. [default: 1]
+</code></pre>
+<h2><a class="header" href="#examples-5" id="examples-5">EXAMPLES</a></h2>
+<p>To remove a server with default options:</p>
+<pre><code class="language-text">$ ./bin/bayard leave
+</code></pre>
+<p>To probe a server with options:</p>
+<pre><code class="language-text">$ ./bin/bayard leave --servers=127.0.0.1:5001 --id=3
+</code></pre>
+<h1><a class="header" href="#bayard-put" id="bayard-put">bayard put</a></h1>
+<p>The <code>bayard put</code> CLI puts a document with the specified ID and field. If specify an existing ID, it will be overwritten
+with the new document.</p>
+<h2><a class="header" href="#usage-6" id="usage-6">USAGE</a></h2>
+<pre><code>bayard put [OPTIONS] &lt;DOC_ID&gt; &lt;FIELDS&gt;
+</code></pre>
+<h2><a class="header" href="#flags-6" id="flags-6">FLAGS</a></h2>
+<pre><code>-h, --help       Prints help information.
+-v, --version    Prints version information.
+</code></pre>
+<h2><a class="header" href="#options-5" id="options-5">OPTIONS</a></h2>
+<pre><code>-s, --servers &lt;IP:PORT&gt;...    Server addresses in an existing cluster separated by &quot;,&quot;. If not specified, use
+                              default servers. [default: 127.0.0.1:5000]
+</code></pre>
+<h2><a class="header" href="#args" id="args">ARGS</a></h2>
+<pre><code>&lt;DOC_ID&gt;    A unique value that identifies the document in the index. If specify an existing ID, the existing
+            document in the index is overwritten.
+&lt;FIELDS&gt;    Document fields expressed in JSON format.
+</code></pre>
+<h2><a class="header" href="#examples-6" id="examples-6">EXAMPLES</a></h2>
+<p>To put a document with default options:</p>
+<pre><code class="language-text">$ ./bin/bayard put 1 '{&quot;text&quot;:&quot;Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.&quot;}'
+</code></pre>
+<p>To put a document with options:</p>
+<pre><code class="language-text">$ ./bin/bayard put --servers=127.0.0.1:5001 1 '{&quot;text&quot;:&quot;Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.&quot;}'
+</code></pre>
+<h1><a class="header" href="#bayard-get" id="bayard-get">bayard get</a></h1>
+<p>The <code>bayard get</code> CLI gets a document with the specified ID.</p>
+<h2><a class="header" href="#usage-7" id="usage-7">USAGE</a></h2>
+<pre><code>bayard get [OPTIONS] &lt;DOC_ID&gt;
+</code></pre>
+<h2><a class="header" href="#flags-7" id="flags-7">FLAGS</a></h2>
+<pre><code>-h, --help       Prints help information.
+-v, --version    Prints version information.
+</code></pre>
+<h2><a class="header" href="#options-6" id="options-6">OPTIONS</a></h2>
+<pre><code>-s, --servers &lt;IP:PORT&gt;...    Server addresses in an existing cluster separated by &quot;,&quot;. If not specified, use
+                              default servers. [default: 127.0.0.1:5000]
+</code></pre>
+<h2><a class="header" href="#args-1" id="args-1">ARGS</a></h2>
+<pre><code>&lt;DOC_ID&gt;    A unique value that identifies the document in the index.
+</code></pre>
+<h2><a class="header" href="#examples-7" id="examples-7">EXAMPLES</a></h2>
+<p>To get a document with default options:</p>
+<pre><code class="language-text">$ ./bin/bayard get 1
+</code></pre>
+<p>To get a document with options:</p>
+<pre><code class="language-text">$ ./bin/bayard get --servers=127.0.0.1:5001 1
+</code></pre>
+<h1><a class="header" href="#bayard-commit" id="bayard-commit">bayard commit</a></h1>
+<p>The <code>bayard commit</code> CLI commits updates made to the index.</p>
+<h2><a class="header" href="#usage-8" id="usage-8">USAGE</a></h2>
+<pre><code>bayard commit [OPTIONS]
+</code></pre>
+<h2><a class="header" href="#flags-8" id="flags-8">FLAGS</a></h2>
+<pre><code>-h, --help       Prints help information.
+-v, --version    Prints version information.
+</code></pre>
+<h2><a class="header" href="#options-7" id="options-7">OPTIONS</a></h2>
+<pre><code>-s, --servers &lt;IP:PORT&gt;...    Server addresses in an existing cluster separated by &quot;,&quot;. If not specified, use
+                              default servers. [default: 127.0.0.1:5000]
+</code></pre>
+<h2><a class="header" href="#examples-8" id="examples-8">EXAMPLES</a></h2>
+<p>To commit an index with default options:</p>
+<pre><code class="language-text">$ ./bin/bayard commit
+</code></pre>
+<p>To commit an index with options:</p>
+<pre><code class="language-text">$ ./bin/bayard commit --servers=127.0.0.1:5001
+</code></pre>
+<h1><a class="header" href="#bayard-rollback" id="bayard-rollback">bayard rollback</a></h1>
+<p>The <code>bayard rollback</code> CLI rolls back any updates made to the index to the last committed state.</p>
+<h2><a class="header" href="#usage-9" id="usage-9">USAGE</a></h2>
+<pre><code>bayard rollback [OPTIONS]
+</code></pre>
+<h2><a class="header" href="#flags-9" id="flags-9">FLAGS</a></h2>
+<pre><code>-h, --help       Prints help information.
+-v, --version    Prints version information.
+</code></pre>
+<h2><a class="header" href="#options-8" id="options-8">OPTIONS</a></h2>
+<pre><code>-s, --servers &lt;IP:PORT&gt;...    Server addresses in an existing cluster separated by &quot;,&quot;. If not specified, use
+                              default servers. [default: 127.0.0.1:5000]
+</code></pre>
+<h2><a class="header" href="#examples-9" id="examples-9">EXAMPLES</a></h2>
+<p>To rollback an index with default options:</p>
+<pre><code class="language-text">$ ./bin/bayard rollback
+</code></pre>
+<p>To rollback an index with options:</p>
+<pre><code class="language-text">$ ./bin/bayard rollback --servers=127.0.0.1:5001
+</code></pre>
+<h1><a class="header" href="#bayard-merge" id="bayard-merge">bayard merge</a></h1>
+<p>The <code>bayard merge</code> CLI merges fragmented segments in the index.</p>
+<h2><a class="header" href="#usage-10" id="usage-10">USAGE</a></h2>
+<pre><code>bayard merge [OPTIONS]
+</code></pre>
+<h2><a class="header" href="#flags-10" id="flags-10">FLAGS</a></h2>
+<pre><code>-h, --help       Prints help information.
+-v, --version    Prints version information.
+</code></pre>
+<h2><a class="header" href="#options-9" id="options-9">OPTIONS</a></h2>
+<pre><code>-s, --servers &lt;IP:PORT&gt;...    Server addresses in an existing cluster separated by &quot;,&quot;. If not specified, use
+                              default servers. [default: 127.0.0.1:5000]
+</code></pre>
+<h2><a class="header" href="#examples-10" id="examples-10">EXAMPLES</a></h2>
+<p>To merge segments in the index with default options:</p>
+<pre><code class="language-text">$ ./bin/bayard merge
+</code></pre>
+<p>To merge segments in the index with options:</p>
+<pre><code class="language-text">$ ./bin/bayard merge --servers=127.0.0.1:5001
+</code></pre>
+<h1><a class="header" href="#bayard-search" id="bayard-search">bayard search</a></h1>
+<p>The <code>bayard search</code> CLI searches documents from the index.</p>
+<h2><a class="header" href="#usage-11" id="usage-11">USAGE</a></h2>
+<pre><code>bayard search [OPTIONS] &lt;QUERY&gt;
+</code></pre>
+<h2><a class="header" href="#flags-11" id="flags-11">FLAGS</a></h2>
+<pre><code>-h, --help       Prints help information.
+-v, --version    Prints version information.
+</code></pre>
+<h2><a class="header" href="#options-10" id="options-10">OPTIONS</a></h2>
+<pre><code>-s, --servers &lt;IP:PORT&gt;...    Server addresses in an existing cluster separated by &quot;,&quot;. If not specified, use
+                              default servers. [default: 127.0.0.1:5000]
+-f, --from &lt;FROM&gt;             Start position of fetching results. If not specified, use default value. [default: 0]
+-l, --limit &lt;LIMIT&gt;           Limitation of amount that document to be returned. If not specified, use default
+                              value. [default: 10]
+</code></pre>
+<h2><a class="header" href="#args-2" id="args-2">ARGS</a></h2>
+<pre><code>&lt;QUERY&gt;    Query string to search the index.
+</code></pre>
+<h2><a class="header" href="#examples-11" id="examples-11">EXAMPLES</a></h2>
+<p>To search documents from the index with default options:</p>
+<pre><code class="language-text">$ ./bin/bayard search text:&quot;rust&quot;
+</code></pre>
+<p>To search documents from the index with options:</p>
+<pre><code class="language-text">$ ./bin/bayard search --servers=127.0.0.1:5001 --from=10 --limit=20 text:&quot;rust&quot;
+</code></pre>
+<h1><a class="header" href="#bayard-schema" id="bayard-schema">bayard schema</a></h1>
+<p>The <code>bayard schema</code> CLI shows the index schema that the server applied.</p>
+<h2><a class="header" href="#usage-12" id="usage-12">USAGE</a></h2>
+<pre><code>bayard schema [OPTIONS]
+</code></pre>
+<h2><a class="header" href="#flags-12" id="flags-12">FLAGS</a></h2>
+<pre><code>-h, --help       Prints help information.
+-v, --version    Prints version information.
+</code></pre>
+<h2><a class="header" href="#options-11" id="options-11">OPTIONS</a></h2>
+<pre><code>-s, --servers &lt;IP:PORT&gt;...    Server addresses in an existing cluster separated by &quot;,&quot;. If not specified, use
+                              default servers. [default: 127.0.0.1:5000]
+</code></pre>
+<h2><a class="header" href="#examples-12" id="examples-12">EXAMPLES</a></h2>
+<p>To show the index schema with default options:</p>
+<pre><code class="language-text">$ ./bin/bayard schema
+</code></pre>
+<p>To show the index schema with options:</p>
+<pre><code class="language-text">$ ./bin/bayard schema --servers=127.0.0.1:5001
+</code></pre>
+<h1><a class="header" href="#bayard-schedule" id="bayard-schedule">bayard schedule</a></h1>
+<p>The <code>bayard schedule</code> CLI starts the job scheduler.</p>
+<h2><a class="header" href="#usage-13" id="usage-13">USAGE</a></h2>
+<pre><code>bayard schedule [OPTIONS]
+</code></pre>
+<h2><a class="header" href="#flags-13" id="flags-13">FLAGS</a></h2>
+<pre><code>-h, --help       Prints help information.
+-v, --version    Prints version information.
+</code></pre>
+<h2><a class="header" href="#options-12" id="options-12">OPTIONS</a></h2>
+<pre><code>-s, --servers &lt;IP:PORT&gt;...        Server addresses in an existing cluster separated by &quot;,&quot;. If not specified, use
+                                  default servers. [default: 127.0.0.1:5000]
+-c, --commit &lt;COMMIT_SCHEDULE&gt;    Schedule for automatic commit in a cron-like format. If not specified, use default
+                                  schedule. [default: 0/10 * * * * * *]
+-m, --merge &lt;MERGE_SCHEDULE&gt;      Schedule for automatic merge in a cron-like format. If not specified, use default
+                                  schedule. [default: 0 0 2 * * * *]
+</code></pre>
+<h2><a class="header" href="#schedule-format" id="schedule-format">SCHEDULE FORMAT</a></h2>
+<p>The scheduling format is as follows:</p>
+<pre><code class="language-text">sec   min   hour   day-of-month   month   day-of-week   year
+*     *     *      *              *       *             *
+</code></pre>
+<h2><a class="header" href="#examples-13" id="examples-13">EXAMPLES</a></h2>
+<p>To start job scheduler with default options:</p>
+<pre><code class="language-text">$ ./bin/bayard schedule
+</code></pre>
+<p>To start job scheduler with options:</p>
+<pre><code class="language-text">$ ./bin/bayard schedule --commit=&quot;0/10 * * * * * *&quot; --merge=&quot;0 0 2 * * * *&quot;
+</code></pre>
+<h1><a class="header" href="#bayard-gateway" id="bayard-gateway">bayard gateway</a></h1>
+<p>The <code>bayard gateway</code> CLI starts a gateway for access the server over HTTP.</p>
+<h2><a class="header" href="#usage-14" id="usage-14">USAGE</a></h2>
+<pre><code>bayard gateway [OPTIONS]
+</code></pre>
+<h2><a class="header" href="#flags-14" id="flags-14">FLAGS</a></h2>
+<pre><code>-h, --help       Prints help information.
+-v, --version    Prints version information.
+</code></pre>
+<h2><a class="header" href="#options-13" id="options-13">OPTIONS</a></h2>
+<pre><code>-s, --servers &lt;IP:PORT&gt;...    Server addresses in an existing cluster separated by &quot;,&quot;. If not specified, use
+                              default servers. [default: 127.0.0.1:5000]
+</code></pre>
+<h2><a class="header" href="#examples-14" id="examples-14">EXAMPLES</a></h2>
+<p>To start gateway with default options:</p>
+<pre><code class="language-text">$ ./bin/bayard gateway
+</code></pre>
+<p>To start gateway with options:</p>
+<pre><code class="language-text">$ ./bin/bayard gateway --host=localhost --port=8080 --servers=127.0.0.1:5001
+</code></pre>
+<h1><a class="header" href="#rest-api" id="rest-api">REST API</a></h1>
+<p>The REST API can be used by starting the gateway with the “bayard gateway” CLI.</p>
+<p>See the next page for details on <code>bayard gateway</code>:</p>
+<ul>
+<li><a href="reference/bayard/gateway.html">bayard gateway</a></li>
+</ul>
+<h1><a class="header" href="#probe-api" id="probe-api">Probe API</a></h1>
+<p>Probe API probes the server.</p>
+<h2><a class="header" href="#request" id="request">Request</a></h2>
+<pre><code class="language-text">GET /probe
+</code></pre>
+<h2><a class="header" href="#examples-15" id="examples-15">Examples</a></h2>
+<p>To probe a server:</p>
+<pre><code class="language-text">$ curl -X GET 'http://localhost:8000/probe'
+</code></pre>
+<h1><a class="header" href="#peers-api" id="peers-api">Peers API</a></h1>
+<p>Peers API shows the peer addresses of the cluster that the specified server is joining.</p>
+<h2><a class="header" href="#request-1" id="request-1">Request</a></h2>
+<pre><code class="language-text">GET /peers
+</code></pre>
+<h2><a class="header" href="#examples-16" id="examples-16">Examples</a></h2>
+<p>To show peers of the cluster:</p>
+<pre><code class="language-text">$ curl -X GET 'http://localhost:8000/peers'
+</code></pre>
+<h1><a class="header" href="#metrics-api" id="metrics-api">Metrics API</a></h1>
+<p>Metrics API shows the server metrics of the specified server. The metrics are output in Prometheus exposition format.</p>
+<h2><a class="header" href="#request-2" id="request-2">Request</a></h2>
+<pre><code class="language-text">GET /metrics
+</code></pre>
+<h2><a class="header" href="#examples-17" id="examples-17">Examples</a></h2>
+<p>To show metrics:</p>
+<pre><code class="language-text">$ curl -X GET 'http://localhost:8000/metrics'
+</code></pre>
+<h1><a class="header" href="#put-api" id="put-api">Put API</a></h1>
+<p>Put API puts a document with the specified ID and field. If specify an existing ID, it will be overwritten with the new document.</p>
+<h2><a class="header" href="#request-3" id="request-3">Request</a></h2>
+<pre><code class="language-text">PUT /index/docs/&lt;DOC_ID&gt;
+</code></pre>
+<h2><a class="header" href="#path-parameters" id="path-parameters">Path parameters</a></h2>
+<ul>
+<li><code>&lt;DOC_ID&gt;</code><br />
+A unique value that identifies the document in the index. If specify an existing ID, the existing document in the index is overwritten.</li>
+</ul>
+<h2><a class="header" href="#request-body" id="request-body">Request body</a></h2>
+<ul>
+<li><code>&lt;FIELDS&gt;</code><br />
+Document fields expressed in JSON format.</li>
+</ul>
+<h2><a class="header" href="#example" id="example">Example</a></h2>
+<p>To put a document:</p>
+<pre><code class="language-text">$ curl -X PUT \
+    --header 'Content-Type: application/json' \
+    --data-binary '{&quot;text&quot;: &quot;Tantivy is a full-text search engine library inspired by Apache Lucene and written in Rust.&quot;}' \
+    'http://localhost:8000/index/docs/1'
+</code></pre>
+<h1><a class="header" href="#get-api" id="get-api">Get API</a></h1>
+<p>Get API gets a document with the specified ID.</p>
+<h2><a class="header" href="#request-4" id="request-4">Request</a></h2>
+<pre><code class="language-text">GET /index/docs/&lt;DOC_ID&gt;
+</code></pre>
+<h2><a class="header" href="#path-parameters-1" id="path-parameters-1">Path parameters</a></h2>
+<ul>
+<li><code>&lt;DOC_ID&gt;</code><br />
+A unique value that identifies the document in the index.</li>
+</ul>
+<h2><a class="header" href="#examples-18" id="examples-18">Examples</a></h2>
+<p>To get a document:</p>
+<pre><code class="language-text">$ curl -X GET 'http://localhost:8000/index/docs/1'
+</code></pre>
+<h1><a class="header" href="#delete-api" id="delete-api">Delete API</a></h1>
+<p>Delete API deletes a document with the specified ID.</p>
+<h2><a class="header" href="#request-5" id="request-5">Request</a></h2>
+<pre><code class="language-text">DELETE /index/docs/&lt;DOC_ID&gt;
+</code></pre>
+<h2><a class="header" href="#path-parameters-2" id="path-parameters-2">Path parameters</a></h2>
+<ul>
+<li><code>&lt;DOC_ID&gt;</code><br />
+A unique value that identifies the document in the index.</li>
+</ul>
+<h2><a class="header" href="#examples-19" id="examples-19">Examples</a></h2>
+<p>To delete a document:</p>
+<pre><code class="language-text">$ curl -X DELETE 'http://localhost:8000/index/docs/1'
+</code></pre>
+<h1><a class="header" href="#search-api" id="search-api">Search API</a></h1>
+<p>Search API searches documents from the index.</p>
+<h2><a class="header" href="#request-6" id="request-6">Request</a></h2>
+<pre><code class="language-text">GET /index/search
+</code></pre>
+<h2><a class="header" href="#query-parameters" id="query-parameters">Query parameters</a></h2>
+<ul>
+<li>
+<p><code>from</code><br />
+Start position of fetching results. If not specified, use default value. [default: 0]</p>
+</li>
+<li>
+<p><code>limit</code><br />
+Limitation of amount that document to be returned. If not specified, use default value. [default: 10]</p>
+</li>
+<li>
+<p><code>query</code><br />
+Query string to search the index.</p>
+</li>
+</ul>
+<h2><a class="header" href="#example-1" id="example-1">Example</a></h2>
+<p>To search documents from the index:</p>
+<pre><code class="language-text">$ curl -X GET 'http://localhost:8000/index/search?query=search&amp;from=0&amp;limit=10'
+</code></pre>
+<h1><a class="header" href="#commit-api" id="commit-api">Commit API</a></h1>
+<p>Commit API commits updates made to the index.</p>
+<h2><a class="header" href="#request-7" id="request-7">Request</a></h2>
+<pre><code class="language-text">GET /index/commit
+</code></pre>
+<h2><a class="header" href="#example-2" id="example-2">Example</a></h2>
+<p>To commit an index:</p>
+<pre><code class="language-text">$ curl -X GET 'http://localhost:8000/index/commit'
+</code></pre>
+<h1><a class="header" href="#rollback-api" id="rollback-api">Rollback API</a></h1>
+<p>Rollback API rolls back any updates made to the index to the last committed state.</p>
+<h2><a class="header" href="#request-8" id="request-8">Request</a></h2>
+<pre><code class="language-text">GET /index/rollback
+</code></pre>
+<h2><a class="header" href="#examples-20" id="examples-20">Examples</a></h2>
+<p>To rollback an index:</p>
+<pre><code class="language-text">$ curl -X GET 'http://localhost:8000/index/rollback'
+</code></pre>
+<h1><a class="header" href="#merge-api" id="merge-api">Merge API</a></h1>
+<p>Merge API merges fragmented segments in the index.</p>
+<h2><a class="header" href="#request-9" id="request-9">Request</a></h2>
+<pre><code class="language-text">GET /index/merge
+</code></pre>
+<h2><a class="header" href="#examples-21" id="examples-21">Examples</a></h2>
+<p>To merge segments in the index:</p>
+<pre><code class="language-text">$ curl -X GET 'http://localhost:8000/index/merge'
+</code></pre>
+<h1><a class="header" href="#schema-api" id="schema-api">Schema API</a></h1>
+<p>Schema API shows the index schema that the server applied.</p>
+<h2><a class="header" href="#request-10" id="request-10">Request</a></h2>
+<pre><code class="language-text">GET /index/schema
+</code></pre>
+<h2><a class="header" href="#examples-22" id="examples-22">Examples</a></h2>
+<p>To show the index schema:</p>
+<pre><code class="language-text">$ curl -X GET 'http://localhost:8000/index/schema'
 </code></pre>
 
                     </main>

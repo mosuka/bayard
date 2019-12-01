@@ -8,8 +8,8 @@ Bayard supports booting in cluster mode by itself. No external software is requi
 Running in standalone is not fault tolerant. If you need to improve fault tolerance, start servers in cluster mode.
 You can start servers in cluster mode with the following command:
 
-```shell script
-./bin/bayard serve \
+```text
+$ ./bin/bayard serve \
     --id=1 \
     --host=0.0.0.0 \
     --port=5001 \
@@ -18,8 +18,8 @@ You can start servers in cluster mode with the following command:
     --unique-key-field-name=id
 ```
 
-```shell script
-./bin/bayard serve \
+```text
+$ ./bin/bayard serve \
     --id=2 \
     --host=0.0.0.0 \
     --port=5002 \
@@ -29,8 +29,8 @@ You can start servers in cluster mode with the following command:
     --unique-key-field-name=id
 ```
 
-```shell script
-./bin/bayard serve \
+```text
+$ ./bin/bayard serve \
     --id=3 \
     --host=0.0.0.0 \
     --port=5003 \
@@ -48,8 +48,8 @@ When deploying to a single host, if that host goes down due to hardware failure,
 
 You can check the peers in the cluster with the following command:
 
-```shell script
-./bin/bayard peers --servers localhost:5001 | jq .
+```text
+$ ./bin/bayard peers --servers localhost:5001 | jq .
 ```
 
 You'll see the result in JSON format. The result of the above command is:
@@ -68,8 +68,8 @@ If one of the servers in a cluster goes down due to a hardware failure and raft 
 If you want the server to join the cluster again, you must remove it from the cluster.  
 The following command deletes the server with `id=3` from the cluster:
 
-```shell script
-./bin/bayard leave \
+```text
+$ ./bin/bayard leave \
     --servers=127.0.0.1:5001 \
     --id=3
 ```

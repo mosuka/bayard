@@ -15,7 +15,8 @@ pub fn run_merge_cli(matches: &ArgMatches) -> Result<(), String> {
     let client_id = rand::random();
 
     let mut client = Clerk::new(&servers, client_id);
-    client.merge();
+    let value = client.merge();
+    print!("{}", value);
 
     Ok(())
 }
