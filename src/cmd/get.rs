@@ -11,12 +11,12 @@ pub fn run_get_cli(matches: &ArgMatches) -> Result<(), String> {
         .unwrap()
         .map(|addr| create_client(addr))
         .collect();
-    let key = matches.value_of("KEY").unwrap();
+    let doc_id = matches.value_of("DOC_ID").unwrap();
 
     let client_id = rand::random();
 
     let mut client = Clerk::new(&servers, client_id);
-    let value = client.get(key);
+    let value = client.get(doc_id);
     print!("{}", value);
 
     Ok(())

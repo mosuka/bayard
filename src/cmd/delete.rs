@@ -11,12 +11,13 @@ pub fn run_delete_cli(matches: &ArgMatches) -> Result<(), String> {
         .unwrap()
         .map(|addr| create_client(addr))
         .collect();
-    let key = matches.value_of("KEY").unwrap();
+    let doc_id = matches.value_of("DOC_ID").unwrap();
 
     let client_id = rand::random();
 
     let mut client = Clerk::new(&servers, client_id);
-    client.delete(key);
+    let value = client.delete(doc_id);
+    print!("{}", value);
 
     Ok(())
 }

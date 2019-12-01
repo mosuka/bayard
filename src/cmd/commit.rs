@@ -15,7 +15,8 @@ pub fn run_commit_cli(matches: &ArgMatches) -> Result<(), String> {
     let client_id = rand::random();
 
     let mut client = Clerk::new(&servers, client_id);
-    client.commit();
+    let value = client.commit();
+    print!("{}", value);
 
     Ok(())
 }

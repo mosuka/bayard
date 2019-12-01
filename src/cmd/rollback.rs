@@ -15,7 +15,8 @@ pub fn run_rollback_cli(matches: &ArgMatches) -> Result<(), String> {
     let client_id = rand::random();
 
     let mut client = Clerk::new(&servers, client_id);
-    client.rollback();
+    let value = client.rollback();
+    print!("{}", value);
 
     Ok(())
 }
