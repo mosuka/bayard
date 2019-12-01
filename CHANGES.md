@@ -3,10 +3,8 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 
-## Unreleased
-
-
-## 0.1.1
+## 0.2.0 (2019-12-01)
+- Add http server #41 @mosuka
 - Add job scheduler #40 @mosuka
 - Add probe command #39 @mosuka
 - Add merge command #38 @mosuka
