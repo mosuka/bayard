@@ -344,13 +344,22 @@ impl Clerk {
         }
     }
 
-    pub fn search(&mut self, query: &str, from: u64, limit: u64) -> String {
+    pub fn search(
+        &mut self,
+        query: &str,
+        from: u64,
+        limit: u64,
+        include_docs: bool,
+        include_count: bool,
+    ) -> String {
         let mut req = SearchReq::new();
         req.set_client_id(self.client_id);
         req.set_seq(self.request_seq);
         req.set_query(query.to_owned());
         req.set_from(from);
         req.set_limit(limit);
+        req.set_include_docs(include_docs);
+        req.set_include_count(include_count);
         self.request_seq += 1;
 
         loop {

@@ -1,9 +1,9 @@
+use std::{fs, thread};
 use std::collections::HashMap;
 use std::path::Path;
-use std::sync::mpsc::{self, Receiver, SyncSender};
 use std::sync::{Arc, Mutex};
+use std::sync::mpsc::{self, Receiver, SyncSender};
 use std::time::Duration;
-use std::{fs, thread};
 
 use crossbeam_channel::select;
 use futures::Future;
@@ -11,21 +11,22 @@ use grpcio::{ChannelBuilder, EnvBuilder, Environment, RpcContext, ServerBuilder,
 use log::*;
 use protobuf::Message;
 use raft::eraftpb::{ConfChange, ConfChangeType, Entry, EntryType, Message as RaftMessage};
-use tantivy::collector::TopDocs;
+use tantivy::{Document, Index, IndexWriter, Term};
+use tantivy::collector::{Count, TopDocs};
 use tantivy::query::{QueryParser, TermQuery};
 use tantivy::schema::{Field, FieldType, IndexRecordOption, Schema};
-use tantivy::{Document, Index, IndexWriter, Term};
 
-use crate::client::client::{create_client, Clerk};
+use crate::client::client::{Clerk, create_client};
 use crate::proto::indexpb_grpc::{self, Index as IndexService, IndexClient};
 use crate::proto::indexrpcpb::{
     ApplyReq, CommitResp, ConfChangeReq, DeleteResp, GetReq, GetResp, JoinReq, LeaveReq, MergeResp,
     MetricsReq, MetricsResp, PeersReq, PeersResp, ProbeReq, ProbeResp, PutResp, RaftDone, ReqType,
     RespErr, RollbackResp, SchemaReq, SchemaResp, SearchReq, SearchResp,
 };
+use crate::server::{peer, util};
 use crate::server::metrics::Metrics;
 use crate::server::peer::PeerMessage;
-use crate::server::{peer, util};
+use crate::util::search_result::{ScoredNamedFieldDocument, SearchResult};
 use crate::util::signal::sigterm_channel;
 
 struct NotifyArgs(u64, String, RespErr);
@@ -649,14 +650,29 @@ impl IndexService for IndexServer {
         let query_parser = QueryParser::for_index(&self.index, default_fields);
         let query = query_parser.parse_query(req.query.as_str()).unwrap();
         let searcher = self.index.reader().unwrap().searcher();
-        let top_docs = searcher
-            .search(&query, &TopDocs::with_limit(limit as usize))
-            .unwrap();
-        let mut named_docs: Vec<_> = Vec::new();
 
-        let mut count: u64 = 0;
+        let mut top_docs = Vec::new();
+        let mut count: usize = 0;
+        if req.include_docs && req.include_count {
+            let (top_docs_, count_) = searcher
+                .search(&query, &(TopDocs::with_limit(limit as usize), Count))
+                .unwrap();
+            top_docs = top_docs_;
+            count = count_;
+        } else if req.include_docs {
+            let top_docs_ = searcher
+                .search(&query, &TopDocs::with_limit(limit as usize))
+                .unwrap();
+            top_docs = top_docs_;
+        } else if req.include_count {
+            let count_ = query.count(&searcher).unwrap();
+            count = count_;
+        }
+
+        let mut docs: Vec<ScoredNamedFieldDocument> = Vec::new();
+        let mut doc_pos: u64 = 0;
         for (score, doc_address) in top_docs {
-            if count >= req.get_from() {
+            if doc_pos >= req.get_from() {
                 let doc = searcher.doc(doc_address).unwrap();
                 let named_doc = schema.to_named_doc(&doc);
                 debug!(
@@ -665,14 +681,20 @@ impl IndexService for IndexServer {
                     serde_json::to_string(&named_doc).unwrap()
                 );
 
-                named_docs.push(named_doc);
+                let scored_doc = ScoredNamedFieldDocument {
+                    fields: named_doc,
+                    score,
+                };
+                docs.push(scored_doc);
             }
-            count += 1;
+            doc_pos += 1;
         }
+
+        let sr = SearchResult { docs, count };
 
         let mut resp = SearchResp::new();
         resp.set_err(RespErr::OK);
-        resp.set_value(serde_json::to_string(&named_docs).unwrap());
+        resp.set_value(serde_json::to_string(&sr).unwrap());
         ctx.spawn(
             sink.success(resp)
                 .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),

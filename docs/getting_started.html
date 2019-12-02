@@ -230,24 +230,33 @@ $ ./bin/bayard commit
 <pre><code class="language-text">$ ./bin/bayard search text:&quot;rust&quot; | jq .
 </code></pre>
 <p>You'll see the result in JSON format. The result of the above command is:</p>
-<pre><code class="language-json">[
-  {
-    &quot;id&quot;: [
-      &quot;8&quot;
-    ],
-    &quot;text&quot;: [
-      &quot;Tantivy is a full-text search engine library inspired by Apache Lucene and written in Rust.&quot;
-    ]
-  },
-  {
-    &quot;id&quot;: [
-      &quot;1&quot;
-    ],
-    &quot;text&quot;: [
-      &quot;Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.&quot;
-    ]
-  }
-]
+<pre><code class="language-json">{
+  &quot;count&quot;: 2,
+  &quot;docs&quot;: [
+    {
+      &quot;fields&quot;: {
+        &quot;id&quot;: [
+          &quot;8&quot;
+        ],
+        &quot;text&quot;: [
+          &quot;Tantivy is a full-text search engine library inspired by Apache Lucene and written in Rust.&quot;
+        ]
+      },
+      &quot;score&quot;: 1.5722498
+    },
+    {
+      &quot;fields&quot;: {
+        &quot;id&quot;: [
+          &quot;1&quot;
+        ],
+        &quot;text&quot;: [
+          &quot;Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.&quot;
+        ]
+      },
+      &quot;score&quot;: 1.5331805
+    }
+  ]
+}
 </code></pre>
 <h2><a class="header" href="#deleting-document" id="deleting-document">Deleting document</a></h2>
 <p>You can delete document with the following command:</p>

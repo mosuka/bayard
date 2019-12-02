@@ -13,11 +13,16 @@ The `bayard search` CLI searches documents from the index.
 
 ## OPTIONS
 
-    -s, --servers <IP:PORT>...    Server addresses in an existing cluster separated by ",". If not specified, use
-                                  default servers. [default: 127.0.0.1:5000]
-    -f, --from <FROM>             Start position of fetching results. If not specified, use default value. [default: 0]
-    -l, --limit <LIMIT>           Limitation of amount that document to be returned. If not specified, use default
-                                  value. [default: 10]
+    -s, --servers <IP:PORT>...             Server addresses in an existing cluster separated by ",". If not specified,
+                                           use default servers. [default: 127.0.0.1:5000]
+    -f, --from <FROM>                      Start position of fetching results. If not specified, use default value.
+                                           [default: 0]
+    -l, --limit <LIMIT>                    Limitation of amount that document to be returned. If not specified, use
+                                           default value. [default: 10]
+    -d, --include-docs <INCLUDE_DOCS>      A flag indicating whether or not to include hit documents in the search
+                                           results. If not specified, use default value. [default: true]
+    -c, --include-count <INCLUDE_COUNT>    A flag indicating whether or not to include hit count in the search results.
+                                           If not specified, use default value. [default: true]
 
 ## ARGS
     <QUERY>    Query string to search the index.
