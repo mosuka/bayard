@@ -429,6 +429,24 @@ fn main() {
                         .takes_value(true),
                 )
                 .arg(
+                    Arg::with_name("INCLUDE_DOCS")
+                        .help("A flag indicating whether or not to include hit documents in the search results. If not specified, use default value.")
+                        .short("d")
+                        .long("include-docs")
+                        .value_name("INCLUDE_DOCS")
+                        .default_value("true")
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("INCLUDE_COUNT")
+                        .help("A flag indicating whether or not to include hit count in the search results. If not specified, use default value.")
+                        .short("c")
+                        .long("include-count")
+                        .value_name("INCLUDE_COUNT")
+                        .default_value("true")
+                        .takes_value(true),
+                )
+                .arg(
                     Arg::with_name("QUERY")
                         .help("Query string to search the index.")
                         .value_name("QUERY")

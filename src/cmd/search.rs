@@ -13,12 +13,22 @@ pub fn run_search_cli(matches: &ArgMatches) -> Result<(), String> {
         .collect();
     let from = matches.value_of("FROM").unwrap().parse::<u64>().unwrap();
     let limit = matches.value_of("LIMIT").unwrap().parse::<u64>().unwrap();
+    let include_docs = matches
+        .value_of("INCLUDE_DOCS")
+        .unwrap()
+        .parse::<bool>()
+        .unwrap();
+    let include_count = matches
+        .value_of("INCLUDE_COUNT")
+        .unwrap()
+        .parse::<bool>()
+        .unwrap();
     let query = matches.value_of("QUERY").unwrap();
 
     let client_id = rand::random();
 
     let mut client = Clerk::new(&servers, client_id);
-    let value = client.search(query, from, limit);
+    let value = client.search(query, from, limit, include_docs, include_count);
     print!("{}", value);
 
     Ok(())

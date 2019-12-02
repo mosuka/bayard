@@ -153,6 +153,8 @@ message SearchReq {
     string query = 3;
     uint64 from = 4;
     uint64 limit = 5;
+    bool include_docs = 6;
+    bool include_count = 7;
 }
 
 message SearchResp {

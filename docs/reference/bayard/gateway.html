@@ -158,7 +158,11 @@
 -v, --version    Prints version information.
 </code></pre>
 <h2><a class="header" href="#options" id="options">OPTIONS</a></h2>
-<pre><code>-s, --servers &lt;IP:PORT&gt;...    Server addresses in an existing cluster separated by &quot;,&quot;. If not specified, use
+<pre><code>-H, --host &lt;HOST&gt;             Host address. Must specify the host name or IP address. If not specified, use the
+                              default address. [default: 0.0.0.0]
+-P, --port &lt;PORT&gt;             Port number. This port is used for communication via HTTP. If not specified, use the
+                              default port. [default: 8000]
+-s, --servers &lt;IP:PORT&gt;...    Server addresses in an existing cluster separated by &quot;,&quot;. If not specified, use
                               default servers. [default: 127.0.0.1:5000]
 </code></pre>
 <h2><a class="header" href="#examples" id="examples">EXAMPLES</a></h2>

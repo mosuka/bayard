@@ -104,6 +104,30 @@ fn delete(req: &mut Request) -> IronResult<Response> {
     Ok(Response::with((ContentType::json().0, status::Ok, value)))
 }
 
+fn commit(req: &mut Request) -> IronResult<Response> {
+    let client_arc = req.get::<Write<Client>>().unwrap();
+    let mut client = client_arc.lock().unwrap();
+    let value = client.commit();
+
+    Ok(Response::with((ContentType::json().0, status::Ok, value)))
+}
+
+fn rollback(req: &mut Request) -> IronResult<Response> {
+    let client_arc = req.get::<Write<Client>>().unwrap();
+    let mut client = client_arc.lock().unwrap();
+    let value = client.rollback();
+
+    Ok(Response::with((ContentType::json().0, status::Ok, value)))
+}
+
+fn merge(req: &mut Request) -> IronResult<Response> {
+    let client_arc = req.get::<Write<Client>>().unwrap();
+    let mut client = client_arc.lock().unwrap();
+    let value = client.merge();
+
+    Ok(Response::with((ContentType::json().0, status::Ok, value)))
+}
+
 fn search(req: &mut Request) -> IronResult<Response> {
     let map = req.get_ref::<UrlEncodedQuery>().unwrap().to_owned();
     let query = map.get("query").unwrap().get(0).unwrap();
@@ -128,34 +152,30 @@ fn search(req: &mut Request) -> IronResult<Response> {
             .parse::<u64>()
             .unwrap();
     }
+    let mut include_docs = true;
+    if map.contains_key("include_docs") {
+        include_docs = map
+            .get("include_docs")
+            .unwrap()
+            .get(0)
+            .unwrap_or(&String::from("true"))
+            .parse::<bool>()
+            .unwrap();
+    }
+    let mut include_count = true;
+    if map.contains_key("include_count") {
+        include_count = map
+            .get("include_count")
+            .unwrap()
+            .get(0)
+            .unwrap_or(&String::from("true"))
+            .parse::<bool>()
+            .unwrap();
+    }
 
     let client_arc = req.get::<Write<Client>>().unwrap();
     let mut client = client_arc.lock().unwrap();
-    let value = client.search(query, from, limit);
-
-    Ok(Response::with((ContentType::json().0, status::Ok, value)))
-}
-
-fn commit(req: &mut Request) -> IronResult<Response> {
-    let client_arc = req.get::<Write<Client>>().unwrap();
-    let mut client = client_arc.lock().unwrap();
-    let value = client.commit();
-
-    Ok(Response::with((ContentType::json().0, status::Ok, value)))
-}
-
-fn rollback(req: &mut Request) -> IronResult<Response> {
-    let client_arc = req.get::<Write<Client>>().unwrap();
-    let mut client = client_arc.lock().unwrap();
-    let value = client.rollback();
-
-    Ok(Response::with((ContentType::json().0, status::Ok, value)))
-}
-
-fn merge(req: &mut Request) -> IronResult<Response> {
-    let client_arc = req.get::<Write<Client>>().unwrap();
-    let mut client = client_arc.lock().unwrap();
-    let value = client.merge();
+    let value = client.search(query, from, limit, include_docs, include_count);
 
     Ok(Response::with((ContentType::json().0, status::Ok, value)))
 }

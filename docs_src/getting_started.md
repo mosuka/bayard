@@ -112,24 +112,33 @@ $ ./bin/bayard search text:"rust" | jq .
 You'll see the result in JSON format. The result of the above command is:
 
 ```json
-[
-  {
-    "id": [
-      "8"
-    ],
-    "text": [
-      "Tantivy is a full-text search engine library inspired by Apache Lucene and written in Rust."
-    ]
-  },
-  {
-    "id": [
-      "1"
-    ],
-    "text": [
-      "Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy."
-    ]
-  }
-]
+{
+  "count": 2,
+  "docs": [
+    {
+      "fields": {
+        "id": [
+          "8"
+        ],
+        "text": [
+          "Tantivy is a full-text search engine library inspired by Apache Lucene and written in Rust."
+        ]
+      },
+      "score": 1.5722498
+    },
+    {
+      "fields": {
+        "id": [
+          "1"
+        ],
+        "text": [
+          "Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy."
+        ]
+      },
+      "score": 1.5331805
+    }
+  ]
+}
 ```
 
 ## Deleting document
