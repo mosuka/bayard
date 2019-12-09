@@ -11,7 +11,18 @@
     }
   },
   {
-    "name": "text",
+    "name": "url",
+    "type": "text",
+    "options": {
+      "indexing": {
+        "record": "freq",
+        "tokenizer": "default"
+      },
+      "stored": true
+    }
+  },
+  {
+    "name": "name",
     "type": "text",
     "options": {
       "indexing": {
@@ -19,6 +30,39 @@
         "tokenizer": "en_stem"
       },
       "stored": true
+    }
+  },
+  {
+    "name": "description",
+    "type": "text",
+    "options": {
+      "indexing": {
+        "record": "position",
+        "tokenizer": "en_stem"
+      },
+      "stored": true
+    }
+  },
+  {
+    "name": "star",
+    "type": "u64",
+    "options": {
+      "indexed": true,
+      "stored": true,
+      "fast": "single"
+    }
+  },
+  {
+    "name": "category",
+    "type": "hierarchical_facet"
+  },
+  {
+    "name": "timestamp",
+    "type": "date",
+    "options": {
+      "indexed": true,
+      "stored": true,
+      "fast": "single"
     }
   }
 ]
