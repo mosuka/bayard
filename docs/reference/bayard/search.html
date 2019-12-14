@@ -154,20 +154,20 @@
 <pre><code>bayard search [OPTIONS] &lt;QUERY&gt;
 </code></pre>
 <h2><a class="header" href="#flags" id="flags">FLAGS</a></h2>
-<pre><code>-h, --help       Prints help information.
--v, --version    Prints version information.
+<pre><code>-c, --exclude-count    A flag indicating whether or not to exclude hit count in the search results.
+-d, --exclude-docs     A flag indicating whether or not to exclude hit documents in the search results
+-h, --help             Prints help information.
+-v, --version          Prints version information.
 </code></pre>
 <h2><a class="header" href="#options" id="options">OPTIONS</a></h2>
-<pre><code>-s, --servers &lt;IP:PORT&gt;...             Server addresses in an existing cluster separated by &quot;,&quot;. If not specified,
-                                       use default servers. [default: 127.0.0.1:5000]
--f, --from &lt;FROM&gt;                      Start position of fetching results. If not specified, use default value.
-                                       [default: 0]
--l, --limit &lt;LIMIT&gt;                    Limitation of amount that document to be returned. If not specified, use
-                                       default value. [default: 10]
--d, --include-docs &lt;INCLUDE_DOCS&gt;      A flag indicating whether or not to include hit documents in the search
-                                       results. If not specified, use default value. [default: true]
--c, --include-count &lt;INCLUDE_COUNT&gt;    A flag indicating whether or not to include hit count in the search results.
-                                       If not specified, use default value. [default: true]
+<pre><code>-s, --servers &lt;IP:PORT&gt;...              Server addresses in an existing cluster separated by &quot;,&quot;. If not specified,
+                                        use default servers. [default: 127.0.0.1:5000]
+-f, --from &lt;FROM&gt;                       Start position of fetching results. If not specified, use default value.
+                                        [default: 0]
+-l, --limit &lt;LIMIT&gt;                     Limitation of amount that document to be returned. If not specified, use
+                                        default value. [default: 10]
+-F, --facet-field &lt;FACET_FIELD&gt;         Hierarchical facet field name. [default: ]
+-V, --facet-prefix &lt;FACET_PREFIX&gt;...    Hierarchical facet field value prefix.
 </code></pre>
 <h2><a class="header" href="#args" id="args">ARGS</a></h2>
 <pre><code>&lt;QUERY&gt;    Query string to search the index.

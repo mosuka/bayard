@@ -48,13 +48,57 @@ You'll see the result in JSON format. The result of the above command is:
     }
   },
   {
-    "name": "text",
+    "name": "url",
+    "type": "text",
+    "options": {
+      "indexing": {
+        "record": "freq",
+        "tokenizer": "default"
+      },
+      "stored": true
+    }
+  },
+  {
+    "name": "name",
     "type": "text",
     "options": {
       "indexing": {
         "record": "position",
         "tokenizer": "en_stem"
       },
+      "stored": true
+    }
+  },
+  {
+    "name": "description",
+    "type": "text",
+    "options": {
+      "indexing": {
+        "record": "position",
+        "tokenizer": "en_stem"
+      },
+      "stored": true
+    }
+  },
+  {
+    "name": "popularity",
+    "type": "u64",
+    "options": {
+      "indexed": true,
+      "fast": "single",
+      "stored": true
+    }
+  },
+  {
+    "name": "category",
+    "type": "hierarchical_facet"
+  },
+  {
+    "name": "timestamp",
+    "type": "date",
+    "options": {
+      "indexed": true,
+      "fast": "single",
       "stored": true
     }
   }
@@ -66,17 +110,83 @@ You'll see the result in JSON format. The result of the above command is:
 You can index documents with the following command:
 
 ```text
-$ ./bin/bayard put 1 '{"url":"https://github.com/bayard-search/bayard","name":"Bayard","description":"Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.","star":1132,"category":"/search/server"}'
-$ ./bin/bayard put 2 '{"url":"https://lucene.apache.org/solr/","name":"Apache Solr","description":"Solr is highly reliable, scalable and fault tolerant, providing distributed indexing, replication and load-balanced querying, automated failover and recovery, centralized configuration and more.","star":3112,"category":"/search/server"}'
-$ ./bin/bayard put 3 '{"url":"https://www.elastic.co/products/elasticsearch","name":"Elasticsearch","description":"Elasticsearch is a distributed, open source search and analytics engine for all types of data, including textual, numerical, geospatial, structured, and unstructured.","star":45871,"category":"/search/server"}'
-$ ./bin/bayard put 4 '{"url":"https://github.com/mosuka/blast","name":"Blast","description":"Blast is a full text search and indexing server, written in Go, built on top of Bleve.","star":644,"category":"/search/server"}'
-$ ./bin/bayard put 5 '{"url":"https://github.com/go-ego/riot","name":"Riot","description":"Riot is Go Open Source, Distributed, Simple and efficient full text search engine.","star":4936,"category":"/search/server"}'
-$ ./bin/bayard put 6 '{"url":"https://github.com/toshi-search/Toshi","name":"Toshi","description":"Toshi is meant to be a full-text search engine similar to Elasticsearch. Toshi strives to be to Elasticsearch what Tantivy is to Lucene.","star":2433,"category":"/search/server"}'
-$ ./bin/bayard put 7 '{"url":"https://github.com/valeriansaliou/sonic","name":"Sonic","description":"Sonic is a fast, lightweight and schema-less search backend.","star":7842,"category":"/search/server"}'
-$ ./bin/bayard put 8 '{"url":"https://github.com/tantivy-search/tantivy","name":"Tantivy","description":"Tantivy is a full-text search engine library inspired by Apache Lucene and written in Rust.","star":3100,"category":"/search/library"}'
-$ ./bin/bayard put 9 '{"url":"https://lucene.apache.org/","name":"Lucene","description":"Apache Lucene is a high-performance, full-featured text search engine library written entirely in Java.","star":3112,"category":"/search/library"}'
-$ ./bin/bayard put 10 '{"url":"https://blevesearch.com/","name":"Bleve","description":"Bleve is a modern text indexing library for go.","star":6185,"category":"/search/library"}'
-$ ./bin/bayard put 11 '{"url":"https://bitbucket.org/mchaput/whoosh/wiki/Home","name":"Whoosh","description":"Whoosh is a fast, pure Python search engine library.","star":0,"category":"/search/library"}'
+$ ./bin/bayard put 1 '{
+  "url": "https://github.com/bayard-search/bayard",
+  "name": "Bayard",
+  "description": "Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.",
+  "popularity": 1132,
+  "category": ["/category/search/server", "/language/rust"]
+}'
+$ ./bin/bayard put 2 '{
+  "url": "https://lucene.apache.org/solr/",
+  "name": "Apache Solr",
+  "description": "Solr is highly reliable, scalable and fault tolerant, providing distributed indexing, replication and load-balanced querying, automated failover and recovery, centralized configuration and more.",
+  "popularity": 3112,
+  "category": ["/category/search/server", "/language/java"]
+}'
+$ ./bin/bayard put 3 '{
+  "url": "https://www.elastic.co/products/elasticsearch",
+  "name": "Elasticsearch",
+  "description": "Elasticsearch is a distributed, open source search and analytics engine for all types of data, including textual, numerical, geospatial, structured, and unstructured.",
+  "popularity": 45871,
+  "category": ["/category/search/server", "/language/java"]
+}'
+$ ./bin/bayard put 4 '{
+  "url": "https://github.com/mosuka/blast",
+  "name": "Blast",
+  "description": "Blast is a full text search and indexing server, written in Go, built on top of Bleve.",
+  "popularity": 644,
+  "category": ["/category/search/server", "/language/go"]
+}'
+$ ./bin/bayard put 5 '{
+  "url": "https://github.com/go-ego/riot",
+  "name": "Riot",
+  "description": "Riot is Go Open Source, Distributed, Simple and efficient full text search engine.",
+  "popularity": 4936,
+  "category": ["/category/search/server", "/language/go"]
+}'
+$ ./bin/bayard put 6 '{
+  "url": "https://github.com/toshi-search/Toshi",
+  "name": "Toshi",
+  "description": "Toshi is meant to be a full-text search engine similar to Elasticsearch. Toshi strives to be to Elasticsearch what Tantivy is to Lucene.",
+  "popularity": 2433,
+  "category": ["/category/search/server", "/language/rust"]
+}'
+$ ./bin/bayard put 7 '{
+  "url": "https://github.com/valeriansaliou/sonic",
+  "name": "Sonic",
+  "description": "Sonic is a fast, lightweight and schema-less search backend.",
+  "popularity": 7842,
+  "category": ["/category/search/server", "/language/rust"]
+}'
+$ ./bin/bayard put 8 '{
+  "url": "https://github.com/tantivy-search/tantivy",
+  "name": "Tantivy",
+  "description": "Tantivy is a full-text search engine library inspired by Apache Lucene and written in Rust.",
+  "popularity": 3100,
+  "category": ["/category/search/library", "/language/rust"]
+}'
+$ ./bin/bayard put 9 '{
+  "url": "https://lucene.apache.org/",
+  "name": "Lucene",
+  "description": "Apache Lucene is a high-performance, full-featured text search engine library written entirely in Java.",
+  "popularity": 3112,
+  "category": ["/category/search/library", "/language/java"]
+}'
+$ ./bin/bayard put 10 '{
+  "url": "https://blevesearch.com/",
+  "name": "Bleve",
+  "description": "Bleve is a modern text indexing library for go.",
+  "popularity": 6185,
+  "category": ["/category/search/library", "/language/go"]
+}'
+$ ./bin/bayard put 11 '{
+  "url": "https://bitbucket.org/mchaput/whoosh/wiki/Home",
+  "name": "Whoosh",
+  "description": "Whoosh is a fast, pure Python search engine library.",
+  "popularity": 0,
+  "category": ["/category/search/library", "/language/python"]
+}'
 $ ./bin/bayard commit
 ```
 
@@ -92,11 +202,24 @@ You'll see the result in JSON format. The result of the above command is:
 
 ```json
 {
+  "category": [
+    "/category/search/server",
+    "/language/rust"
+  ],
+  "description": [
+    "Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy."
+  ],
   "id": [
     "1"
   ],
-  "text": [
-    "Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy."
+  "name": [
+    "Bayard"
+  ],
+  "popularity": [
+    1132
+  ],
+  "url": [
+    "https://github.com/bayard-search/bayard"
   ]
 }
 ```
@@ -106,7 +229,7 @@ You'll see the result in JSON format. The result of the above command is:
 You can search documents with the following command:
 
 ```text
-$ ./bin/bayard search description:"rust" | jq .
+$ ./bin/bayard search --facet-field=category --facet-prefix=/category/search --facet-prefix=/language description:rust | jq .
 ```
 
 You'll see the result in JSON format. The result of the above command is:
@@ -117,27 +240,60 @@ You'll see the result in JSON format. The result of the above command is:
   "docs": [
     {
       "fields": {
+        "category": [
+          "/category/search/library",
+          "/language/rust"
+        ],
+        "description": [
+          "Tantivy is a full-text search engine library inspired by Apache Lucene and written in Rust."
+        ],
         "id": [
           "8"
         ],
-        "text": [
-          "Tantivy is a full-text search engine library inspired by Apache Lucene and written in Rust."
+        "name": [
+          "Tantivy"
+        ],
+        "popularity": [
+          3100
+        ],
+        "url": [
+          "https://github.com/tantivy-search/tantivy"
         ]
       },
       "score": 1.5722498
     },
     {
       "fields": {
+        "category": [
+          "/category/search/server",
+          "/language/rust"
+        ],
+        "description": [
+          "Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy."
+        ],
         "id": [
           "1"
         ],
-        "text": [
-          "Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy."
+        "name": [
+          "Bayard"
+        ],
+        "popularity": [
+          1132
+        ],
+        "url": [
+          "https://github.com/bayard-search/bayard"
         ]
       },
       "score": 1.5331805
     }
-  ]
+  ],
+  "facet": {
+    "category": {
+      "/category/search/server": 1,
+      "/category/search/library": 1,
+      "/language/rust": 2
+    }
+  }
 }
 ```
 

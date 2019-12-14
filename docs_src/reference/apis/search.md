@@ -16,14 +16,20 @@ Start position of fetching results. If not specified, use default value. [defaul
 - `limit`  
 Limitation of amount that document to be returned. If not specified, use default value. [default: 10]
 
-- `include_docs`  
-A flag indicating whether or not to include hit documents in the search results. If not specified, use default value. [default: true]
+- `exclude_count`  
+A flag indicating whether or not to exclude hit count in the search results. If not specified, use default value. [default: true]
 
-- `include_count`  
-A flag indicating whether or not to include hit count in the search results. If not specified, use default value. [default: true]
+- `exclude_docs`  
+A flag indicating whether or not to exclude hit documents in the search results. If not specified, use default value. [default: true]
 
 - `query`  
 Query string to search the index.
+
+- `facet_field`  
+Hierarchical facet field name.
+
+- `facet_prefix`  
+Hierarchical facet field value prefix.
 
 ## Example
 
@@ -31,4 +37,16 @@ To search documents from the index:
 
 ```text
 $ curl -X GET 'http://localhost:8000/index/search?query=search&from=0&limit=10'
+```
+
+```text
+$ curl -X GET 'http://localhost:8000/index/search?query=search&from=0&limit=10&exclude_count'
+```
+
+```text
+$ curl -X GET 'http://localhost:8000/index/search?query=search&from=0&limit=10&exclude_docs'
+```
+
+```text
+$ curl -X GET 'http://localhost:8000/index/search?query=search&from=0&limit=10&facet_field=category&facet_prefix=/language&facet_prefix=/category/search'
 ```

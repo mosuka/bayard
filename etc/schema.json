@@ -44,7 +44,7 @@
     }
   },
   {
-    "name": "star",
+    "name": "popularity",
     "type": "u64",
     "options": {
       "indexed": true,

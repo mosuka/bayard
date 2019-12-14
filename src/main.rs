@@ -429,23 +429,46 @@ fn main() {
                         .takes_value(true),
                 )
                 .arg(
-                    Arg::with_name("INCLUDE_DOCS")
-                        .help("A flag indicating whether or not to include hit documents in the search results. If not specified, use default value.")
+                    Arg::with_name("EXCLUDE_COUNT")
+                        .help("A flag indicating whether or not to exclude hit count in the search results.")
+                        .short("c")
+                        .long("exclude-count"),
+                )
+                .arg(
+                    Arg::with_name("EXCLUDE_DOCS")
+                        .help("A flag indicating whether or not to exclude hit documents in the search results")
                         .short("d")
-                        .long("include-docs")
-                        .value_name("INCLUDE_DOCS")
-                        .default_value("true")
+                        .long("exclude-docs"),
+                )
+                .arg(
+                    Arg::with_name("FACET_FIELD")
+                        .help("Hierarchical facet field name.")
+                        .short("F")
+                        .long("facet-field")
+                        .value_name("FACET_FIELD")
+                        .default_value("")
                         .takes_value(true),
                 )
                 .arg(
-                    Arg::with_name("INCLUDE_COUNT")
-                        .help("A flag indicating whether or not to include hit count in the search results. If not specified, use default value.")
-                        .short("c")
-                        .long("include-count")
-                        .value_name("INCLUDE_COUNT")
-                        .default_value("true")
+                    Arg::with_name("FACET_PREFIX")
+                        .help("Hierarchical facet field value prefix.")
+                        .short("V")
+                        .long("facet-prefix")
+                        .value_name("FACET_PREFIX")
+                        .multiple(true)
+                        .number_of_values(1)
                         .takes_value(true),
                 )
+//                .arg(
+//                    Arg::with_name("FACET")
+//                        .help("Hierarchical facet.")
+//                        .short("F")
+//                        .long("facet")
+//                        .value_name("FIELD_NAME:FIELD_VALUE")
+//                        .multiple(true)
+//                        .number_of_values(1)
+//                        .takes_value(true),
+//                )
                 .arg(
                     Arg::with_name("QUERY")
                         .help("Query string to search the index.")

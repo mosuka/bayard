@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use serde::Serialize;
 use tantivy::schema::NamedFieldDocument;
 
@@ -9,6 +11,7 @@ pub struct ScoredNamedFieldDocument {
 
 #[derive(Serialize)]
 pub struct SearchResult {
-    pub count: usize,
+    pub count: i64,
     pub docs: Vec<ScoredNamedFieldDocument>,
+    pub facet: HashMap<String, HashMap<String, u64>>,
 }
