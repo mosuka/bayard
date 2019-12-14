@@ -12,7 +12,7 @@ use log::*;
 use protobuf::Message;
 use raft::eraftpb::{ConfChange, ConfChangeType, Entry, EntryType, Message as RaftMessage};
 use tantivy::{Document, Index, IndexWriter, Term};
-use tantivy::collector::{Count, TopDocs};
+use tantivy::collector::{Count, FacetCollector, MultiCollector, TopDocs};
 use tantivy::query::{QueryParser, TermQuery};
 use tantivy::schema::{Field, FieldType, IndexRecordOption, Schema};
 
@@ -650,24 +650,104 @@ impl IndexService for IndexServer {
         let query_parser = QueryParser::for_index(&self.index, default_fields);
         let query = query_parser.parse_query(req.query.as_str()).unwrap();
         let searcher = self.index.reader().unwrap().searcher();
+        let mut multi_collector = MultiCollector::new();
+        let count_handle = if req.get_exclude_count() {
+            None
+        } else {
+            Some(multi_collector.add_collector(Count))
+        };
+        let top_docs_handle = if req.get_exclude_docs() {
+            None
+        } else {
+            Some(multi_collector.add_collector(TopDocs::with_limit(limit as usize)))
+        };
+        let facet_handle = if req.get_facet_field().is_empty() {
+            None
+        } else {
+            let mut facet_collector = FacetCollector::for_field(schema.get_field(req.get_facet_field()).unwrap());
+            for facet_prefix in req.get_facet_prefixes() {
+                facet_collector.add_facet(facet_prefix);
+            }
+            Some(multi_collector.add_collector(facet_collector))
+        };
 
-        let mut top_docs = Vec::new();
-        let mut count: usize = 0;
-        if req.include_docs && req.include_count {
-            let (top_docs_, count_) = searcher
-                .search(&query, &(TopDocs::with_limit(limit as usize), Count))
-                .unwrap();
-            top_docs = top_docs_;
-            count = count_;
-        } else if req.include_docs {
-            let top_docs_ = searcher
-                .search(&query, &TopDocs::with_limit(limit as usize))
-                .unwrap();
-            top_docs = top_docs_;
-        } else if req.include_count {
-            let count_ = query.count(&searcher).unwrap();
-            count = count_;
+//        // single field facet
+//        let mut facet_collector = FacetCollector::for_field(schema.get_field(req.get_facet_field()).unwrap());
+//        for facet_prefix in req.get_facet_prefixes() {
+//            facet_collector.add_facet(facet_prefix);
+//        }
+//        let facet_handle = multi_collector.add_collector(facet_collector);
+
+//        // multi field facet
+//        let mut facet_data: HashMap<&str, Vec<String>> = HashMap::new();
+//        for f in req.get_facets() {
+//            let mut parts = f.split(':');
+//            let field_name = parts.next().unwrap();
+//            let field_value = parts.next().unwrap();
+//            let mut field_values: Vec<String> = Vec::new();
+//            if facet_data.contains_key(field_name) {
+//                field_values = facet_data.get(field_name).unwrap().to_vec();
+//            }
+//            field_values.push(field_value.to_string());
+//            facet_data.insert(field_name, field_values);
+//        }
+//        debug!("facet_data: {:?}", facet_data);
+//        let mut facet_handles = HashMap::new();
+//        for field_name in facet_data.keys() {
+//            let field = schema.get_field(*field_name).unwrap();
+//            let mut facet_collector = FacetCollector::for_field(field);
+//            for field_value in facet_data.get(*field_name).unwrap() {
+//                facet_collector.add_facet(field_value);
+//            }
+//            let facet_handle = multi_collector.add_collector(facet_collector);
+//            facet_handles.insert(*field_name, facet_handle);
+//        }
+
+        // search index
+        let mut multi_fruit = searcher.search(&query, &multi_collector).unwrap();
+
+        // count
+        let mut count: i64 = -1;
+        if let Some(ch) = count_handle {
+            count = ch.extract(&mut multi_fruit) as i64;
         }
+
+        // docs
+        let mut top_docs = Vec::new();
+        if let Some(tdh) = top_docs_handle {
+            top_docs = tdh.extract(&mut multi_fruit);
+        }
+
+        // facet
+        let mut facet: HashMap<String, HashMap<String, u64>> = HashMap::new();
+        if let Some(fh) = facet_handle {
+            let facet_counts = fh.extract(&mut multi_fruit);
+            let mut facet_kv: HashMap<String, u64> = HashMap::new();
+            for facet_prefix in req.get_facet_prefixes() {
+                for (facet_key, facet_value) in facet_counts.get(facet_prefix) {
+                    debug!("{:?}={}", facet_key.to_string(), facet_value);
+                    facet_kv.insert(facet_key.to_string(), facet_value);
+                }
+            }
+            facet.insert(req.get_facet_field().to_string(), facet_kv);
+        }
+
+//        // single field facet
+//        let facet_counts = facet_handle.extract(&mut multi_fruit);
+//        for facet_prefix in req.get_facet_prefixes() {
+//            for (facet_value, facet_count) in facet_counts.get(facet_prefix) {
+//                debug!("{:?}={}", facet_value.to_string(), facet_count);
+//            }
+//        }
+
+//        // multi field facet
+//        for field_name in facet_handles.keys() {
+//            let facet_counts = facet_handles.get(*field_name).unwrap().extract(&mut multi_fruit);
+//            for facet_value in facet_data.get(*field_name).unwrap().to_vec() {
+//                debug!("facet_value: {}", facet_value);
+//                let facet_count = facet_counts.get(&facet_value);
+//            }
+//        }
 
         let mut docs: Vec<ScoredNamedFieldDocument> = Vec::new();
         let mut doc_pos: u64 = 0;
@@ -690,7 +770,7 @@ impl IndexService for IndexServer {
             doc_pos += 1;
         }
 
-        let sr = SearchResult { docs, count };
+        let sr = SearchResult { docs, count, facet };
 
         let mut resp = SearchResp::new();
         resp.set_err(RespErr::OK);

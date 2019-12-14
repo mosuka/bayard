@@ -169,10 +169,22 @@ with the new document.</p>
 </code></pre>
 <h2><a class="header" href="#examples" id="examples">EXAMPLES</a></h2>
 <p>To put a document with default options:</p>
-<pre><code class="language-text">$ ./bin/bayard put 1 '{&quot;text&quot;:&quot;Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.&quot;}'
+<pre><code class="language-text">$ ./bin/bayard put 1 '{
+  &quot;url&quot;: &quot;https://github.com/bayard-search/bayard&quot;,
+  &quot;name&quot;: &quot;Bayard&quot;,
+  &quot;description&quot;: &quot;Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.&quot;,
+  &quot;star&quot;: 1132,
+  &quot;facet&quot;: [&quot;/category/search/server&quot;, &quot;/language/rust&quot;]
+}'
 </code></pre>
 <p>To put a document with options:</p>
-<pre><code class="language-text">$ ./bin/bayard put --servers=127.0.0.1:5001 1 '{&quot;text&quot;:&quot;Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.&quot;}'
+<pre><code class="language-text">$ ./bin/bayard put --servers=127.0.0.1:5001 1 '{
+  &quot;url&quot;: &quot;https://github.com/bayard-search/bayard&quot;,
+  &quot;name&quot;: &quot;Bayard&quot;,
+  &quot;description&quot;: &quot;Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.&quot;,
+  &quot;star&quot;: 1132,
+  &quot;facet&quot;: [&quot;/category/search/server&quot;, &quot;/language/rust&quot;]
+}'
 </code></pre>
 
                     </main>

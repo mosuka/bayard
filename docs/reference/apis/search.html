@@ -164,21 +164,35 @@ Start position of fetching results. If not specified, use default value. [defaul
 Limitation of amount that document to be returned. If not specified, use default value. [default: 10]</p>
 </li>
 <li>
-<p><code>include_docs</code><br />
-A flag indicating whether or not to include hit documents in the search results. If not specified, use default value. [default: true]</p>
+<p><code>exclude_count</code><br />
+A flag indicating whether or not to exclude hit count in the search results. If not specified, use default value. [default: true]</p>
 </li>
 <li>
-<p><code>include_count</code><br />
-A flag indicating whether or not to include hit count in the search results. If not specified, use default value. [default: true]</p>
+<p><code>exclude_docs</code><br />
+A flag indicating whether or not to exclude hit documents in the search results. If not specified, use default value. [default: true]</p>
 </li>
 <li>
 <p><code>query</code><br />
 Query string to search the index.</p>
 </li>
+<li>
+<p><code>facet_field</code><br />
+Hierarchical facet field name.</p>
+</li>
+<li>
+<p><code>facet_prefix</code><br />
+Hierarchical facet field value prefix.</p>
+</li>
 </ul>
 <h2><a class="header" href="#example" id="example">Example</a></h2>
 <p>To search documents from the index:</p>
 <pre><code class="language-text">$ curl -X GET 'http://localhost:8000/index/search?query=search&amp;from=0&amp;limit=10'
+</code></pre>
+<pre><code class="language-text">$ curl -X GET 'http://localhost:8000/index/search?query=search&amp;from=0&amp;limit=10&amp;exclude_count'
+</code></pre>
+<pre><code class="language-text">$ curl -X GET 'http://localhost:8000/index/search?query=search&amp;from=0&amp;limit=10&amp;exclude_docs'
+</code></pre>
+<pre><code class="language-text">$ curl -X GET 'http://localhost:8000/index/search?query=search&amp;from=0&amp;limit=10&amp;facet_field=category&amp;facet_prefix=/language&amp;facet_prefix=/category/search'
 </code></pre>
 
                     </main>

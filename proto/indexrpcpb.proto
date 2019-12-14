@@ -153,8 +153,11 @@ message SearchReq {
     string query = 3;
     uint64 from = 4;
     uint64 limit = 5;
-    bool include_docs = 6;
-    bool include_count = 7;
+    bool exclude_count = 6;
+    bool exclude_docs = 7;
+    string facet_field = 8;
+    repeated string facet_prefixes = 9;
+    //    repeated string facets = 10;
 }
 
 message SearchResp {

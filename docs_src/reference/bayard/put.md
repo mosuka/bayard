@@ -28,11 +28,23 @@ with the new document.
 To put a document with default options:
 
 ```text
-$ ./bin/bayard put 1 '{"text":"Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy."}'
+$ ./bin/bayard put 1 '{
+  "url": "https://github.com/bayard-search/bayard",
+  "name": "Bayard",
+  "description": "Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.",
+  "star": 1132,
+  "facet": ["/category/search/server", "/language/rust"]
+}'
 ```
 
 To put a document with options:
 
 ```text
-$ ./bin/bayard put --servers=127.0.0.1:5001 1 '{"text":"Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy."}'
+$ ./bin/bayard put --servers=127.0.0.1:5001 1 '{
+  "url": "https://github.com/bayard-search/bayard",
+  "name": "Bayard",
+  "description": "Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.",
+  "star": 1132,
+  "facet": ["/category/search/server", "/language/rust"]
+}'
 ```

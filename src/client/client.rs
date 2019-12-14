@@ -4,6 +4,7 @@ use std::time::Duration;
 
 use grpcio::{ChannelBuilder, EnvBuilder};
 use log::*;
+use protobuf::RepeatedField;
 use raft::eraftpb::{ConfChange, ConfChangeType};
 
 use crate::proto::indexpb_grpc::IndexClient;
@@ -349,8 +350,11 @@ impl Clerk {
         query: &str,
         from: u64,
         limit: u64,
-        include_docs: bool,
-        include_count: bool,
+        exclude_count: bool,
+        exclude_docs: bool,
+        facet_field: &str,
+        facet_prefixes: Vec<String>,
+//        facets: Vec<String>,
     ) -> String {
         let mut req = SearchReq::new();
         req.set_client_id(self.client_id);
@@ -358,8 +362,11 @@ impl Clerk {
         req.set_query(query.to_owned());
         req.set_from(from);
         req.set_limit(limit);
-        req.set_include_docs(include_docs);
-        req.set_include_count(include_count);
+        req.set_exclude_count(exclude_count);
+        req.set_exclude_docs(exclude_docs);
+        req.set_facet_field(facet_field.to_string());
+        req.set_facet_prefixes(RepeatedField::from_vec(facet_prefixes));
+//        req.set_facets(RepeatedField::from_vec(facets));
         self.request_seq += 1;
 
         loop {

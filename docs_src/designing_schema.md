@@ -37,7 +37,7 @@ A field type describes the type of a field as well as how it should be handled.
   Signed 64-bits Date 64 field type configuration. It can specify [numeric options](#numeric-options).
 
 - "hierarchical_facet"  
-  Hierachical Facet.
+  Hierarchical Facet.
 
 - "bytes"  
   Bytes. (one per document)
