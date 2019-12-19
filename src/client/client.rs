@@ -354,7 +354,7 @@ impl Clerk {
         exclude_docs: bool,
         facet_field: &str,
         facet_prefixes: Vec<String>,
-//        facets: Vec<String>,
+        //        facets: Vec<String>,
     ) -> String {
         let mut req = SearchReq::new();
         req.set_client_id(self.client_id);
@@ -366,7 +366,7 @@ impl Clerk {
         req.set_exclude_docs(exclude_docs);
         req.set_facet_field(facet_field.to_string());
         req.set_facet_prefixes(RepeatedField::from_vec(facet_prefixes));
-//        req.set_facets(RepeatedField::from_vec(facets));
+        //        req.set_facets(RepeatedField::from_vec(facets));
         self.request_seq += 1;
 
         loop {

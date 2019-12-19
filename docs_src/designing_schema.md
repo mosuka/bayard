@@ -154,7 +154,7 @@ Here is a sample schema:
     }
   },
   {
-    "name": "star",
+    "name": "popularity",
     "type": "u64",
     "options": {
       "indexed": true,

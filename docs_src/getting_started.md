@@ -115,7 +115,8 @@ $ ./bin/bayard put 1 '{
   "name": "Bayard",
   "description": "Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.",
   "popularity": 1132,
-  "category": ["/category/search/server", "/language/rust"]
+  "category": ["/category/search/server", "/language/rust"],
+  "timestamp": "2019-12-01T20:10:05.145Z"
 }'
 $ ./bin/bayard put 2 '{
   "url": "https://lucene.apache.org/solr/",
