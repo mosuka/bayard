@@ -6,6 +6,7 @@ use std::sync::mpsc::{self, Receiver, SyncSender};
 use std::time::Duration;
 
 use crossbeam_channel::select;
+use async_std::task::block_on;
 use futures::Future;
 use grpcio::{ChannelBuilder, EnvBuilder, Environment, RpcContext, ServerBuilder, UnarySink};
 use log::*;
@@ -397,26 +398,14 @@ impl IndexServer {
                     return NotifyArgs(term, serde_json::to_string(&ret).unwrap(), RespErr::OK);
                 }
 
-                match index_writer
-                    .lock()
-                    .unwrap()
-                    .merge(&segments)
-                    .unwrap()
-                    .wait()
+                let merge_future = index_writer.lock().unwrap().merge(&segments);
+                match block_on(merge_future)
                 {
                     Ok(segment_meta) => {
                         info!("merge succeed: {:?}", segment_meta);
 
                         let mut ret = HashMap::new();
                         ret.insert("segment_meta", segment_meta);
-
-                        //                        index_writer
-                        //                            .lock()
-                        //                            .unwrap()
-                        //                            .garbage_collect_files()
-                        //                            .unwrap();
-                        //                        info!("collect garbage from the index");
-
                         NotifyArgs(term, serde_json::to_string(&ret).unwrap(), RespErr::OK)
                     }
                     Err(e) => {
@@ -634,15 +623,14 @@ impl IndexService for IndexServer {
         let schema = self.index.schema();
         let default_fields: Vec<Field> = schema
             .fields()
-            .iter()
-            .enumerate()
-            .filter(|&(_, ref field_entry)| match *field_entry.field_type() {
-                FieldType::Str(ref text_field_options) => {
-                    text_field_options.get_indexing_options().is_some()
+            .flat_map(|(field, field_entry)| {
+                if let FieldType::Str(text_field_options) = field_entry.field_type() {
+                    if text_field_options.get_indexing_options().is_some() {
+                        return Some(field);
+                    }
                 }
-                _ => false,
+                None
             })
-            .map(|(i, _)| Field(i as u32))
             .collect();
 
         let limit = req.get_from() + req.get_limit();
