@@ -1,32 +1,32 @@
-use std::{fs, thread};
 use std::collections::HashMap;
 use std::path::Path;
-use std::sync::{Arc, Mutex};
 use std::sync::mpsc::{self, Receiver, SyncSender};
+use std::sync::{Arc, Mutex};
 use std::time::Duration;
+use std::{fs, thread};
 
-use crossbeam_channel::select;
 use async_std::task::block_on;
+use crossbeam_channel::select;
 use futures::Future;
 use grpcio::{ChannelBuilder, EnvBuilder, Environment, RpcContext, ServerBuilder, UnarySink};
 use log::*;
 use protobuf::Message;
 use raft::eraftpb::{ConfChange, ConfChangeType, Entry, EntryType, Message as RaftMessage};
-use tantivy::{Document, Index, IndexWriter, Term};
 use tantivy::collector::{Count, FacetCollector, MultiCollector, TopDocs};
 use tantivy::query::{QueryParser, TermQuery};
 use tantivy::schema::{Field, FieldType, IndexRecordOption, Schema};
+use tantivy::{Document, Index, IndexWriter, Term};
 
-use crate::client::client::{Clerk, create_client};
+use crate::client::client::{create_client, Clerk};
 use crate::proto::indexpb_grpc::{self, Index as IndexService, IndexClient};
 use crate::proto::indexrpcpb::{
     ApplyReq, CommitResp, ConfChangeReq, DeleteResp, GetReq, GetResp, JoinReq, LeaveReq, MergeResp,
     MetricsReq, MetricsResp, PeersReq, PeersResp, ProbeReq, ProbeResp, PutResp, RaftDone, ReqType,
     RespErr, RollbackResp, SchemaReq, SchemaResp, SearchReq, SearchResp,
 };
-use crate::server::{peer, util};
 use crate::server::metrics::Metrics;
 use crate::server::peer::PeerMessage;
+use crate::server::{peer, util};
 use crate::util::search_result::{ScoredNamedFieldDocument, SearchResult};
 use crate::util::signal::sigterm_channel;
 
@@ -399,8 +399,7 @@ impl IndexServer {
                 }
 
                 let merge_future = index_writer.lock().unwrap().merge(&segments);
-                match block_on(merge_future)
-                {
+                match block_on(merge_future) {
                     Ok(segment_meta) => {
                         info!("merge succeed: {:?}", segment_meta);
 
@@ -652,44 +651,45 @@ impl IndexService for IndexServer {
         let facet_handle = if req.get_facet_field().is_empty() {
             None
         } else {
-            let mut facet_collector = FacetCollector::for_field(schema.get_field(req.get_facet_field()).unwrap());
+            let mut facet_collector =
+                FacetCollector::for_field(schema.get_field(req.get_facet_field()).unwrap());
             for facet_prefix in req.get_facet_prefixes() {
                 facet_collector.add_facet(facet_prefix);
             }
             Some(multi_collector.add_collector(facet_collector))
         };
 
-//        // single field facet
-//        let mut facet_collector = FacetCollector::for_field(schema.get_field(req.get_facet_field()).unwrap());
-//        for facet_prefix in req.get_facet_prefixes() {
-//            facet_collector.add_facet(facet_prefix);
-//        }
-//        let facet_handle = multi_collector.add_collector(facet_collector);
+        //        // single field facet
+        //        let mut facet_collector = FacetCollector::for_field(schema.get_field(req.get_facet_field()).unwrap());
+        //        for facet_prefix in req.get_facet_prefixes() {
+        //            facet_collector.add_facet(facet_prefix);
+        //        }
+        //        let facet_handle = multi_collector.add_collector(facet_collector);
 
-//        // multi field facet
-//        let mut facet_data: HashMap<&str, Vec<String>> = HashMap::new();
-//        for f in req.get_facets() {
-//            let mut parts = f.split(':');
-//            let field_name = parts.next().unwrap();
-//            let field_value = parts.next().unwrap();
-//            let mut field_values: Vec<String> = Vec::new();
-//            if facet_data.contains_key(field_name) {
-//                field_values = facet_data.get(field_name).unwrap().to_vec();
-//            }
-//            field_values.push(field_value.to_string());
-//            facet_data.insert(field_name, field_values);
-//        }
-//        debug!("facet_data: {:?}", facet_data);
-//        let mut facet_handles = HashMap::new();
-//        for field_name in facet_data.keys() {
-//            let field = schema.get_field(*field_name).unwrap();
-//            let mut facet_collector = FacetCollector::for_field(field);
-//            for field_value in facet_data.get(*field_name).unwrap() {
-//                facet_collector.add_facet(field_value);
-//            }
-//            let facet_handle = multi_collector.add_collector(facet_collector);
-//            facet_handles.insert(*field_name, facet_handle);
-//        }
+        //        // multi field facet
+        //        let mut facet_data: HashMap<&str, Vec<String>> = HashMap::new();
+        //        for f in req.get_facets() {
+        //            let mut parts = f.split(':');
+        //            let field_name = parts.next().unwrap();
+        //            let field_value = parts.next().unwrap();
+        //            let mut field_values: Vec<String> = Vec::new();
+        //            if facet_data.contains_key(field_name) {
+        //                field_values = facet_data.get(field_name).unwrap().to_vec();
+        //            }
+        //            field_values.push(field_value.to_string());
+        //            facet_data.insert(field_name, field_values);
+        //        }
+        //        debug!("facet_data: {:?}", facet_data);
+        //        let mut facet_handles = HashMap::new();
+        //        for field_name in facet_data.keys() {
+        //            let field = schema.get_field(*field_name).unwrap();
+        //            let mut facet_collector = FacetCollector::for_field(field);
+        //            for field_value in facet_data.get(*field_name).unwrap() {
+        //                facet_collector.add_facet(field_value);
+        //            }
+        //            let facet_handle = multi_collector.add_collector(facet_collector);
+        //            facet_handles.insert(*field_name, facet_handle);
+        //        }
 
         // search index
         let mut multi_fruit = searcher.search(&query, &multi_collector).unwrap();
@@ -720,22 +720,22 @@ impl IndexService for IndexServer {
             facet.insert(req.get_facet_field().to_string(), facet_kv);
         }
 
-//        // single field facet
-//        let facet_counts = facet_handle.extract(&mut multi_fruit);
-//        for facet_prefix in req.get_facet_prefixes() {
-//            for (facet_value, facet_count) in facet_counts.get(facet_prefix) {
-//                debug!("{:?}={}", facet_value.to_string(), facet_count);
-//            }
-//        }
+        //        // single field facet
+        //        let facet_counts = facet_handle.extract(&mut multi_fruit);
+        //        for facet_prefix in req.get_facet_prefixes() {
+        //            for (facet_value, facet_count) in facet_counts.get(facet_prefix) {
+        //                debug!("{:?}={}", facet_value.to_string(), facet_count);
+        //            }
+        //        }
 
-//        // multi field facet
-//        for field_name in facet_handles.keys() {
-//            let facet_counts = facet_handles.get(*field_name).unwrap().extract(&mut multi_fruit);
-//            for facet_value in facet_data.get(*field_name).unwrap().to_vec() {
-//                debug!("facet_value: {}", facet_value);
-//                let facet_count = facet_counts.get(&facet_value);
-//            }
-//        }
+        //        // multi field facet
+        //        for field_name in facet_handles.keys() {
+        //            let facet_counts = facet_handles.get(*field_name).unwrap().extract(&mut multi_fruit);
+        //            for facet_value in facet_data.get(*field_name).unwrap().to_vec() {
+        //                debug!("facet_value: {}", facet_value);
+        //                let facet_count = facet_counts.get(&facet_value);
+        //            }
+        //        }
 
         let mut docs: Vec<ScoredNamedFieldDocument> = Vec::new();
         let mut doc_pos: u64 = 0;

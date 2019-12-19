@@ -1,16 +1,16 @@
 use std::io::Read;
 
 use clap::ArgMatches;
-use iron::{Chain, Iron, IronResult, Request, Response, status};
 use iron::headers::ContentType;
 use iron::prelude::*;
 use iron::typemap::Key;
+use iron::{status, Chain, Iron, IronResult, Request, Response};
 use logger::Logger;
 use persistent::Write;
 use router::Router;
 use urlencoded::UrlEncodedQuery;
 
-use crate::client::client::{Clerk, create_client};
+use crate::client::client::{create_client, Clerk};
 use crate::util::log::set_http_logger;
 
 #[derive(Copy, Clone)]
@@ -153,43 +153,45 @@ fn search(req: &mut Request) -> IronResult<Response> {
             .unwrap();
     }
     let exclude_count = map.contains_key("exclude_count");
-//    if map.contains_key("exclude_count") {
-//        exclude_count = map
-//            .get("exclude_count")
-//            .unwrap()
-//            .get(0)
-//            .unwrap_or(&String::from("true"))
-//            .parse::<bool>()
-//            .unwrap();
-//    }
+    //    if map.contains_key("exclude_count") {
+    //        exclude_count = map
+    //            .get("exclude_count")
+    //            .unwrap()
+    //            .get(0)
+    //            .unwrap_or(&String::from("true"))
+    //            .parse::<bool>()
+    //            .unwrap();
+    //    }
     let exclude_docs = map.contains_key("exclude_docs");
-//    if map.contains_key("exclude_docs") {
-//        exclude_docs = map
-//            .get("exclude_docs")
-//            .unwrap()
-//            .get(0)
-//            .unwrap_or(&String::from("true"))
-//            .parse::<bool>()
-//            .unwrap();
-//    }
+    //    if map.contains_key("exclude_docs") {
+    //        exclude_docs = map
+    //            .get("exclude_docs")
+    //            .unwrap()
+    //            .get(0)
+    //            .unwrap_or(&String::from("true"))
+    //            .parse::<bool>()
+    //            .unwrap();
+    //    }
     let mut facet_field: &str = "";
     if map.contains_key("facet_field") {
-        facet_field = map
-            .get("facet_field")
-            .unwrap()
-            .get(0)
-            .unwrap();
+        facet_field = map.get("facet_field").unwrap().get(0).unwrap();
     }
     let mut facet_prefixes = Vec::new();
     if map.contains_key("facet_prefix") {
-        facet_prefixes = map
-            .get("facet_prefix").cloned().unwrap();
+        facet_prefixes = map.get("facet_prefix").cloned().unwrap();
     }
-
 
     let client_arc = req.get::<Write<Client>>().unwrap();
     let mut client = client_arc.lock().unwrap();
-    let value = client.search(query, from, limit, exclude_count, exclude_docs, facet_field, facet_prefixes);
+    let value = client.search(
+        query,
+        from,
+        limit,
+        exclude_count,
+        exclude_docs,
+        facet_field,
+        facet_prefixes,
+    );
 
     Ok(Response::with((ContentType::json().0, status::Ok, value)))
 }
