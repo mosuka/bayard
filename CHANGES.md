@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## 0.3.0
+- Update docs #53 @mosuka
 - Upgrade Tantivy to 0.11.3 #52 @mosuka
 - Error handling #51 @mosuka
 - Update docs #50 @mosuka
