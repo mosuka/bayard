@@ -861,15 +861,14 @@ help        Prints this message or the help of the given subcommand(s)
 -v, --version    Prints version information.
 </code></pre>
 <h2><a class="header" href="#options-2" id="options-2">OPTIONS</a></h2>
-<pre><code>-s, --servers &lt;IP:PORT&gt;...    Server addresses in an existing cluster separated by &quot;,&quot;. If not specified, use
-                              default servers. [default: 127.0.0.1:5000]
+<pre><code>-s, --server &lt;IP:PORT&gt;    Server address in an existing cluster. [default: 127.0.0.1:5000]
 </code></pre>
 <h2><a class="header" href="#examples-2" id="examples-2">EXAMPLES</a></h2>
 <p>To probe a server with default options:</p>
 <pre><code class="language-text">$ ./bin/bayard probe
 </code></pre>
 <p>To probe a server with options:</p>
-<pre><code class="language-text">$ ./bin/bayard probe --servers=127.0.0.1:5001
+<pre><code class="language-text">$ ./bin/bayard probe --server=127.0.0.1:5001
 </code></pre>
 <h1><a class="header" href="#bayard-peers" id="bayard-peers">bayard peers</a></h1>
 <p>The <code>bayard peers</code> CLI shows the peer addresses of the cluster that the specified server is joining.</p>
@@ -881,15 +880,14 @@ help        Prints this message or the help of the given subcommand(s)
 -v, --version    Prints version information.
 </code></pre>
 <h2><a class="header" href="#options-3" id="options-3">OPTIONS</a></h2>
-<pre><code>-s, --servers &lt;IP:PORT&gt;...    Server addresses in an existing cluster separated by &quot;,&quot;. If not specified, use
-                              default servers. [default: 127.0.0.1:5000]
+<pre><code>-s, --server &lt;IP:PORT&gt;    Server address in an existing cluster. [default: 127.0.0.1:5000]
 </code></pre>
 <h2><a class="header" href="#examples-3" id="examples-3">EXAMPLES</a></h2>
 <p>To show peers of the cluster with default options:</p>
 <pre><code class="language-text">$ ./bin/bayard peers
 </code></pre>
 <p>To show peers of the cluster with options:</p>
-<pre><code class="language-text">$ ./bin/bayard peers --servers=127.0.0.1:5001
+<pre><code class="language-text">$ ./bin/bayard peers --server=127.0.0.1:5001
 </code></pre>
 <h1><a class="header" href="#bayard-metrics" id="bayard-metrics">bayard metrics</a></h1>
 <p>The <code>bayard metrics</code> CLI shows the server metrics of the specified server. The metrics are output in Prometheus exposition format.</p>
@@ -901,15 +899,13 @@ help        Prints this message or the help of the given subcommand(s)
 -v, --version    Prints version information.
 </code></pre>
 <h2><a class="header" href="#options-4" id="options-4">OPTIONS</a></h2>
-<pre><code>-s, --servers &lt;IP:PORT&gt;...    Server addresses in an existing cluster separated by &quot;,&quot;. If not specified, use
-                              default servers. [default: 127.0.0.1:5000]
-</code></pre>
+<p>-s, --server <a href="reference/bayard/IP:PORT">IP:PORT</a>    Server address in an existing cluster. [default: 127.0.0.1:5000]</p>
 <h2><a class="header" href="#examples-4" id="examples-4">EXAMPLES</a></h2>
 <p>To show metrics with default options:</p>
 <pre><code class="language-text">$ ./bin/bayard metrics
 </code></pre>
 <p>To show metrics with options:</p>
-<pre><code class="language-text">$ ./bin/bayard metrics --servers=127.0.0.1:5001
+<pre><code class="language-text">$ ./bin/bayard metrics --server=127.0.0.1:5001
 </code></pre>
 <h1><a class="header" href="#bayard-leave" id="bayard-leave">bayard leave</a></h1>
 <p>The <code>bayard leave</code> CLI removes the server with the specified ID from the cluster that the specified server is joining.</p>

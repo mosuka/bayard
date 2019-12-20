@@ -13,8 +13,7 @@ The `bayard metrics` CLI shows the server metrics of the specified server. The m
 
 ## OPTIONS
 
-    -s, --servers <IP:PORT>...    Server addresses in an existing cluster separated by ",". If not specified, use
-                                  default servers. [default: 127.0.0.1:5000]
+   -s, --server <IP:PORT>    Server address in an existing cluster. [default: 127.0.0.1:5000]
 
 ## EXAMPLES
 
@@ -27,5 +26,5 @@ $ ./bin/bayard metrics
 To show metrics with options:
 
 ```text
-$ ./bin/bayard metrics --servers=127.0.0.1:5001
+$ ./bin/bayard metrics --server=127.0.0.1:5001
 ```
