@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## 0.3.0
+- Error handling #51 @mosuka
 - Update docs #50 @mosuka
 - Update to tantivy 0.11.2 and avoid blocking on merge while the IndexWriter's lock is held #49 @fulmicoton
 - Support faceted search #48 @mosuka
