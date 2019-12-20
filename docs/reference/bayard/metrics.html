@@ -158,15 +158,13 @@
 -v, --version    Prints version information.
 </code></pre>
 <h2><a class="header" href="#options" id="options">OPTIONS</a></h2>
-<pre><code>-s, --servers &lt;IP:PORT&gt;...    Server addresses in an existing cluster separated by &quot;,&quot;. If not specified, use
-                              default servers. [default: 127.0.0.1:5000]
-</code></pre>
+<p>-s, --server <a href="IP:PORT">IP:PORT</a>    Server address in an existing cluster. [default: 127.0.0.1:5000]</p>
 <h2><a class="header" href="#examples" id="examples">EXAMPLES</a></h2>
 <p>To show metrics with default options:</p>
 <pre><code class="language-text">$ ./bin/bayard metrics
 </code></pre>
 <p>To show metrics with options:</p>
-<pre><code class="language-text">$ ./bin/bayard metrics --servers=127.0.0.1:5001
+<pre><code class="language-text">$ ./bin/bayard metrics --server=127.0.0.1:5001
 </code></pre>
 
                     </main>

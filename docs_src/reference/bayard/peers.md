@@ -13,8 +13,7 @@ The `bayard peers` CLI shows the peer addresses of the cluster that the specifie
 
 ## OPTIONS
 
-    -s, --servers <IP:PORT>...    Server addresses in an existing cluster separated by ",". If not specified, use
-                                  default servers. [default: 127.0.0.1:5000]
+    -s, --server <IP:PORT>    Server address in an existing cluster. [default: 127.0.0.1:5000]
 
 ## EXAMPLES
 
@@ -27,5 +26,5 @@ $ ./bin/bayard peers
 To show peers of the cluster with options:
 
 ```text
-$ ./bin/bayard peers --servers=127.0.0.1:5001
+$ ./bin/bayard peers --server=127.0.0.1:5001
 ```

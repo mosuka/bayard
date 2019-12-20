@@ -158,15 +158,14 @@
 -v, --version    Prints version information.
 </code></pre>
 <h2><a class="header" href="#options" id="options">OPTIONS</a></h2>
-<pre><code>-s, --servers &lt;IP:PORT&gt;...    Server addresses in an existing cluster separated by &quot;,&quot;. If not specified, use
-                              default servers. [default: 127.0.0.1:5000]
+<pre><code>-s, --server &lt;IP:PORT&gt;    Server address in an existing cluster. [default: 127.0.0.1:5000]
 </code></pre>
 <h2><a class="header" href="#examples" id="examples">EXAMPLES</a></h2>
 <p>To probe a server with default options:</p>
 <pre><code class="language-text">$ ./bin/bayard probe
 </code></pre>
 <p>To probe a server with options:</p>
-<pre><code class="language-text">$ ./bin/bayard probe --servers=127.0.0.1:5001
+<pre><code class="language-text">$ ./bin/bayard probe --server=127.0.0.1:5001
 </code></pre>
 
                     </main>
