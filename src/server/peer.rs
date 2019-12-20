@@ -17,7 +17,7 @@ pub enum PeerMessage {
 }
 
 pub struct Peer {
-    raft_group: RawNode<PeerStorage>,
+    pub raft_group: RawNode<PeerStorage>,
     // last_applying_idx: u64,
     // last_compacted_idx: u64,
     apply_ch: SyncSender<Entry>,

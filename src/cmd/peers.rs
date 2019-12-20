@@ -6,11 +6,10 @@ use crate::util::log::set_logger;
 pub fn run_peers_cli(matches: &ArgMatches) -> Result<(), String> {
     set_logger();
 
-    let servers: Vec<_> = matches
-        .values_of("SERVERS")
-        .unwrap()
-        .map(|addr| create_client(addr))
-        .collect();
+    let server = matches.value_of("SERVER").unwrap();
+
+    let mut servers = Vec::new();
+    servers.push(create_client(server));
 
     let client_id = rand::random();
 
