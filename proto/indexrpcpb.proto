@@ -6,7 +6,17 @@ import "eraftpb.proto";
 enum RespErr {
     OK = 0;
     ErrWrongLeader = 1;
-    ErrNoKey = 2;
+    ErrProbeFailed = 2;
+    ErrPeerFailed = 3;
+    ErrMetricsFailed = 4;
+    ErrGetFailed = 5;
+    ErrPutFailed = 6;
+    ErrDeleteFailed = 7;
+    ErrCommitFailed = 8;
+    ErrRollbackFailed = 9;
+    ErrMergeFailed = 10;
+    ErrSearchFailed = 11;
+    ErrSchemaFailed = 12;
 }
 
 enum ReqType {
@@ -157,7 +167,6 @@ message SearchReq {
     bool exclude_docs = 7;
     string facet_field = 8;
     repeated string facet_prefixes = 9;
-    //    repeated string facets = 10;
 }
 
 message SearchResp {

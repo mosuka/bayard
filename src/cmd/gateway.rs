@@ -153,25 +153,7 @@ fn search(req: &mut Request) -> IronResult<Response> {
             .unwrap();
     }
     let exclude_count = map.contains_key("exclude_count");
-    //    if map.contains_key("exclude_count") {
-    //        exclude_count = map
-    //            .get("exclude_count")
-    //            .unwrap()
-    //            .get(0)
-    //            .unwrap_or(&String::from("true"))
-    //            .parse::<bool>()
-    //            .unwrap();
-    //    }
     let exclude_docs = map.contains_key("exclude_docs");
-    //    if map.contains_key("exclude_docs") {
-    //        exclude_docs = map
-    //            .get("exclude_docs")
-    //            .unwrap()
-    //            .get(0)
-    //            .unwrap_or(&String::from("true"))
-    //            .parse::<bool>()
-    //            .unwrap();
-    //    }
     let mut facet_field: &str = "";
     if map.contains_key("facet_field") {
         facet_field = map.get("facet_field").unwrap().get(0).unwrap();

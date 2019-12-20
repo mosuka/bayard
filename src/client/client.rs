@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::sync::Arc;
 use std::thread;
 use std::time::Duration;
@@ -29,6 +30,7 @@ pub struct Clerk {
     client_id: u64,
     request_seq: u64,
     leader_id: usize,
+    max_retry_count: usize,
 }
 
 impl Clerk {
@@ -38,10 +40,22 @@ impl Clerk {
             client_id,
             request_seq: 0,
             leader_id: 0,
+            max_retry_count: 5,
         }
     }
 
     pub fn join(&mut self, id: u64, ip: &str, port: u16) {
+        self.join_with_retry(id, ip, port, 5, Duration::from_millis(100))
+    }
+
+    pub fn join_with_retry(
+        &mut self,
+        id: u64,
+        ip: &str,
+        port: u16,
+        max_retry: usize,
+        duration: Duration,
+    ) {
         let mut cc = ConfChange::new();
         cc.set_id(id);
         cc.set_node_id(id);
@@ -52,22 +66,38 @@ impl Clerk {
         cc_req.set_ip(ip.to_string());
         cc_req.set_port(port as u32);
 
+        let mut request_count: usize = 0;
         loop {
+            if request_count > max_retry {
+                let msg = "exceeded max retry count";
+                debug!("{}", msg);
+
+                let mut ret = HashMap::new();
+                ret.insert("error", msg.to_string());
+
+                return;
+            }
+
             let reply = self.servers[self.leader_id]
                 .raft_conf_change(&cc_req)
                 .unwrap_or_else(|e| {
-                    error!("{:?}", e);
+                    let msg = format!("{:?}", e);
+                    error!("{:?}", msg);
+
                     let mut resp = RaftDone::new();
                     resp.set_err(RespErr::ErrWrongLeader);
                     resp
                 });
             match reply.err {
                 RespErr::OK => return,
-                RespErr::ErrWrongLeader => (),
-                RespErr::ErrNoKey => return,
+                _ => error!("failed to add node"),
             }
+
             self.leader_id = (self.leader_id + 1) % self.servers.len();
-            thread::sleep(Duration::from_millis(100));
+            request_count += 1;
+            debug!("{}", "retry to add node");
+
+            thread::sleep(duration);
         }
     }
 
@@ -79,21 +109,34 @@ impl Clerk {
         let mut cc_req = ConfChangeReq::new();
         cc_req.set_cc(cc);
 
+        let mut request_count: usize = 0;
         loop {
+            if request_count > self.max_retry_count {
+                let msg = "exceeded max retry count";
+                debug!("{}", msg);
+
+                return;
+            }
+
             let reply = self.servers[self.leader_id]
                 .raft_conf_change(&cc_req)
                 .unwrap_or_else(|e| {
-                    error!("{:?}", e);
+                    let msg = format!("{:?}", e);
+                    error!("{:?}", msg);
+
                     let mut resp = RaftDone::new();
                     resp.set_err(RespErr::ErrWrongLeader);
                     resp
                 });
             match reply.err {
                 RespErr::OK => return,
-                RespErr::ErrWrongLeader => (),
-                RespErr::ErrNoKey => return,
+                _ => error!("failed to delete from the cluster"),
             }
+
             self.leader_id = (self.leader_id + 1) % self.servers.len();
+            request_count += 1;
+            debug!("{}", "retry to add node");
+
             thread::sleep(Duration::from_millis(100));
         }
     }
@@ -104,20 +147,42 @@ impl Clerk {
         req.set_seq(self.request_seq);
         self.request_seq += 1;
 
+        let mut request_count: usize = 0;
         loop {
+            if request_count > self.max_retry_count {
+                let msg = "exceeded max retry count";
+                debug!("{}", msg);
+
+                let mut ret = HashMap::new();
+                ret.insert("error", msg.to_string());
+
+                return serde_json::to_string(&ret).unwrap();
+            }
+
             let reply = self.servers[self.leader_id]
                 .probe(&req)
-                .unwrap_or_else(|_e| {
+                .unwrap_or_else(|e| {
+                    let msg = format!("{:?}", e);
+                    error!("{:?}", msg);
+
+                    let mut ret = HashMap::new();
+                    ret.insert("error", msg.to_string());
+                    ret.insert("health", "NG".to_string());
+
                     let mut resp = ProbeResp::new();
-                    resp.set_err(RespErr::ErrWrongLeader);
+                    resp.set_err(RespErr::ErrProbeFailed);
+                    resp.set_value(serde_json::to_string(&ret).unwrap());
                     resp
                 });
             match reply.err {
                 RespErr::OK => return reply.value,
-                RespErr::ErrWrongLeader => (),
-                RespErr::ErrNoKey => return String::from(""),
+                _ => error!("failed to probe node"),
             }
+
             self.leader_id = (self.leader_id + 1) % self.servers.len();
+            request_count += 1;
+            debug!("{}", "retry to probe node");
+
             thread::sleep(Duration::from_millis(100));
         }
     }
@@ -128,20 +193,41 @@ impl Clerk {
         req.set_seq(self.request_seq);
         self.request_seq += 1;
 
+        let mut request_count: usize = 0;
         loop {
+            if request_count > self.max_retry_count {
+                let msg = "exceeded max retry count";
+                debug!("{}", msg);
+
+                let mut ret = HashMap::new();
+                ret.insert("error", msg.to_string());
+
+                return serde_json::to_string(&ret).unwrap();
+            }
+
             let reply = self.servers[self.leader_id]
                 .peers(&req)
-                .unwrap_or_else(|_e| {
+                .unwrap_or_else(|e| {
+                    let msg = format!("{:?}", e);
+                    error!("{:?}", msg);
+
+                    let mut ret = HashMap::new();
+                    ret.insert("error", msg.to_string());
+
                     let mut resp = PeersResp::new();
-                    resp.set_err(RespErr::ErrWrongLeader);
+                    resp.set_err(RespErr::ErrPeerFailed);
+                    resp.set_value(serde_json::to_string(&ret).unwrap());
                     resp
                 });
             match reply.err {
                 RespErr::OK => return reply.value,
-                RespErr::ErrWrongLeader => (),
-                RespErr::ErrNoKey => return String::from(""),
+                _ => error!("failed to get peers"),
             }
+
             self.leader_id = (self.leader_id + 1) % self.servers.len();
+            request_count += 1;
+            debug!("{}", "retry to get peers");
+
             thread::sleep(Duration::from_millis(100));
         }
     }
@@ -152,20 +238,35 @@ impl Clerk {
         req.set_seq(self.request_seq);
         self.request_seq += 1;
 
+        let mut request_count: usize = 0;
         loop {
+            if request_count > self.max_retry_count {
+                let msg = "exceeded max retry count";
+                debug!("{}", msg);
+
+                return "{}".to_string();
+            }
+
             let reply = self.servers[self.leader_id]
                 .metrics(&req)
-                .unwrap_or_else(|_e| {
+                .unwrap_or_else(|e| {
+                    let msg = format!("{:?}", e);
+                    error!("{:?}", msg);
+
                     let mut resp = MetricsResp::new();
-                    resp.set_err(RespErr::ErrWrongLeader);
+                    resp.set_err(RespErr::ErrMetricsFailed);
+                    resp.set_value("".to_string());
                     resp
                 });
             match reply.err {
                 RespErr::OK => return reply.value,
-                RespErr::ErrWrongLeader => (),
-                RespErr::ErrNoKey => return String::from(""),
+                _ => error!("failed to get metrics"),
             }
+
             self.leader_id = (self.leader_id + 1) % self.servers.len();
+            request_count += 1;
+            debug!("{}", "retry to get metrics");
+
             thread::sleep(Duration::from_millis(100));
         }
     }
@@ -177,18 +278,39 @@ impl Clerk {
         req.set_doc_id(doc_id.to_owned());
         self.request_seq += 1;
 
+        let mut request_count: usize = 0;
         loop {
-            let reply = self.servers[self.leader_id].get(&req).unwrap_or_else(|_e| {
+            if request_count > self.max_retry_count {
+                let msg = "exceeded max retry count";
+                debug!("{}", msg);
+
+                let mut ret = HashMap::new();
+                ret.insert("error", msg.to_string());
+
+                return serde_json::to_string(&ret).unwrap();
+            }
+
+            let reply = self.servers[self.leader_id].get(&req).unwrap_or_else(|e| {
+                let msg = format!("{:?}", e);
+                error!("{:?}", msg);
+
+                let mut ret = HashMap::new();
+                ret.insert("error", msg.to_string());
+
                 let mut resp = GetResp::new();
-                resp.set_err(RespErr::ErrWrongLeader);
+                resp.set_err(RespErr::ErrGetFailed);
+                resp.set_value(serde_json::to_string(&ret).unwrap());
                 resp
             });
             match reply.err {
                 RespErr::OK => return reply.value,
-                RespErr::ErrWrongLeader => (),
-                RespErr::ErrNoKey => return String::from(""),
+                _ => error!("failed to get document"),
             }
+
             self.leader_id = (self.leader_id + 1) % self.servers.len();
+            request_count += 1;
+            debug!("{}", "retry to get document");
+
             thread::sleep(Duration::from_millis(100));
         }
     }
@@ -207,19 +329,39 @@ impl Clerk {
 
         self.request_seq += 1;
 
+        let mut request_count: usize = 0;
         loop {
-            let reply = self.servers[self.leader_id].put(&req).unwrap_or_else(|_e| {
+            if request_count > self.max_retry_count {
+                let msg = "exceeded max retry count";
+                debug!("{}", msg);
+
+                let mut ret = HashMap::new();
+                ret.insert("error", msg.to_string());
+
+                return serde_json::to_string(&ret).unwrap();
+            }
+
+            let reply = self.servers[self.leader_id].put(&req).unwrap_or_else(|e| {
+                let msg = format!("{:?}", e);
+                error!("{:?}", msg);
+
+                let mut ret = HashMap::new();
+                ret.insert("error", msg.to_string());
+
                 let mut resp = PutResp::new();
-                resp.set_err(RespErr::ErrWrongLeader);
+                resp.set_err(RespErr::ErrPutFailed);
+                resp.set_value(serde_json::to_string(&ret).unwrap());
                 resp
             });
             match reply.err {
                 RespErr::OK => return reply.value,
-                RespErr::ErrWrongLeader => (),
-                RespErr::ErrNoKey => return String::from(""),
+                _ => error!("failed to put document"),
             }
-            debug!("put redo: {}", self.leader_id);
+
             self.leader_id = (self.leader_id + 1) % self.servers.len();
+            request_count += 1;
+            debug!("{}", "retry to put document");
+
             thread::sleep(Duration::from_millis(100));
         }
     }
@@ -237,20 +379,41 @@ impl Clerk {
 
         self.request_seq += 1;
 
+        let mut request_count: usize = 0;
         loop {
+            if request_count > self.max_retry_count {
+                let msg = "exceeded max retry count";
+                debug!("{}", msg);
+
+                let mut ret = HashMap::new();
+                ret.insert("error", msg.to_string());
+
+                return serde_json::to_string(&ret).unwrap();
+            }
+
             let reply = self.servers[self.leader_id]
                 .delete(&req)
-                .unwrap_or_else(|_e| {
+                .unwrap_or_else(|e| {
+                    let msg = format!("{:?}", e);
+                    error!("{:?}", msg);
+
+                    let mut ret = HashMap::new();
+                    ret.insert("error", msg.to_string());
+
                     let mut resp = DeleteResp::new();
-                    resp.set_err(RespErr::ErrWrongLeader);
+                    resp.set_err(RespErr::ErrDeleteFailed);
+                    resp.set_value(serde_json::to_string(&ret).unwrap());
                     resp
                 });
             match reply.err {
                 RespErr::OK => return reply.value,
-                RespErr::ErrWrongLeader => (),
-                RespErr::ErrNoKey => return reply.value,
+                _ => error!("failed to delete document"),
             }
+
             self.leader_id = (self.leader_id + 1) % self.servers.len();
+            request_count += 1;
+            debug!("{}", "retry to delete document");
+
             thread::sleep(Duration::from_millis(100));
         }
     }
@@ -267,20 +430,40 @@ impl Clerk {
 
         self.request_seq += 1;
 
+        let mut request_count: usize = 0;
         loop {
+            if request_count > self.max_retry_count {
+                let msg = "exceeded max retry count";
+                debug!("{}", msg);
+
+                let mut ret = HashMap::new();
+                ret.insert("error", msg.to_string());
+
+                return serde_json::to_string(&ret).unwrap();
+            }
+
             let reply = self.servers[self.leader_id]
                 .commit(&req)
-                .unwrap_or_else(|_e| {
+                .unwrap_or_else(|e| {
+                    let msg = format!("{:?}", e);
+                    error!("{:?}", msg);
+
+                    let mut ret = HashMap::new();
+                    ret.insert("error", msg.to_string());
+
                     let mut resp = CommitResp::new();
-                    resp.set_err(RespErr::ErrWrongLeader);
+                    resp.set_err(RespErr::ErrCommitFailed);
+                    resp.set_value(serde_json::to_string(&ret).unwrap());
                     resp
                 });
             match reply.err {
                 RespErr::OK => return reply.value,
-                RespErr::ErrWrongLeader => (),
-                RespErr::ErrNoKey => return reply.value,
+                _ => error!("failed to commit index"),
             }
             self.leader_id = (self.leader_id + 1) % self.servers.len();
+            request_count += 1;
+            debug!("{}", "retry to commit index");
+
             thread::sleep(Duration::from_millis(100));
         }
     }
@@ -297,20 +480,41 @@ impl Clerk {
 
         self.request_seq += 1;
 
+        let mut request_count: usize = 0;
         loop {
+            if request_count > self.max_retry_count {
+                let msg = "exceeded max retry count";
+                debug!("{}", msg);
+
+                let mut ret = HashMap::new();
+                ret.insert("error", msg.to_string());
+
+                return serde_json::to_string(&ret).unwrap();
+            }
+
             let reply = self.servers[self.leader_id]
                 .rollback(&req)
-                .unwrap_or_else(|_e| {
+                .unwrap_or_else(|e| {
+                    let msg = format!("{:?}", e);
+                    error!("{:?}", msg);
+
+                    let mut ret = HashMap::new();
+                    ret.insert("error", msg.to_string());
+
                     let mut resp = RollbackResp::new();
-                    resp.set_err(RespErr::ErrWrongLeader);
+                    resp.set_err(RespErr::ErrRollbackFailed);
+                    resp.set_value(serde_json::to_string(&ret).unwrap());
                     resp
                 });
             match reply.err {
                 RespErr::OK => return reply.value,
-                RespErr::ErrWrongLeader => (),
-                RespErr::ErrNoKey => return reply.value,
+                _ => error!("failed to rollback index"),
             }
+
             self.leader_id = (self.leader_id + 1) % self.servers.len();
+            request_count += 1;
+            debug!("{}", "retry to rollback index");
+
             thread::sleep(Duration::from_millis(100));
         }
     }
@@ -327,20 +531,41 @@ impl Clerk {
 
         self.request_seq += 1;
 
+        let mut request_count: usize = 0;
         loop {
+            if request_count > self.max_retry_count {
+                let msg = "exceeded max retry count";
+                debug!("{}", msg);
+
+                let mut ret = HashMap::new();
+                ret.insert("error", msg.to_string());
+
+                return serde_json::to_string(&ret).unwrap();
+            }
+
             let reply = self.servers[self.leader_id]
                 .merge(&req)
-                .unwrap_or_else(|_e| {
+                .unwrap_or_else(|e| {
+                    let msg = format!("{:?}", e);
+                    error!("{:?}", msg);
+
+                    let mut ret = HashMap::new();
+                    ret.insert("error", msg.to_string());
+
                     let mut resp = MergeResp::new();
-                    resp.set_err(RespErr::ErrWrongLeader);
+                    resp.set_err(RespErr::ErrMergeFailed);
+                    resp.set_value(serde_json::to_string(&ret).unwrap());
                     resp
                 });
             match reply.err {
                 RespErr::OK => return reply.value,
-                RespErr::ErrWrongLeader => (),
-                RespErr::ErrNoKey => return reply.value,
+                _ => error!("failed to merge index"),
             }
+
             self.leader_id = (self.leader_id + 1) % self.servers.len();
+            request_count += 1;
+            debug!("{}", "retry to merge index");
+
             thread::sleep(Duration::from_millis(100));
         }
     }
@@ -354,7 +579,6 @@ impl Clerk {
         exclude_docs: bool,
         facet_field: &str,
         facet_prefixes: Vec<String>,
-        //        facets: Vec<String>,
     ) -> String {
         let mut req = SearchReq::new();
         req.set_client_id(self.client_id);
@@ -366,23 +590,43 @@ impl Clerk {
         req.set_exclude_docs(exclude_docs);
         req.set_facet_field(facet_field.to_string());
         req.set_facet_prefixes(RepeatedField::from_vec(facet_prefixes));
-        //        req.set_facets(RepeatedField::from_vec(facets));
         self.request_seq += 1;
 
+        let mut request_count: usize = 0;
         loop {
+            if request_count > self.max_retry_count {
+                let msg = "exceeded max retry count";
+                debug!("{}", msg);
+
+                let mut ret = HashMap::new();
+                ret.insert("error", msg.to_string());
+
+                return serde_json::to_string(&ret).unwrap();
+            }
+
             let reply = self.servers[self.leader_id]
                 .search(&req)
-                .unwrap_or_else(|_e| {
+                .unwrap_or_else(|e| {
+                    let msg = format!("{:?}", e);
+                    error!("{:?}", msg);
+
+                    let mut ret = HashMap::new();
+                    ret.insert("error", msg.to_string());
+
                     let mut resp = SearchResp::new();
-                    resp.set_err(RespErr::ErrWrongLeader);
+                    resp.set_err(RespErr::ErrSearchFailed);
+                    resp.set_value(serde_json::to_string(&ret).unwrap());
                     resp
                 });
             match reply.err {
                 RespErr::OK => return reply.value,
-                RespErr::ErrWrongLeader => (),
-                RespErr::ErrNoKey => return String::from(""),
+                _ => error!("failed to search index"),
             }
+
             self.leader_id = (self.leader_id + 1) % self.servers.len();
+            request_count += 1;
+            debug!("{}", "retry to search index");
+
             thread::sleep(Duration::from_millis(100));
         }
     }
@@ -393,20 +637,41 @@ impl Clerk {
         req.set_seq(self.request_seq);
         self.request_seq += 1;
 
+        let mut request_count: usize = 0;
         loop {
+            if request_count > self.max_retry_count {
+                let msg = "exceeded max retry count";
+                debug!("{}", msg);
+
+                let mut ret = HashMap::new();
+                ret.insert("error", msg.to_string());
+
+                return serde_json::to_string(&ret).unwrap();
+            }
+
             let reply = self.servers[self.leader_id]
                 .schema(&req)
-                .unwrap_or_else(|_e| {
+                .unwrap_or_else(|e| {
+                    let msg = format!("{:?}", e);
+                    error!("{:?}", msg);
+
+                    let mut ret = HashMap::new();
+                    ret.insert("error", msg.to_string());
+
                     let mut resp = SchemaResp::new();
-                    resp.set_err(RespErr::ErrWrongLeader);
+                    resp.set_err(RespErr::ErrSchemaFailed);
+                    resp.set_value(serde_json::to_string(&ret).unwrap());
                     resp
                 });
             match reply.err {
                 RespErr::OK => return reply.value,
-                RespErr::ErrWrongLeader => (),
-                RespErr::ErrNoKey => return String::from(""),
+                _ => error!("failed to get index schema"),
             }
+
             self.leader_id = (self.leader_id + 1) % self.servers.len();
+            request_count += 1;
+            debug!("{}", "retry to get index schema");
+
             thread::sleep(Duration::from_millis(100));
         }
     }
