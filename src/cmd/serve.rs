@@ -24,17 +24,8 @@ pub fn run_serve_cli(matches: &ArgMatches) -> Result<(), String> {
     }
     let data_directory = matches.value_of("DATA_DIRECTORY").unwrap();
     let schema_file = matches.value_of("SCHEMA_FILE").unwrap();
-    let unique_key_field_name = matches.value_of("UNIQUE_KEY_FIELD_NAME").unwrap();
 
-    IndexServer::start_server(
-        id,
-        host,
-        port,
-        peers_addr,
-        data_directory,
-        schema_file,
-        unique_key_field_name,
-    );
+    IndexServer::start_server(id, host, port, peers_addr, data_directory, schema_file);
 
     Ok(())
 }

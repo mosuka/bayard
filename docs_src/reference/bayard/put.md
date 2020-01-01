@@ -9,6 +9,7 @@ with the new document.
 
 ## FLAGS
 
+    -b, --bulk       A flag indicating whether or not to put documents in bulk.
     -h, --help       Prints help information.
     -v, --version    Prints version information.
 
@@ -16,35 +17,20 @@ with the new document.
 
     -s, --servers <IP:PORT>...    Server addresses in an existing cluster separated by ",". If not specified, use
                                   default servers. [default: 127.0.0.1:5000]
-
-## ARGS
-
-    <DOC_ID>    A unique value that identifies the document in the index. If specify an existing ID, the existing
-                document in the index is overwritten.
-    <FIELDS>    Document fields expressed in JSON format.
+    -i, --id <ID>                 A unique value that identifies the document in the index. If specified, the existing
+                                  document ID in the document is overwritten.
+    -f, --file <FILE>             File path that document(s) expressed in JSON or JSONL format.
 
 ## EXAMPLES
 
-To put a document with default options:
+To put a document:
 
 ```text
-$ ./bin/bayard put 1 '{
-  "url": "https://github.com/bayard-search/bayard",
-  "name": "Bayard",
-  "description": "Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.",
-  "star": 1132,
-  "facet": ["/category/search/server", "/language/rust"]
-}'
+$ ./bin/bayard put --id=1 --file=./examples/doc_1.json
 ```
 
-To put a document with options:
+To put documents in bulk:
 
 ```text
-$ ./bin/bayard put --servers=127.0.0.1:5001 1 '{
-  "url": "https://github.com/bayard-search/bayard",
-  "name": "Bayard",
-  "description": "Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.",
-  "star": 1132,
-  "facet": ["/category/search/server", "/language/rust"]
-}'
+$ ./bin/bayard put --bulk --file=./examples/bulk_put.jsonl
 ```

@@ -155,36 +155,23 @@ with the new document.</p>
 <pre><code>bayard put [OPTIONS] &lt;DOC_ID&gt; &lt;FIELDS&gt;
 </code></pre>
 <h2><a class="header" href="#flags" id="flags">FLAGS</a></h2>
-<pre><code>-h, --help       Prints help information.
+<pre><code>-b, --bulk       A flag indicating whether or not to put documents in bulk.
+-h, --help       Prints help information.
 -v, --version    Prints version information.
 </code></pre>
 <h2><a class="header" href="#options" id="options">OPTIONS</a></h2>
 <pre><code>-s, --servers &lt;IP:PORT&gt;...    Server addresses in an existing cluster separated by &quot;,&quot;. If not specified, use
                               default servers. [default: 127.0.0.1:5000]
-</code></pre>
-<h2><a class="header" href="#args" id="args">ARGS</a></h2>
-<pre><code>&lt;DOC_ID&gt;    A unique value that identifies the document in the index. If specify an existing ID, the existing
-            document in the index is overwritten.
-&lt;FIELDS&gt;    Document fields expressed in JSON format.
+-i, --id &lt;ID&gt;                 A unique value that identifies the document in the index. If specified, the existing
+                              document ID in the document is overwritten.
+-f, --file &lt;FILE&gt;             File path that document(s) expressed in JSON or JSONL format.
 </code></pre>
 <h2><a class="header" href="#examples" id="examples">EXAMPLES</a></h2>
-<p>To put a document with default options:</p>
-<pre><code class="language-text">$ ./bin/bayard put 1 '{
-  &quot;url&quot;: &quot;https://github.com/bayard-search/bayard&quot;,
-  &quot;name&quot;: &quot;Bayard&quot;,
-  &quot;description&quot;: &quot;Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.&quot;,
-  &quot;star&quot;: 1132,
-  &quot;facet&quot;: [&quot;/category/search/server&quot;, &quot;/language/rust&quot;]
-}'
+<p>To put a document:</p>
+<pre><code class="language-text">$ ./bin/bayard put --id=1 --file=./examples/doc_1.json
 </code></pre>
-<p>To put a document with options:</p>
-<pre><code class="language-text">$ ./bin/bayard put --servers=127.0.0.1:5001 1 '{
-  &quot;url&quot;: &quot;https://github.com/bayard-search/bayard&quot;,
-  &quot;name&quot;: &quot;Bayard&quot;,
-  &quot;description&quot;: &quot;Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.&quot;,
-  &quot;star&quot;: 1132,
-  &quot;facet&quot;: [&quot;/category/search/server&quot;, &quot;/language/rust&quot;]
-}'
+<p>To put documents in bulk:</p>
+<pre><code class="language-text">$ ./bin/bayard put --bulk --file=./examples/bulk_put.jsonl
 </code></pre>
 
                     </main>

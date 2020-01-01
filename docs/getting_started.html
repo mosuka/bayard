@@ -241,100 +241,13 @@
 ]
 </code></pre>
 <h2><a class="header" href="#indexing-document" id="indexing-document">Indexing document</a></h2>
-<p>You can index documents with the following command:</p>
-<pre><code class="language-text">$ ./bin/bayard put 1 '{
-  &quot;url&quot;: &quot;https://github.com/bayard-search/bayard&quot;,
-  &quot;name&quot;: &quot;Bayard&quot;,
-  &quot;description&quot;: &quot;Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.&quot;,
-  &quot;popularity&quot;: 1152,
-  &quot;category&quot;: [&quot;/category/search/server&quot;, &quot;/language/rust&quot;],
-  &quot;timestamp&quot;: &quot;2019-12-19T10:41:00+09:00&quot;
-}' | jq .
-$ ./bin/bayard put 2 '{
-  &quot;url&quot;: &quot;https://lucene.apache.org/solr/&quot;,
-  &quot;name&quot;: &quot;Apache Solr&quot;,
-  &quot;description&quot;: &quot;Solr is highly reliable, scalable and fault tolerant, providing distributed indexing, replication and load-balanced querying, automated failover and recovery, centralized configuration and more.&quot;,
-  &quot;popularity&quot;: 3135,
-  &quot;category&quot;: [&quot;/category/search/server&quot;, &quot;/language/java&quot;],
-  &quot;timestamp&quot;: &quot;2019-12-19T14:08:00+09:00&quot;
-}' | jq .
-$ ./bin/bayard put 3 '{
-  &quot;url&quot;: &quot;https://www.elastic.co/products/elasticsearch&quot;,
-  &quot;name&quot;: &quot;Elasticsearch&quot;,
-  &quot;description&quot;: &quot;Elasticsearch is a distributed, open source search and analytics engine for all types of data, including textual, numerical, geospatial, structured, and unstructured.&quot;,
-  &quot;popularity&quot;: 46054,
-  &quot;category&quot;: [&quot;/category/search/server&quot;, &quot;/language/java&quot;],
-  &quot;timestamp&quot;: &quot;2019-12-19T08:19:00+09:00&quot;
-}' | jq .
-$ ./bin/bayard put 4 '{
-  &quot;url&quot;: &quot;https://github.com/mosuka/blast&quot;,
-  &quot;name&quot;: &quot;Blast&quot;,
-  &quot;description&quot;: &quot;Blast is a full text search and indexing server, written in Go, built on top of Bleve.&quot;,
-  &quot;popularity&quot;: 654,
-  &quot;category&quot;: [&quot;/category/search/server&quot;, &quot;/language/go&quot;],
-  &quot;timestamp&quot;: &quot;2019-10-18T19:50:00+09:00&quot;
-}' | jq .
-$ ./bin/bayard put 5 '{
-  &quot;url&quot;: &quot;https://github.com/go-ego/riot&quot;,
-  &quot;name&quot;: &quot;Riot&quot;,
-  &quot;description&quot;: &quot;Riot is Go Open Source, Distributed, Simple and efficient full text search engine.&quot;,
-  &quot;popularity&quot;: 4948,
-  &quot;category&quot;: [&quot;/category/search/server&quot;, &quot;/language/go&quot;],
-  &quot;timestamp&quot;: &quot;2019-12-16T07:12:00+09:00&quot;
-}' | jq .
-$ ./bin/bayard put 6 '{
-  &quot;url&quot;: &quot;https://github.com/toshi-search/Toshi&quot;,
-  &quot;name&quot;: &quot;Toshi&quot;,
-  &quot;description&quot;: &quot;Toshi is meant to be a full-text search engine similar to Elasticsearch. Toshi strives to be to Elasticsearch what Tantivy is to Lucene.&quot;,
-  &quot;popularity&quot;: 2448,
-  &quot;category&quot;: [&quot;/category/search/server&quot;, &quot;/language/rust&quot;],
-  &quot;timestamp&quot;: &quot;2019-12-02T04:00:00+09:00&quot;
-}' | jq .
-$ ./bin/bayard put 7 '{
-  &quot;url&quot;: &quot;https://github.com/valeriansaliou/sonic&quot;,
-  &quot;name&quot;: &quot;Sonic&quot;,
-  &quot;description&quot;: &quot;Sonic is a fast, lightweight and schema-less search backend.&quot;,
-  &quot;popularity&quot;: 7895,
-  &quot;category&quot;: [&quot;/category/search/server&quot;, &quot;/language/rust&quot;],
-  &quot;timestamp&quot;: &quot;2019-12-10T23:13:00+09:00&quot;
-}' | jq .
-$ ./bin/bayard put 8 '{
-  &quot;url&quot;: &quot;https://github.com/tantivy-search/tantivy&quot;,
-  &quot;name&quot;: &quot;Tantivy&quot;,
-  &quot;description&quot;: &quot;Tantivy is a full-text search engine library inspired by Apache Lucene and written in Rust.&quot;,
-  &quot;popularity&quot;: 3142,
-  &quot;category&quot;: [&quot;/category/search/library&quot;, &quot;/language/rust&quot;],
-  &quot;timestamp&quot;: &quot;2019-12-19T10:07:00+09:00&quot;
-}' | jq .
-$ ./bin/bayard put 9 '{
-  &quot;url&quot;: &quot;https://lucene.apache.org/&quot;,
-  &quot;name&quot;: &quot;Lucene&quot;,
-  &quot;description&quot;: &quot;Apache Lucene is a high-performance, full-featured text search engine library written entirely in Java.&quot;,
-  &quot;popularity&quot;: 3135,
-  &quot;category&quot;: [&quot;/category/search/library&quot;, &quot;/language/java&quot;],
-  &quot;timestamp&quot;: &quot;2019-12-19T14:08:00+09:00&quot;
-}' | jq .
-$ ./bin/bayard put 10 '{
-  &quot;url&quot;: &quot;https://blevesearch.com/&quot;,
-  &quot;name&quot;: &quot;Bleve&quot;,
-  &quot;description&quot;: &quot;Bleve is a modern text indexing library for go.&quot;,
-  &quot;popularity&quot;: 6211,
-  &quot;category&quot;: [&quot;/category/search/library&quot;, &quot;/language/go&quot;],
-  &quot;timestamp&quot;: &quot;2019-10-30T16:13:00+09:00&quot;
-}' | jq .
-$ ./bin/bayard put 11 '{
-  &quot;url&quot;: &quot;https://bitbucket.org/mchaput/whoosh/wiki/Home&quot;,
-  &quot;name&quot;: &quot;Whoosh&quot;,
-  &quot;description&quot;: &quot;Whoosh is a fast, pure Python search engine library.&quot;,
-  &quot;popularity&quot;: 0,
-  &quot;category&quot;: [&quot;/category/search/library&quot;, &quot;/language/python&quot;],
-  &quot;timestamp&quot;: &quot;2019-10-08T05:30:26+09:00&quot;
-}' | jq .
+<p>You can index document with the following command:</p>
+<pre><code class="language-text">$ ./bin/bayard put --id=1 --file=./examples/doc_1.json | jq .
 $ ./bin/bayard commit | jq .
 </code></pre>
 <h2><a class="header" href="#getting-document" id="getting-document">Getting document</a></h2>
 <p>You can get document with the following command:</p>
-<pre><code class="language-text">$ ./bin/bayard get 1 | jq .
+<pre><code class="language-text">$ ./bin/bayard get --id=1 | jq .
 </code></pre>
 <p>You'll see the result in JSON format. The result of the above command is:</p>
 <pre><code class="language-json">{
@@ -358,6 +271,11 @@ $ ./bin/bayard commit | jq .
     &quot;https://github.com/bayard-search/bayard&quot;
   ]
 }
+</code></pre>
+<h2><a class="header" href="#indexing-documents-in-bulk" id="indexing-documents-in-bulk">Indexing documents in bulk</a></h2>
+<p>You can index documents in bulk with the following command:</p>
+<pre><code class="language-text">$ ./bin/bayard put --bulk --file=./examples/bulk_put.jsonl | jq .
+$ ./bin/bayard commit | jq .
 </code></pre>
 <h2><a class="header" href="#searching-documents" id="searching-documents">Searching documents</a></h2>
 <p>You can search documents with the following command:</p>
@@ -427,18 +345,13 @@ $ ./bin/bayard commit | jq .
 </code></pre>
 <h2><a class="header" href="#deleting-document" id="deleting-document">Deleting document</a></h2>
 <p>You can delete document with the following command:</p>
-<pre><code class="language-text">$ ./bin/bayard delete 1
-$ ./bin/bayard delete 2
-$ ./bin/bayard delete 3
-$ ./bin/bayard delete 4
-$ ./bin/bayard delete 5
-$ ./bin/bayard delete 6
-$ ./bin/bayard delete 7
-$ ./bin/bayard delete 8
-$ ./bin/bayard delete 9
-$ ./bin/bayard delete 10
-$ ./bin/bayard delete 11
-$ ./bin/bayard commit
+<pre><code class="language-text">$ ./bin/bayard delete --id=1 | jq .
+$ ./bin/bayard commit | jq .
+</code></pre>
+<h2><a class="header" href="#deleting-documents-in-bulk" id="deleting-documents-in-bulk">Deleting documents in bulk</a></h2>
+<p>You can delete documents in bulk with the following command:</p>
+<pre><code class="language-text">$ ./bin/bayard delete --bulk --file=./examples/bulk_delete.jsonl | jq .
+$ ./bin/bayard commit | jq .
 </code></pre>
 
                     </main>

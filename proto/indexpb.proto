@@ -21,6 +21,10 @@ service Index {
     }
     rpc Delete (indexrpcpb.ApplyReq) returns (indexrpcpb.DeleteResp) {
     }
+    rpc BulkPut (indexrpcpb.ApplyReq) returns (indexrpcpb.BulkPutResp) {
+    }
+    rpc BulkDelete (indexrpcpb.ApplyReq) returns (indexrpcpb.BulkDeleteResp) {
+    }
     rpc Commit (indexrpcpb.ApplyReq) returns (indexrpcpb.CommitResp) {
     }
     rpc Rollback (indexrpcpb.ApplyReq) returns (indexrpcpb.RollbackResp) {

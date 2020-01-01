@@ -15,21 +15,12 @@ The `bayard get` CLI gets a document with the specified ID.
 
     -s, --servers <IP:PORT>...    Server addresses in an existing cluster separated by ",". If not specified, use
                                   default servers. [default: 127.0.0.1:5000]
-
-## ARGS
-
-    <DOC_ID>    A unique value that identifies the document in the index.
+    -i, --id <ID>                 A unique value that identifies the document in the index.
 
 ## EXAMPLES
 
 To get a document with default options:
 
 ```text
-$ ./bin/bayard get 1
-```
-
-To get a document with options:
-
-```text
-$ ./bin/bayard get --servers=127.0.0.1:5001 1
+$ ./bin/bayard get --id=1
 ```

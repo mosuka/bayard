@@ -1,6 +1,6 @@
 [
   {
-    "name": "id",
+    "name": "_id",
     "type": "text",
     "options": {
       "indexing": {

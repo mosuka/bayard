@@ -74,6 +74,20 @@ const METHOD_INDEX_DELETE: ::grpcio::Method<super::indexrpcpb::ApplyReq, super::
     resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
 };
 
+const METHOD_INDEX_BULK_PUT: ::grpcio::Method<super::indexrpcpb::ApplyReq, super::indexrpcpb::BulkPutResp> = ::grpcio::Method {
+    ty: ::grpcio::MethodType::Unary,
+    name: "/indexpb.Index/BulkPut",
+    req_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
+    resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
+};
+
+const METHOD_INDEX_BULK_DELETE: ::grpcio::Method<super::indexrpcpb::ApplyReq, super::indexrpcpb::BulkDeleteResp> = ::grpcio::Method {
+    ty: ::grpcio::MethodType::Unary,
+    name: "/indexpb.Index/BulkDelete",
+    req_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
+    resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
+};
+
 const METHOD_INDEX_COMMIT: ::grpcio::Method<super::indexrpcpb::ApplyReq, super::indexrpcpb::CommitResp> = ::grpcio::Method {
     ty: ::grpcio::MethodType::Unary,
     name: "/indexpb.Index/Commit",
@@ -249,6 +263,38 @@ impl IndexClient {
         self.delete_async_opt(req, ::grpcio::CallOption::default())
     }
 
+    pub fn bulk_put_opt(&self, req: &super::indexrpcpb::ApplyReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::BulkPutResp> {
+        self.client.unary_call(&METHOD_INDEX_BULK_PUT, req, opt)
+    }
+
+    pub fn bulk_put(&self, req: &super::indexrpcpb::ApplyReq) -> ::grpcio::Result<super::indexrpcpb::BulkPutResp> {
+        self.bulk_put_opt(req, ::grpcio::CallOption::default())
+    }
+
+    pub fn bulk_put_async_opt(&self, req: &super::indexrpcpb::ApplyReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::BulkPutResp>> {
+        self.client.unary_call_async(&METHOD_INDEX_BULK_PUT, req, opt)
+    }
+
+    pub fn bulk_put_async(&self, req: &super::indexrpcpb::ApplyReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::BulkPutResp>> {
+        self.bulk_put_async_opt(req, ::grpcio::CallOption::default())
+    }
+
+    pub fn bulk_delete_opt(&self, req: &super::indexrpcpb::ApplyReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::BulkDeleteResp> {
+        self.client.unary_call(&METHOD_INDEX_BULK_DELETE, req, opt)
+    }
+
+    pub fn bulk_delete(&self, req: &super::indexrpcpb::ApplyReq) -> ::grpcio::Result<super::indexrpcpb::BulkDeleteResp> {
+        self.bulk_delete_opt(req, ::grpcio::CallOption::default())
+    }
+
+    pub fn bulk_delete_async_opt(&self, req: &super::indexrpcpb::ApplyReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::BulkDeleteResp>> {
+        self.client.unary_call_async(&METHOD_INDEX_BULK_DELETE, req, opt)
+    }
+
+    pub fn bulk_delete_async(&self, req: &super::indexrpcpb::ApplyReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::BulkDeleteResp>> {
+        self.bulk_delete_async_opt(req, ::grpcio::CallOption::default())
+    }
+
     pub fn commit_opt(&self, req: &super::indexrpcpb::ApplyReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::CommitResp> {
         self.client.unary_call(&METHOD_INDEX_COMMIT, req, opt)
     }
@@ -342,6 +388,8 @@ pub trait Index {
     fn get(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::GetReq, sink: ::grpcio::UnarySink<super::indexrpcpb::GetResp>);
     fn put(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::ApplyReq, sink: ::grpcio::UnarySink<super::indexrpcpb::PutResp>);
     fn delete(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::ApplyReq, sink: ::grpcio::UnarySink<super::indexrpcpb::DeleteResp>);
+    fn bulk_put(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::ApplyReq, sink: ::grpcio::UnarySink<super::indexrpcpb::BulkPutResp>);
+    fn bulk_delete(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::ApplyReq, sink: ::grpcio::UnarySink<super::indexrpcpb::BulkDeleteResp>);
     fn commit(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::ApplyReq, sink: ::grpcio::UnarySink<super::indexrpcpb::CommitResp>);
     fn rollback(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::ApplyReq, sink: ::grpcio::UnarySink<super::indexrpcpb::RollbackResp>);
     fn merge(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::ApplyReq, sink: ::grpcio::UnarySink<super::indexrpcpb::MergeResp>);
@@ -382,6 +430,14 @@ pub fn create_index<S: Index + Send + Clone + 'static>(s: S) -> ::grpcio::Servic
     let mut instance = s.clone();
     builder = builder.add_unary_handler(&METHOD_INDEX_DELETE, move |ctx, req, resp| {
         instance.delete(ctx, req, resp)
+    });
+    let mut instance = s.clone();
+    builder = builder.add_unary_handler(&METHOD_INDEX_BULK_PUT, move |ctx, req, resp| {
+        instance.bulk_put(ctx, req, resp)
+    });
+    let mut instance = s.clone();
+    builder = builder.add_unary_handler(&METHOD_INDEX_BULK_DELETE, move |ctx, req, resp| {
+        instance.bulk_delete(ctx, req, resp)
     });
     let mut instance = s.clone();
     builder = builder.add_unary_handler(&METHOD_INDEX_COMMIT, move |ctx, req, resp| {
