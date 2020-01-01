@@ -283,100 +283,13 @@ Bayard makes easy for programmers to develop search applications with advanced f
 ]
 </code></pre>
 <h2><a class="header" href="#indexing-document" id="indexing-document">Indexing document</a></h2>
-<p>You can index documents with the following command:</p>
-<pre><code class="language-text">$ ./bin/bayard put 1 '{
-  &quot;url&quot;: &quot;https://github.com/bayard-search/bayard&quot;,
-  &quot;name&quot;: &quot;Bayard&quot;,
-  &quot;description&quot;: &quot;Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.&quot;,
-  &quot;popularity&quot;: 1152,
-  &quot;category&quot;: [&quot;/category/search/server&quot;, &quot;/language/rust&quot;],
-  &quot;timestamp&quot;: &quot;2019-12-19T10:41:00+09:00&quot;
-}' | jq .
-$ ./bin/bayard put 2 '{
-  &quot;url&quot;: &quot;https://lucene.apache.org/solr/&quot;,
-  &quot;name&quot;: &quot;Apache Solr&quot;,
-  &quot;description&quot;: &quot;Solr is highly reliable, scalable and fault tolerant, providing distributed indexing, replication and load-balanced querying, automated failover and recovery, centralized configuration and more.&quot;,
-  &quot;popularity&quot;: 3135,
-  &quot;category&quot;: [&quot;/category/search/server&quot;, &quot;/language/java&quot;],
-  &quot;timestamp&quot;: &quot;2019-12-19T14:08:00+09:00&quot;
-}' | jq .
-$ ./bin/bayard put 3 '{
-  &quot;url&quot;: &quot;https://www.elastic.co/products/elasticsearch&quot;,
-  &quot;name&quot;: &quot;Elasticsearch&quot;,
-  &quot;description&quot;: &quot;Elasticsearch is a distributed, open source search and analytics engine for all types of data, including textual, numerical, geospatial, structured, and unstructured.&quot;,
-  &quot;popularity&quot;: 46054,
-  &quot;category&quot;: [&quot;/category/search/server&quot;, &quot;/language/java&quot;],
-  &quot;timestamp&quot;: &quot;2019-12-19T08:19:00+09:00&quot;
-}' | jq .
-$ ./bin/bayard put 4 '{
-  &quot;url&quot;: &quot;https://github.com/mosuka/blast&quot;,
-  &quot;name&quot;: &quot;Blast&quot;,
-  &quot;description&quot;: &quot;Blast is a full text search and indexing server, written in Go, built on top of Bleve.&quot;,
-  &quot;popularity&quot;: 654,
-  &quot;category&quot;: [&quot;/category/search/server&quot;, &quot;/language/go&quot;],
-  &quot;timestamp&quot;: &quot;2019-10-18T19:50:00+09:00&quot;
-}' | jq .
-$ ./bin/bayard put 5 '{
-  &quot;url&quot;: &quot;https://github.com/go-ego/riot&quot;,
-  &quot;name&quot;: &quot;Riot&quot;,
-  &quot;description&quot;: &quot;Riot is Go Open Source, Distributed, Simple and efficient full text search engine.&quot;,
-  &quot;popularity&quot;: 4948,
-  &quot;category&quot;: [&quot;/category/search/server&quot;, &quot;/language/go&quot;],
-  &quot;timestamp&quot;: &quot;2019-12-16T07:12:00+09:00&quot;
-}' | jq .
-$ ./bin/bayard put 6 '{
-  &quot;url&quot;: &quot;https://github.com/toshi-search/Toshi&quot;,
-  &quot;name&quot;: &quot;Toshi&quot;,
-  &quot;description&quot;: &quot;Toshi is meant to be a full-text search engine similar to Elasticsearch. Toshi strives to be to Elasticsearch what Tantivy is to Lucene.&quot;,
-  &quot;popularity&quot;: 2448,
-  &quot;category&quot;: [&quot;/category/search/server&quot;, &quot;/language/rust&quot;],
-  &quot;timestamp&quot;: &quot;2019-12-02T04:00:00+09:00&quot;
-}' | jq .
-$ ./bin/bayard put 7 '{
-  &quot;url&quot;: &quot;https://github.com/valeriansaliou/sonic&quot;,
-  &quot;name&quot;: &quot;Sonic&quot;,
-  &quot;description&quot;: &quot;Sonic is a fast, lightweight and schema-less search backend.&quot;,
-  &quot;popularity&quot;: 7895,
-  &quot;category&quot;: [&quot;/category/search/server&quot;, &quot;/language/rust&quot;],
-  &quot;timestamp&quot;: &quot;2019-12-10T23:13:00+09:00&quot;
-}' | jq .
-$ ./bin/bayard put 8 '{
-  &quot;url&quot;: &quot;https://github.com/tantivy-search/tantivy&quot;,
-  &quot;name&quot;: &quot;Tantivy&quot;,
-  &quot;description&quot;: &quot;Tantivy is a full-text search engine library inspired by Apache Lucene and written in Rust.&quot;,
-  &quot;popularity&quot;: 3142,
-  &quot;category&quot;: [&quot;/category/search/library&quot;, &quot;/language/rust&quot;],
-  &quot;timestamp&quot;: &quot;2019-12-19T10:07:00+09:00&quot;
-}' | jq .
-$ ./bin/bayard put 9 '{
-  &quot;url&quot;: &quot;https://lucene.apache.org/&quot;,
-  &quot;name&quot;: &quot;Lucene&quot;,
-  &quot;description&quot;: &quot;Apache Lucene is a high-performance, full-featured text search engine library written entirely in Java.&quot;,
-  &quot;popularity&quot;: 3135,
-  &quot;category&quot;: [&quot;/category/search/library&quot;, &quot;/language/java&quot;],
-  &quot;timestamp&quot;: &quot;2019-12-19T14:08:00+09:00&quot;
-}' | jq .
-$ ./bin/bayard put 10 '{
-  &quot;url&quot;: &quot;https://blevesearch.com/&quot;,
-  &quot;name&quot;: &quot;Bleve&quot;,
-  &quot;description&quot;: &quot;Bleve is a modern text indexing library for go.&quot;,
-  &quot;popularity&quot;: 6211,
-  &quot;category&quot;: [&quot;/category/search/library&quot;, &quot;/language/go&quot;],
-  &quot;timestamp&quot;: &quot;2019-10-30T16:13:00+09:00&quot;
-}' | jq .
-$ ./bin/bayard put 11 '{
-  &quot;url&quot;: &quot;https://bitbucket.org/mchaput/whoosh/wiki/Home&quot;,
-  &quot;name&quot;: &quot;Whoosh&quot;,
-  &quot;description&quot;: &quot;Whoosh is a fast, pure Python search engine library.&quot;,
-  &quot;popularity&quot;: 0,
-  &quot;category&quot;: [&quot;/category/search/library&quot;, &quot;/language/python&quot;],
-  &quot;timestamp&quot;: &quot;2019-10-08T05:30:26+09:00&quot;
-}' | jq .
+<p>You can index document with the following command:</p>
+<pre><code class="language-text">$ ./bin/bayard put --id=1 --file=./examples/doc_1.json | jq .
 $ ./bin/bayard commit | jq .
 </code></pre>
 <h2><a class="header" href="#getting-document" id="getting-document">Getting document</a></h2>
 <p>You can get document with the following command:</p>
-<pre><code class="language-text">$ ./bin/bayard get 1 | jq .
+<pre><code class="language-text">$ ./bin/bayard get --id=1 | jq .
 </code></pre>
 <p>You'll see the result in JSON format. The result of the above command is:</p>
 <pre><code class="language-json">{
@@ -400,6 +313,11 @@ $ ./bin/bayard commit | jq .
     &quot;https://github.com/bayard-search/bayard&quot;
   ]
 }
+</code></pre>
+<h2><a class="header" href="#indexing-documents-in-bulk" id="indexing-documents-in-bulk">Indexing documents in bulk</a></h2>
+<p>You can index documents in bulk with the following command:</p>
+<pre><code class="language-text">$ ./bin/bayard put --bulk --file=./examples/bulk_put.jsonl | jq .
+$ ./bin/bayard commit | jq .
 </code></pre>
 <h2><a class="header" href="#searching-documents" id="searching-documents">Searching documents</a></h2>
 <p>You can search documents with the following command:</p>
@@ -469,18 +387,13 @@ $ ./bin/bayard commit | jq .
 </code></pre>
 <h2><a class="header" href="#deleting-document" id="deleting-document">Deleting document</a></h2>
 <p>You can delete document with the following command:</p>
-<pre><code class="language-text">$ ./bin/bayard delete 1
-$ ./bin/bayard delete 2
-$ ./bin/bayard delete 3
-$ ./bin/bayard delete 4
-$ ./bin/bayard delete 5
-$ ./bin/bayard delete 6
-$ ./bin/bayard delete 7
-$ ./bin/bayard delete 8
-$ ./bin/bayard delete 9
-$ ./bin/bayard delete 10
-$ ./bin/bayard delete 11
-$ ./bin/bayard commit
+<pre><code class="language-text">$ ./bin/bayard delete --id=1 | jq .
+$ ./bin/bayard commit | jq .
+</code></pre>
+<h2><a class="header" href="#deleting-documents-in-bulk" id="deleting-documents-in-bulk">Deleting documents in bulk</a></h2>
+<p>You can delete documents in bulk with the following command:</p>
+<pre><code class="language-text">$ ./bin/bayard delete --bulk --file=./examples/bulk_delete.jsonl | jq .
+$ ./bin/bayard commit | jq .
 </code></pre>
 <h1><a class="header" href="#designing-schema" id="designing-schema">Designing schema</a></h1>
 <h2><a class="header" href="#schema" id="schema">Schema</a></h2>
@@ -935,36 +848,23 @@ with the new document.</p>
 <pre><code>bayard put [OPTIONS] &lt;DOC_ID&gt; &lt;FIELDS&gt;
 </code></pre>
 <h2><a class="header" href="#flags-6" id="flags-6">FLAGS</a></h2>
-<pre><code>-h, --help       Prints help information.
+<pre><code>-b, --bulk       A flag indicating whether or not to put documents in bulk.
+-h, --help       Prints help information.
 -v, --version    Prints version information.
 </code></pre>
 <h2><a class="header" href="#options-6" id="options-6">OPTIONS</a></h2>
 <pre><code>-s, --servers &lt;IP:PORT&gt;...    Server addresses in an existing cluster separated by &quot;,&quot;. If not specified, use
                               default servers. [default: 127.0.0.1:5000]
-</code></pre>
-<h2><a class="header" href="#args" id="args">ARGS</a></h2>
-<pre><code>&lt;DOC_ID&gt;    A unique value that identifies the document in the index. If specify an existing ID, the existing
-            document in the index is overwritten.
-&lt;FIELDS&gt;    Document fields expressed in JSON format.
+-i, --id &lt;ID&gt;                 A unique value that identifies the document in the index. If specified, the existing
+                              document ID in the document is overwritten.
+-f, --file &lt;FILE&gt;             File path that document(s) expressed in JSON or JSONL format.
 </code></pre>
 <h2><a class="header" href="#examples-6" id="examples-6">EXAMPLES</a></h2>
-<p>To put a document with default options:</p>
-<pre><code class="language-text">$ ./bin/bayard put 1 '{
-  &quot;url&quot;: &quot;https://github.com/bayard-search/bayard&quot;,
-  &quot;name&quot;: &quot;Bayard&quot;,
-  &quot;description&quot;: &quot;Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.&quot;,
-  &quot;star&quot;: 1132,
-  &quot;facet&quot;: [&quot;/category/search/server&quot;, &quot;/language/rust&quot;]
-}'
+<p>To put a document:</p>
+<pre><code class="language-text">$ ./bin/bayard put --id=1 --file=./examples/doc_1.json
 </code></pre>
-<p>To put a document with options:</p>
-<pre><code class="language-text">$ ./bin/bayard put --servers=127.0.0.1:5001 1 '{
-  &quot;url&quot;: &quot;https://github.com/bayard-search/bayard&quot;,
-  &quot;name&quot;: &quot;Bayard&quot;,
-  &quot;description&quot;: &quot;Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.&quot;,
-  &quot;star&quot;: 1132,
-  &quot;facet&quot;: [&quot;/category/search/server&quot;, &quot;/language/rust&quot;]
-}'
+<p>To put documents in bulk:</p>
+<pre><code class="language-text">$ ./bin/bayard put --bulk --file=./examples/bulk_put.jsonl
 </code></pre>
 <h1><a class="header" href="#bayard-get" id="bayard-get">bayard get</a></h1>
 <p>The <code>bayard get</code> CLI gets a document with the specified ID.</p>
@@ -978,16 +878,11 @@ with the new document.</p>
 <h2><a class="header" href="#options-7" id="options-7">OPTIONS</a></h2>
 <pre><code>-s, --servers &lt;IP:PORT&gt;...    Server addresses in an existing cluster separated by &quot;,&quot;. If not specified, use
                               default servers. [default: 127.0.0.1:5000]
-</code></pre>
-<h2><a class="header" href="#args-1" id="args-1">ARGS</a></h2>
-<pre><code>&lt;DOC_ID&gt;    A unique value that identifies the document in the index.
+-i, --id &lt;ID&gt;                 A unique value that identifies the document in the index.
 </code></pre>
 <h2><a class="header" href="#examples-7" id="examples-7">EXAMPLES</a></h2>
 <p>To get a document with default options:</p>
-<pre><code class="language-text">$ ./bin/bayard get 1
-</code></pre>
-<p>To get a document with options:</p>
-<pre><code class="language-text">$ ./bin/bayard get --servers=127.0.0.1:5001 1
+<pre><code class="language-text">$ ./bin/bayard get --id=1
 </code></pre>
 <h1><a class="header" href="#bayard-commit" id="bayard-commit">bayard commit</a></h1>
 <p>The <code>bayard commit</code> CLI commits updates made to the index.</p>
@@ -1070,7 +965,7 @@ with the new document.</p>
 -F, --facet-field &lt;FACET_FIELD&gt;         Hierarchical facet field name. [default: ]
 -V, --facet-prefix &lt;FACET_PREFIX&gt;...    Hierarchical facet field value prefix.
 </code></pre>
-<h2><a class="header" href="#args-2" id="args-2">ARGS</a></h2>
+<h2><a class="header" href="#args" id="args">ARGS</a></h2>
 <pre><code>&lt;QUERY&gt;    Query string to search the index.
 </code></pre>
 <h2><a class="header" href="#examples-11" id="examples-11">EXAMPLES</a></h2>
@@ -1190,6 +1085,7 @@ with the new document.</p>
 <p>Put API puts a document with the specified ID and field. If specify an existing ID, it will be overwritten with the new document.</p>
 <h2><a class="header" href="#request-3" id="request-3">Request</a></h2>
 <pre><code class="language-text">PUT /index/docs/&lt;DOC_ID&gt;
+PUT /index/docs
 </code></pre>
 <h2><a class="header" href="#path-parameters" id="path-parameters">Path parameters</a></h2>
 <ul>
@@ -1198,15 +1094,21 @@ A unique value that identifies the document in the index. If specify an existing
 </ul>
 <h2><a class="header" href="#request-body" id="request-body">Request body</a></h2>
 <ul>
-<li><code>&lt;FIELDS&gt;</code><br />
-Document fields expressed in JSON format.</li>
+<li><code>&lt;DOCUMENT&gt;</code><br />
+Document(s) expressed in JSON or JSONL format</li>
 </ul>
 <h2><a class="header" href="#example" id="example">Example</a></h2>
 <p>To put a document:</p>
 <pre><code class="language-text">$ curl -X PUT \
     --header 'Content-Type: application/json' \
-    --data-binary '{&quot;text&quot;: &quot;Tantivy is a full-text search engine library inspired by Apache Lucene and written in Rust.&quot;}' \
+    --data-binary @./examples/doc_1.json \
     'http://localhost:8000/index/docs/1'
+</code></pre>
+<p>To put documents in bulk:</p>
+<pre><code class="language-text">$ curl -X PUT \
+    --header 'Content-Type: application/json' \
+    --data-binary @./examples/bulk_put.jsonl \
+    'http://localhost:8000/index/docs'
 </code></pre>
 <h1><a class="header" href="#get-api" id="get-api">Get API</a></h1>
 <p>Get API gets a document with the specified ID.</p>
@@ -1226,15 +1128,27 @@ A unique value that identifies the document in the index.</li>
 <p>Delete API deletes a document with the specified ID.</p>
 <h2><a class="header" href="#request-5" id="request-5">Request</a></h2>
 <pre><code class="language-text">DELETE /index/docs/&lt;DOC_ID&gt;
+DELETE /index/docs
 </code></pre>
 <h2><a class="header" href="#path-parameters-2" id="path-parameters-2">Path parameters</a></h2>
 <ul>
 <li><code>&lt;DOC_ID&gt;</code><br />
 A unique value that identifies the document in the index.</li>
 </ul>
+<h2><a class="header" href="#request-body-1" id="request-body-1">Request body</a></h2>
+<ul>
+<li><code>&lt;DOCUMENT&gt;</code><br />
+Document(s) expressed in JSONL format</li>
+</ul>
 <h2><a class="header" href="#examples-19" id="examples-19">Examples</a></h2>
 <p>To delete a document:</p>
 <pre><code class="language-text">$ curl -X DELETE 'http://localhost:8000/index/docs/1'
+</code></pre>
+<p>To delete documents in bulk:</p>
+<pre><code class="language-text">$ curl -X DELETE \
+    --header 'Content-Type: application/json' \
+    --data-binary @./examples/bulk_delete.jsonl \
+    'http://localhost:8000/index/docs'
 </code></pre>
 <h1><a class="header" href="#search-api" id="search-api">Search API</a></h1>
 <p>Search API searches documents from the index.</p>

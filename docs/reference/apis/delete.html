@@ -152,15 +152,27 @@
 <p>Delete API deletes a document with the specified ID.</p>
 <h2><a class="header" href="#request" id="request">Request</a></h2>
 <pre><code class="language-text">DELETE /index/docs/&lt;DOC_ID&gt;
+DELETE /index/docs
 </code></pre>
 <h2><a class="header" href="#path-parameters" id="path-parameters">Path parameters</a></h2>
 <ul>
 <li><code>&lt;DOC_ID&gt;</code><br />
 A unique value that identifies the document in the index.</li>
 </ul>
+<h2><a class="header" href="#request-body" id="request-body">Request body</a></h2>
+<ul>
+<li><code>&lt;DOCUMENT&gt;</code><br />
+Document(s) expressed in JSONL format</li>
+</ul>
 <h2><a class="header" href="#examples" id="examples">Examples</a></h2>
 <p>To delete a document:</p>
 <pre><code class="language-text">$ curl -X DELETE 'http://localhost:8000/index/docs/1'
+</code></pre>
+<p>To delete documents in bulk:</p>
+<pre><code class="language-text">$ curl -X DELETE \
+    --header 'Content-Type: application/json' \
+    --data-binary @./examples/bulk_delete.jsonl \
+    'http://localhost:8000/index/docs'
 </code></pre>
 
                     </main>

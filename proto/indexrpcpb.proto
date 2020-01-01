@@ -12,11 +12,13 @@ enum RespErr {
     ErrGetFailed = 5;
     ErrPutFailed = 6;
     ErrDeleteFailed = 7;
-    ErrCommitFailed = 8;
-    ErrRollbackFailed = 9;
-    ErrMergeFailed = 10;
-    ErrSearchFailed = 11;
-    ErrSchemaFailed = 12;
+    ErrBulkPutFailed = 8;
+    ErrBulkDeleteFailed = 9;
+    ErrCommitFailed = 10;
+    ErrRollbackFailed = 11;
+    ErrMergeFailed = 12;
+    ErrSearchFailed = 13;
+    ErrSchemaFailed = 14;
 }
 
 enum ReqType {
@@ -24,9 +26,11 @@ enum ReqType {
     Leave = 1;
     Put = 2;
     Delete = 3;
-    Commit = 4;
-    Rollback = 5;
-    Merge = 6;
+    BulkPut = 4;
+    BulkDelete = 5;
+    Commit = 6;
+    Rollback = 7;
+    Merge = 8;
 }
 
 message ApplyReq {
@@ -36,9 +40,11 @@ message ApplyReq {
     LeaveReq leave_req = 4;
     PutReq put_req = 5;
     DeleteReq delete_req = 6;
-    CommitReq commit_req = 7;
-    RollbackReq rollback_req = 8;
-    MergeReq merge_req = 9;
+    BulkPutReq bulk_put_req = 7;
+    BulkDeleteReq bulk_delete_req = 8;
+    CommitReq commit_req = 9;
+    RollbackReq rollback_req = 10;
+    MergeReq merge_req = 11;
 }
 
 message ConfChangeReq {
@@ -107,8 +113,7 @@ message GetResp {
 message PutReq {
     uint64 client_id = 1;
     uint64 seq = 2;
-    string doc_id = 3;
-    string fields = 4;
+    string doc = 3;
 }
 
 message PutResp {
@@ -123,6 +128,28 @@ message DeleteReq {
 }
 
 message DeleteResp {
+    string value = 1;
+    RespErr err = 2;
+}
+
+message BulkPutReq {
+    uint64 client_id = 1;
+    uint64 seq = 2;
+    string docs = 3;
+}
+
+message BulkPutResp {
+    string value = 1;
+    RespErr err = 2;
+}
+
+message BulkDeleteReq {
+    uint64 client_id = 1;
+    uint64 seq = 2;
+    string docs = 3;
+}
+
+message BulkDeleteResp {
     string value = 1;
     RespErr err = 2;
 }

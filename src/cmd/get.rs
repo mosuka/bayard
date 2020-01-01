@@ -11,7 +11,7 @@ pub fn run_get_cli(matches: &ArgMatches) -> Result<(), String> {
         .unwrap()
         .map(|addr| create_client(addr))
         .collect();
-    let doc_id = matches.value_of("DOC_ID").unwrap();
+    let doc_id = matches.value_of("ID").unwrap();
 
     let client_id = rand::random();
 

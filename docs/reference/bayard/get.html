@@ -160,16 +160,11 @@
 <h2><a class="header" href="#options" id="options">OPTIONS</a></h2>
 <pre><code>-s, --servers &lt;IP:PORT&gt;...    Server addresses in an existing cluster separated by &quot;,&quot;. If not specified, use
                               default servers. [default: 127.0.0.1:5000]
-</code></pre>
-<h2><a class="header" href="#args" id="args">ARGS</a></h2>
-<pre><code>&lt;DOC_ID&gt;    A unique value that identifies the document in the index.
+-i, --id &lt;ID&gt;                 A unique value that identifies the document in the index.
 </code></pre>
 <h2><a class="header" href="#examples" id="examples">EXAMPLES</a></h2>
 <p>To get a document with default options:</p>
-<pre><code class="language-text">$ ./bin/bayard get 1
-</code></pre>
-<p>To get a document with options:</p>
-<pre><code class="language-text">$ ./bin/bayard get --servers=127.0.0.1:5001 1
+<pre><code class="language-text">$ ./bin/bayard get --id=1
 </code></pre>
 
                     </main>

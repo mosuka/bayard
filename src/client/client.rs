@@ -10,10 +10,10 @@ use raft::eraftpb::{ConfChange, ConfChangeType};
 
 use crate::proto::indexpb_grpc::IndexClient;
 use crate::proto::indexrpcpb::{
-    ApplyReq, CommitReq, CommitResp, ConfChangeReq, DeleteReq, DeleteResp, GetReq, GetResp,
-    MergeReq, MergeResp, MetricsReq, MetricsResp, PeersReq, PeersResp, ProbeReq, ProbeResp, PutReq,
-    PutResp, RaftDone, ReqType, RespErr, RollbackReq, RollbackResp, SchemaReq, SchemaResp,
-    SearchReq, SearchResp,
+    ApplyReq, BulkDeleteReq, BulkDeleteResp, BulkPutReq, BulkPutResp, CommitReq, CommitResp,
+    ConfChangeReq, DeleteReq, DeleteResp, GetReq, GetResp, MergeReq, MergeResp, MetricsReq,
+    MetricsResp, PeersReq, PeersResp, ProbeReq, ProbeResp, PutReq, PutResp, RaftDone, ReqType,
+    RespErr, RollbackReq, RollbackResp, SchemaReq, SchemaResp, SearchReq, SearchResp,
 };
 
 pub fn create_client(addr: &str) -> IndexClient {
@@ -315,12 +315,11 @@ impl Clerk {
         }
     }
 
-    pub fn put(&mut self, doc_id: &str, fields: &str) -> String {
+    pub fn put(&mut self, doc: &str) -> String {
         let mut put_req = PutReq::new();
         put_req.set_client_id(self.client_id);
         put_req.set_seq(self.request_seq);
-        put_req.set_doc_id(doc_id.to_owned());
-        put_req.set_fields(fields.to_owned());
+        put_req.set_doc(doc.to_owned());
 
         let mut req = ApplyReq::new();
         req.set_client_id(self.client_id);
@@ -413,6 +412,110 @@ impl Clerk {
             self.leader_id = (self.leader_id + 1) % self.servers.len();
             request_count += 1;
             debug!("{}", "retry to delete document");
+
+            thread::sleep(Duration::from_millis(100));
+        }
+    }
+
+    pub fn bulk_put(&mut self, docs: &str) -> String {
+        let mut bulk_put_req = BulkPutReq::new();
+        bulk_put_req.set_client_id(self.client_id);
+        bulk_put_req.set_seq(self.request_seq);
+        bulk_put_req.set_docs(docs.to_owned());
+
+        let mut req = ApplyReq::new();
+        req.set_client_id(self.client_id);
+        req.set_req_type(ReqType::BulkPut);
+        req.set_bulk_put_req(bulk_put_req);
+
+        self.request_seq += 1;
+
+        let mut request_count: usize = 0;
+        loop {
+            if request_count > self.max_retry_count {
+                let msg = "exceeded max retry count";
+                debug!("{}", msg);
+
+                let mut ret = HashMap::new();
+                ret.insert("error", msg.to_string());
+
+                return serde_json::to_string(&ret).unwrap();
+            }
+
+            let reply = self.servers[self.leader_id]
+                .bulk_put(&req)
+                .unwrap_or_else(|e| {
+                    let msg = format!("{:?}", e);
+                    error!("{:?}", msg);
+
+                    let mut ret = HashMap::new();
+                    ret.insert("error", msg.to_string());
+
+                    let mut resp = BulkPutResp::new();
+                    resp.set_err(RespErr::ErrBulkPutFailed);
+                    resp.set_value(serde_json::to_string(&ret).unwrap());
+                    resp
+                });
+            match reply.err {
+                RespErr::OK => return reply.value,
+                _ => error!("failed to put documents in bulk"),
+            }
+
+            self.leader_id = (self.leader_id + 1) % self.servers.len();
+            request_count += 1;
+            debug!("{}", "retry to put documents in bulk");
+
+            thread::sleep(Duration::from_millis(100));
+        }
+    }
+
+    pub fn bulk_delete(&mut self, docs: &str) -> String {
+        let mut bulk_delete_req = BulkDeleteReq::new();
+        bulk_delete_req.set_client_id(self.client_id);
+        bulk_delete_req.set_seq(self.request_seq);
+        bulk_delete_req.set_docs(docs.to_owned());
+
+        let mut req = ApplyReq::new();
+        req.set_client_id(self.client_id);
+        req.set_req_type(ReqType::BulkDelete);
+        req.set_bulk_delete_req(bulk_delete_req);
+
+        self.request_seq += 1;
+
+        let mut request_count: usize = 0;
+        loop {
+            if request_count > self.max_retry_count {
+                let msg = "exceeded max retry count";
+                debug!("{}", msg);
+
+                let mut ret = HashMap::new();
+                ret.insert("error", msg.to_string());
+
+                return serde_json::to_string(&ret).unwrap();
+            }
+
+            let reply = self.servers[self.leader_id]
+                .bulk_delete(&req)
+                .unwrap_or_else(|e| {
+                    let msg = format!("{:?}", e);
+                    error!("{:?}", msg);
+
+                    let mut ret = HashMap::new();
+                    ret.insert("error", msg.to_string());
+
+                    let mut resp = BulkDeleteResp::new();
+                    resp.set_err(RespErr::ErrBulkDeleteFailed);
+                    resp.set_value(serde_json::to_string(&ret).unwrap());
+                    resp
+                });
+            match reply.err {
+                RespErr::OK => return reply.value,
+                _ => error!("failed to delete documents in bulk"),
+            }
+
+            self.leader_id = (self.leader_id + 1) % self.servers.len();
+            request_count += 1;
+            debug!("{}", "retry to delete documents in bulk");
 
             thread::sleep(Duration::from_millis(100));
         }

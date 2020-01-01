@@ -100,15 +100,15 @@ fn main() {
                         .default_value("./etc/schema.json")
                         .takes_value(true),
                 )
-                .arg(
-                    Arg::with_name("UNIQUE_KEY_FIELD_NAME")
-                        .help("Unique key field name. Specify the field name to be treated as a unique key in the field defined in the schema. If not specified, use the default unique key field name.")
-                        .short("u")
-                        .long("unique-key-field-name")
-                        .value_name("UNIQUE_KEY_FIELD_NAME")
-                        .default_value("id")
-                        .takes_value(true),
-                )
+//                .arg(
+//                    Arg::with_name("UNIQUE_KEY_FIELD_NAME")
+//                        .help("Unique key field name. Specify the field name to be treated as a unique key in the field defined in the schema. If not specified, use the default unique key field name.")
+//                        .short("u")
+//                        .long("unique-key-field-name")
+//                        .value_name("UNIQUE_KEY_FIELD_NAME")
+//                        .default_value("_id")
+//                        .takes_value(true),
+//                )
         )
         .subcommand(
             SubCommand::with_name("probe")
@@ -204,44 +204,6 @@ fn main() {
                 )
         )
         .subcommand(
-            SubCommand::with_name("put")
-                .name("put")
-                .setting(AppSettings::DeriveDisplayOrder)
-                .version(crate_version!())
-                .author(crate_authors!())
-                .about("The `bayard put` CLI puts a document with the specified ID and field. If specify an existing ID, it will be overwritten with the new document.")
-                .help_message("Prints help information.")
-                .version_message("Prints version information.")
-                .version_short("v")
-                .arg(
-                    Arg::with_name("SERVERS")
-                        .help("Server addresses in an existing cluster separated by \",\". If not specified, use default servers.")
-                        .short("s")
-                        .long("servers")
-                        .value_name("IP:PORT")
-                        .default_value("127.0.0.1:5000")
-                        .multiple(true)
-                        .use_delimiter(true)
-                        .require_delimiter(true)
-                        .value_delimiter(",")
-                        .takes_value(true),
-                )
-                .arg(
-                    Arg::with_name("DOC_ID")
-                        .help("A unique value that identifies the document in the index. If specify an existing ID, the existing document in the index is overwritten.")
-                        .value_name("DOC_ID")
-                        .required(true)
-                        .takes_value(true),
-                )
-                .arg(
-                    Arg::with_name("FIELDS")
-                        .help("Document fields expressed in JSON format.")
-                        .value_name("FIELDS")
-                        .required(true)
-                        .takes_value(true),
-                )
-        )
-        .subcommand(
             SubCommand::with_name("get")
                 .name("get")
                 .setting(AppSettings::DeriveDisplayOrder)
@@ -265,10 +227,58 @@ fn main() {
                         .takes_value(true),
                 )
                 .arg(
-                    Arg::with_name("DOC_ID")
+                    Arg::with_name("ID")
                         .help("A unique value that identifies the document in the index.")
-                        .value_name("DOC_ID")
+                        .short("i")
+                        .long("id")
+                        .value_name("ID")
                         .required(true)
+                        .takes_value(true),
+                )
+        )
+        .subcommand(
+            SubCommand::with_name("put")
+                .name("put")
+                .setting(AppSettings::DeriveDisplayOrder)
+                .version(crate_version!())
+                .author(crate_authors!())
+                .about("The `bayard put` CLI puts a document with the specified ID and field. If specify an existing ID, it will be overwritten with the new document.")
+                .help_message("Prints help information.")
+                .version_message("Prints version information.")
+                .version_short("v")
+                .arg(
+                    Arg::with_name("SERVERS")
+                        .help("Server addresses in an existing cluster separated by \",\". If not specified, use default servers.")
+                        .short("s")
+                        .long("servers")
+                        .value_name("IP:PORT")
+                        .default_value("127.0.0.1:5000")
+                        .multiple(true)
+                        .use_delimiter(true)
+                        .require_delimiter(true)
+                        .value_delimiter(",")
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("BULK")
+                        .help("A flag indicating whether or not to put documents in bulk.")
+                        .short("b")
+                        .long("bulk"),
+                )
+                .arg(
+                    Arg::with_name("ID")
+                        .help("A unique value that identifies the document in the index. If specified, the existing document ID in the document is overwritten.")
+                        .short("i")
+                        .long("id")
+                        .value_name("ID")
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("FILE")
+                        .help("File path that document(s) expressed in JSON or JSONL format.")
+                        .short("f")
+                        .long("file")
+                        .value_name("FILE")
                         .takes_value(true),
                 )
         )
@@ -296,10 +306,25 @@ fn main() {
                         .takes_value(true),
                 )
                 .arg(
-                    Arg::with_name("DOC_ID")
+                    Arg::with_name("BULK")
+                        .help("A flag indicating whether or not to delete documents in bulk.")
+                        .short("b")
+                        .long("bulk"),
+                )
+                .arg(
+                    Arg::with_name("ID")
                         .help("A unique value that identifies the document in the index.")
-                        .value_name("DOC_ID")
-                        .required(true)
+                        .short("i")
+                        .long("id")
+                        .value_name("ID")
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("FILE")
+                        .help("File path that delete document(s) expressed in JSONL format.")
+                        .short("f")
+                        .long("file")
+                        .value_name("FILE")
                         .takes_value(true),
                 )
         )

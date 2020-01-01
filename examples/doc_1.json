@@ -1,0 +1,8 @@
+{
+  "url": "https://github.com/bayard-search/bayard",
+  "name": "Bayard",
+  "description": "Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.",
+  "popularity": 1152,
+  "category": ["/category/search/server", "/language/rust"],
+  "timestamp": "2019-12-19T10:41:00+09:00"
+}

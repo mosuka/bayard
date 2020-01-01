@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::io::{BufRead, BufReader};
 use std::path::Path;
 use std::sync::mpsc::{self, Receiver, SyncSender};
 use std::sync::{Arc, Mutex};
@@ -12,6 +13,7 @@ use grpcio::{ChannelBuilder, EnvBuilder, Environment, RpcContext, ServerBuilder,
 use log::*;
 use protobuf::Message;
 use raft::eraftpb::{ConfChange, ConfChangeType, Entry, EntryType, Message as RaftMessage};
+use stringreader::StringReader;
 use tantivy::collector::{Count, FacetCollector, MultiCollector, TopDocs};
 use tantivy::query::{QueryParser, TermQuery};
 use tantivy::schema::{Field, FieldType, IndexRecordOption, Schema};
@@ -20,9 +22,10 @@ use tantivy::{Document, Index, IndexWriter, Term};
 use crate::client::client::{create_client, Clerk};
 use crate::proto::indexpb_grpc::{self, Index as IndexService, IndexClient};
 use crate::proto::indexrpcpb::{
-    ApplyReq, CommitResp, ConfChangeReq, DeleteResp, GetReq, GetResp, JoinReq, LeaveReq, MergeResp,
-    MetricsReq, MetricsResp, PeersReq, PeersResp, ProbeReq, ProbeResp, PutResp, RaftDone, ReqType,
-    RespErr, RollbackResp, SchemaReq, SchemaResp, SearchReq, SearchResp,
+    ApplyReq, BulkDeleteResp, BulkPutResp, CommitResp, ConfChangeReq, DeleteResp, GetReq, GetResp,
+    JoinReq, LeaveReq, MergeResp, MetricsReq, MetricsResp, PeersReq, PeersResp, ProbeReq,
+    ProbeResp, PutResp, RaftDone, ReqType, RespErr, RollbackResp, SchemaReq, SchemaResp, SearchReq,
+    SearchResp,
 };
 use crate::server::metrics::Metrics;
 use crate::server::peer::PeerMessage;
@@ -40,7 +43,7 @@ pub struct IndexServer {
     rf_message_ch: SyncSender<PeerMessage>,
     notify_ch_map: Arc<Mutex<HashMap<u64, SyncSender<NotifyArgs>>>>,
     index: Arc<Index>,
-    unique_key_field_name: String,
+    //    unique_key_field_name: String,
     index_writer: Arc<Mutex<IndexWriter>>,
     metrics: Arc<Mutex<Metrics>>,
 }
@@ -53,7 +56,6 @@ impl IndexServer {
         peers_addr: HashMap<u64, String>,
         data_directory: &str,
         schema_file: &str,
-        unique_key_field_name: &str,
     ) {
         let mut peers = HashMap::new();
         peers.insert(id, create_client(&format!("{}:{}", host, port)));
@@ -64,13 +66,14 @@ impl IndexServer {
         let raft_path = Path::new(data_directory).join(Path::new("raft"));
         fs::create_dir_all(&raft_path).unwrap_or_default();
 
+        let schema_content = fs::read_to_string(schema_file).unwrap();
+        let schema: Schema =
+            serde_json::from_str(&schema_content).expect("error while reading json");
+
         let index_path = Path::new(data_directory).join(Path::new("index"));
         let index = if index_path.exists() {
             Index::open_in_dir(index_path.to_str().unwrap()).unwrap()
         } else {
-            let schema_content = fs::read_to_string(schema_file).unwrap();
-            let schema: Schema =
-                serde_json::from_str(&schema_content).expect("error while reading json");
             fs::create_dir_all(&index_path).unwrap_or_default();
             Index::create_in_dir(index_path.to_str().unwrap(), schema).unwrap()
         };
@@ -98,7 +101,7 @@ impl IndexServer {
             rf_message_ch: rf_sender,
             notify_ch_map: Arc::new(Mutex::new(HashMap::new())),
             index: Arc::new(index),
-            unique_key_field_name: unique_key_field_name.to_string(),
+            //            unique_key_field_name: unique_key_field_name.to_string(),
             index_writer: Arc::new(Mutex::new(index_writer)),
             metrics: Arc::new(Mutex::new(Metrics::new(id))),
         };
@@ -203,7 +206,6 @@ impl IndexServer {
         let peers = self.peers.clone();
         let peers_addr = self.peers_addr.clone();
         let index = self.index.clone();
-        let unique_key_field_name = self.unique_key_field_name.clone();
         let index_writer = self.index_writer.clone();
         let metrics = self.metrics.clone();
 
@@ -221,7 +223,6 @@ impl IndexServer {
                                 peers.clone(),
                                 peers_addr.clone(),
                                 index.clone(),
-                                unique_key_field_name.as_str(),
                                 index_writer.clone(),
                                 metrics.clone(),
                             );
@@ -261,7 +262,6 @@ impl IndexServer {
         peers: Arc<Mutex<HashMap<u64, IndexClient>>>,
         peers_addr: Arc<Mutex<HashMap<u64, String>>>,
         index: Arc<Index>,
-        unique_key_field_name: &str,
         index_writer: Arc<Mutex<IndexWriter>>,
         metrics: Arc<Mutex<Metrics>>,
     ) -> NotifyArgs {
@@ -296,19 +296,20 @@ impl IndexServer {
             ReqType::Put => {
                 metrics.lock().unwrap().inc_request_count("put");
 
-                let field = index.schema().get_field(unique_key_field_name).unwrap();
+                let doc_id_field = index.schema().get_field("_id").unwrap();
 
-                let mut doc = index
+                let doc = index
                     .schema()
-                    .parse_document(req.get_put_req().get_fields())
+                    .parse_document(req.get_put_req().get_doc())
                     .unwrap();
-                doc.add_text(field, req.get_put_req().get_doc_id());
+                let doc_id = doc.get_first(doc_id_field).unwrap();
 
                 // delete doc
                 index_writer
                     .lock()
                     .unwrap()
-                    .delete_term(Term::from_field_text(field, req.get_put_req().get_doc_id()));
+                    .delete_term(Term::from_field_text(doc_id_field, doc_id.text().unwrap()));
+
                 // add doc
                 let opstamp = index_writer.lock().unwrap().add_document(doc);
 
@@ -324,9 +325,65 @@ impl IndexServer {
                     .lock()
                     .unwrap()
                     .delete_term(Term::from_field_text(
-                        index.schema().get_field(unique_key_field_name).unwrap(),
+                        index.schema().get_field("_id").unwrap(),
                         req.get_delete_req().get_doc_id(),
                     ));
+
+                let mut ret = HashMap::new();
+                ret.insert("opstamp", opstamp);
+
+                NotifyArgs(term, serde_json::to_string(&ret).unwrap(), RespErr::OK)
+            }
+            ReqType::BulkPut => {
+                metrics.lock().unwrap().inc_request_count("bulk_put");
+
+                let doc_id_field = index.schema().get_field("_id").unwrap();
+                let mut opstamp = 0;
+
+                let mut reader =
+                    BufReader::new(StringReader::new(req.get_bulk_put_req().get_docs()));
+                let mut line = String::new();
+                while reader.read_line(&mut line).unwrap() > 0 {
+                    let doc = index.schema().parse_document(&line).unwrap();
+                    let doc_id = doc.get_first(doc_id_field).unwrap();
+
+                    // delete doc
+                    index_writer
+                        .lock()
+                        .unwrap()
+                        .delete_term(Term::from_field_text(doc_id_field, doc_id.text().unwrap()));
+
+                    // add doc
+                    opstamp = index_writer.lock().unwrap().add_document(doc);
+
+                    line.clear();
+                }
+
+                let mut ret = HashMap::new();
+                ret.insert("opstamp", opstamp);
+
+                NotifyArgs(term, serde_json::to_string(&ret).unwrap(), RespErr::OK)
+            }
+            ReqType::BulkDelete => {
+                metrics.lock().unwrap().inc_request_count("bulk_delete");
+
+                let doc_id_field = index.schema().get_field("_id").unwrap();
+                let mut opstamp = 0;
+
+                let mut reader =
+                    BufReader::new(StringReader::new(req.get_bulk_delete_req().get_docs()));
+                let mut line = String::new();
+                while reader.read_line(&mut line).unwrap() > 0 {
+                    let doc = index.schema().parse_document(&line).unwrap();
+                    let doc_id = doc.get_first(doc_id_field).unwrap();
+
+                    opstamp = index_writer
+                        .lock()
+                        .unwrap()
+                        .delete_term(Term::from_field_text(doc_id_field, doc_id.text().unwrap()));
+
+                    line.clear();
+                }
 
                 let mut ret = HashMap::new();
                 ret.insert("opstamp", opstamp);
@@ -566,10 +623,7 @@ impl IndexService for IndexServer {
         self.metrics.lock().unwrap().inc_request_count("get");
 
         let t = Term::from_field_text(
-            self.index
-                .schema()
-                .get_field(&self.unique_key_field_name)
-                .unwrap(),
+            self.index.schema().get_field("_id").unwrap(),
             req.get_doc_id(),
         );
         let tq = TermQuery::new(t, IndexRecordOption::Basic);
@@ -614,6 +668,38 @@ impl IndexService for IndexServer {
 
         let (err, ret) = Self::start_op(self, &req);
         let mut resp = DeleteResp::new();
+        resp.set_err(err);
+        resp.set_value(ret);
+
+        debug!("response: {:?}", resp);
+
+        ctx.spawn(
+            sink.success(resp)
+                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
+        )
+    }
+
+    fn bulk_put(&mut self, ctx: RpcContext, req: ApplyReq, sink: UnarySink<BulkPutResp>) {
+        debug!("request: {:?}", req);
+
+        let (err, ret) = Self::start_op(self, &req);
+        let mut resp = BulkPutResp::new();
+        resp.set_err(err);
+        resp.set_value(ret);
+
+        debug!("response: {:?}", resp);
+
+        ctx.spawn(
+            sink.success(resp)
+                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
+        )
+    }
+
+    fn bulk_delete(&mut self, ctx: RpcContext, req: ApplyReq, sink: UnarySink<BulkDeleteResp>) {
+        debug!("request: {:?}", req);
+
+        let (err, ret) = Self::start_op(self, &req);
+        let mut resp = BulkDeleteResp::new();
         resp.set_err(err);
         resp.set_value(ret);
 

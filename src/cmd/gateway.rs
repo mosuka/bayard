@@ -8,6 +8,7 @@ use iron::{status, Chain, Iron, IronResult, Request, Response};
 use logger::Logger;
 use persistent::Write;
 use router::Router;
+use serde_json::Value;
 use urlencoded::UrlEncodedQuery;
 
 use crate::client::client::{create_client, Clerk};
@@ -81,9 +82,13 @@ fn put(req: &mut Request) -> IronResult<Response> {
         .read_to_string(&mut body)
         .expect("Failed to read line");
 
+    let mut doc_json: Value = serde_json::from_str(body.as_str()).unwrap();
+    doc_json["_id"] = Value::String(doc_id);
+    body = serde_json::to_string(&doc_json).unwrap();
+
     let client_arc = req.get::<Write<Client>>().unwrap();
     let mut client = client_arc.lock().unwrap();
-    let value = client.put(&doc_id, &body);
+    let value = client.put(&body);
 
     Ok(Response::with((ContentType::json().0, status::Ok, value)))
 }
@@ -100,6 +105,32 @@ fn delete(req: &mut Request) -> IronResult<Response> {
     let client_arc = req.get::<Write<Client>>().unwrap();
     let mut client = client_arc.lock().unwrap();
     let value = client.delete(&doc_id);
+
+    Ok(Response::with((ContentType::json().0, status::Ok, value)))
+}
+
+fn bulk_put(req: &mut Request) -> IronResult<Response> {
+    let mut body = String::new();
+    req.body
+        .read_to_string(&mut body)
+        .expect("Failed to read line");
+
+    let client_arc = req.get::<Write<Client>>().unwrap();
+    let mut client = client_arc.lock().unwrap();
+    let value = client.bulk_put(&body);
+
+    Ok(Response::with((ContentType::json().0, status::Ok, value)))
+}
+
+fn bulk_delete(req: &mut Request) -> IronResult<Response> {
+    let mut body = String::new();
+    req.body
+        .read_to_string(&mut body)
+        .expect("Failed to read line");
+
+    let client_arc = req.get::<Write<Client>>().unwrap();
+    let mut client = client_arc.lock().unwrap();
+    let value = client.bulk_delete(&body);
 
     Ok(Response::with((ContentType::json().0, status::Ok, value)))
 }
@@ -212,6 +243,8 @@ pub fn run_gateway_cli(matches: &ArgMatches) -> Result<(), String> {
     router.get("/index/docs/:doc_id", get, "get");
     router.put("/index/docs/:doc_id", put, "put");
     router.delete("/index/docs/:doc_id", delete, "delete");
+    router.put("/index/docs", bulk_put, "bulk_put");
+    router.delete("/index/docs", bulk_delete, "bulk_delete");
     router.get("/index/search", search, "search");
     router.get("/index/commit", commit, "commit");
     router.get("/index/rollback", rollback, "rollback");
