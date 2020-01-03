@@ -173,7 +173,7 @@
 <p>You'll see the result in JSON format. The result of the above command is:</p>
 <pre><code class="language-json">[
   {
-    &quot;name&quot;: &quot;id&quot;,
+    &quot;name&quot;: &quot;_id&quot;,
     &quot;type&quot;: &quot;text&quot;,
     &quot;options&quot;: {
       &quot;indexing&quot;: {
@@ -251,6 +251,9 @@ $ ./bin/bayard commit | jq .
 </code></pre>
 <p>You'll see the result in JSON format. The result of the above command is:</p>
 <pre><code class="language-json">{
+  &quot;_id&quot;: [
+    &quot;1&quot;
+  ],
   &quot;category&quot;: [
     &quot;/category/search/server&quot;,
     &quot;/language/rust&quot;
@@ -258,14 +261,14 @@ $ ./bin/bayard commit | jq .
   &quot;description&quot;: [
     &quot;Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.&quot;
   ],
-  &quot;id&quot;: [
-    &quot;1&quot;
-  ],
   &quot;name&quot;: [
     &quot;Bayard&quot;
   ],
   &quot;popularity&quot;: [
-    1132
+    1152
+  ],
+  &quot;timestamp&quot;: [
+    &quot;2019-12-19T01:41:00+00:00&quot;
   ],
   &quot;url&quot;: [
     &quot;https://github.com/bayard-search/bayard&quot;
@@ -287,6 +290,9 @@ $ ./bin/bayard commit | jq .
   &quot;docs&quot;: [
     {
       &quot;fields&quot;: {
+        &quot;_id&quot;: [
+          &quot;8&quot;
+        ],
         &quot;category&quot;: [
           &quot;/category/search/library&quot;,
           &quot;/language/rust&quot;
@@ -294,14 +300,14 @@ $ ./bin/bayard commit | jq .
         &quot;description&quot;: [
           &quot;Tantivy is a full-text search engine library inspired by Apache Lucene and written in Rust.&quot;
         ],
-        &quot;id&quot;: [
-          &quot;8&quot;
-        ],
         &quot;name&quot;: [
           &quot;Tantivy&quot;
         ],
         &quot;popularity&quot;: [
-          3100
+          3142
+        ],
+        &quot;timestamp&quot;: [
+          &quot;2019-12-19T01:07:00+00:00&quot;
         ],
         &quot;url&quot;: [
           &quot;https://github.com/tantivy-search/tantivy&quot;
@@ -311,6 +317,9 @@ $ ./bin/bayard commit | jq .
     },
     {
       &quot;fields&quot;: {
+        &quot;_id&quot;: [
+          &quot;1&quot;
+        ],
         &quot;category&quot;: [
           &quot;/category/search/server&quot;,
           &quot;/language/rust&quot;
@@ -318,14 +327,14 @@ $ ./bin/bayard commit | jq .
         &quot;description&quot;: [
           &quot;Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.&quot;
         ],
-        &quot;id&quot;: [
-          &quot;1&quot;
-        ],
         &quot;name&quot;: [
           &quot;Bayard&quot;
         ],
         &quot;popularity&quot;: [
-          1132
+          1152
+        ],
+        &quot;timestamp&quot;: [
+          &quot;2019-12-19T01:41:00+00:00&quot;
         ],
         &quot;url&quot;: [
           &quot;https://github.com/bayard-search/bayard&quot;
@@ -336,9 +345,9 @@ $ ./bin/bayard commit | jq .
   ],
   &quot;facet&quot;: {
     &quot;category&quot;: {
-      &quot;/category/search/server&quot;: 1,
+      &quot;/language/rust&quot;: 2,
       &quot;/category/search/library&quot;: 1,
-      &quot;/language/rust&quot;: 2
+      &quot;/category/search/server&quot;: 1
     }
   }
 }

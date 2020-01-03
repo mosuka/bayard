@@ -14,8 +14,7 @@ $ ./bin/bayard serve \
     --host=0.0.0.0 \
     --port=5001 \
     --data-directory=./data/1 \
-    --schema-file=./etc/schema.json \
-    --unique-key-field-name=id
+    --schema-file=./etc/schema.json
 ```
 
 ```text
@@ -25,8 +24,7 @@ $ ./bin/bayard serve \
     --port=5002 \
     --peers="1=0.0.0.0:5001" \
     --data-directory=./data/2 \
-    --schema-file=./etc/schema.json \
-    --unique-key-field-name=id
+    --schema-file=./etc/schema.json
 ```
 
 ```text
@@ -36,8 +34,7 @@ $ ./bin/bayard serve \
     --port=5003 \
     --peers="1=0.0.0.0:5001,2=0.0.0.0:5002" \
     --data-directory=./data/3 \
-    --schema-file=./etc/schema.json \
-    --unique-key-field-name=id
+    --schema-file=./etc/schema.json
 ```
 
 The above commands run servers on the same host, so each server must listen on a different port. This would not be necessary if each server runs on a different host.

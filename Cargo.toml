@@ -20,13 +20,13 @@ name = "bayard"
 path = "src/main.rs"
 
 [dependencies]
-async-std = "1.3"
+async-std = "1.4.0"
 clap = "2.33.0"
-crossbeam-channel = "0.3.9"
+crossbeam-channel = "0.4.0"
 ctrlc = { version = "3.1.3", features = ["termination"] }
-env_logger = "0.7.0"
+env_logger = "0.7.1"
 futures = "0.1.29"
-grpcio = { version = "0.4.5", features = [ "secure" ] }
+grpcio = { version = "0.4.7", features = [ "secure" ] }
 iron = "0.6.1"
 job_scheduler = "1.1.0"
 log = "0.4.8"
@@ -37,8 +37,8 @@ protobuf = "2.8.0"
 raft = "0.4.3"
 rand = "0.7.2"
 router = "0.6.0"
-serde = { version = "1.0.103", features = ["derive"] }
-serde_json = "1.0.42"
+serde = { version = "1.0.104", features = ["derive"] }
+serde_json = "1.0.44"
 stringreader = "0.1.1"
 tantivy = "0.11.3"
 urlencoded = "0.6.0"
