@@ -24,8 +24,27 @@ pub fn run_serve_cli(matches: &ArgMatches) -> Result<(), String> {
     }
     let data_directory = matches.value_of("DATA_DIRECTORY").unwrap();
     let schema_file = matches.value_of("SCHEMA_FILE").unwrap();
+    let indexer_threads = matches
+        .value_of("INDEXER_THREADS")
+        .unwrap()
+        .parse::<usize>()
+        .unwrap();
+    let indexer_memory_size = matches
+        .value_of("INDEXER_MEMORY_SIZE")
+        .unwrap()
+        .parse::<usize>()
+        .unwrap();
 
-    IndexServer::start_server(id, host, port, peers_addr, data_directory, schema_file);
+    IndexServer::start_server(
+        id,
+        host,
+        port,
+        peers_addr,
+        data_directory,
+        schema_file,
+        indexer_threads,
+        indexer_memory_size,
+    );
 
     Ok(())
 }

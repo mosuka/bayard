@@ -1,6 +1,7 @@
 extern crate bayard;
 #[macro_use]
 extern crate clap;
+extern crate num_cpus;
 
 use std::io::Write;
 
@@ -23,12 +24,19 @@ use bayard::cmd::search::run_search_cli;
 use bayard::cmd::serve::run_serve_cli;
 
 fn main() {
+    let cpus = num_cpus::get().to_owned();
+    let threads;
+    if cpus > 1 {
+        threads = format!("{}", cpus - 1);
+    } else {
+        threads = format!("{}", cpus);
+    }
+
     let app = App::new(crate_name!())
         .setting(AppSettings::DeriveDisplayOrder)
         .setting(AppSettings::SubcommandRequiredElseHelp)
         .version(crate_version!())
         .author(crate_authors!())
-//        .about(crate_description!())
         .about("The `bayard` CLI manages server, cluster and index.")
         .help_message("Prints help information.")
         .version_message("Prints version information.")
@@ -100,15 +108,24 @@ fn main() {
                         .default_value("./etc/schema.json")
                         .takes_value(true),
                 )
-//                .arg(
-//                    Arg::with_name("UNIQUE_KEY_FIELD_NAME")
-//                        .help("Unique key field name. Specify the field name to be treated as a unique key in the field defined in the schema. If not specified, use the default unique key field name.")
-//                        .short("u")
-//                        .long("unique-key-field-name")
-//                        .value_name("UNIQUE_KEY_FIELD_NAME")
-//                        .default_value("_id")
-//                        .takes_value(true),
-//                )
+                .arg(
+                    Arg::with_name("INDEXER_THREADS")
+                        .help("Number of indexer threads. If not specified, number of CPU cores - 1 will be used.")
+                        .short("t")
+                        .long("indexer-threads")
+                        .value_name("INDEXER_THREADS")
+                        .default_value(&threads)
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("INDEXER_MEMORY_SIZE")
+                        .help("Total memory size (in bytes) used by the indexer. It will be split for the different thread. If not specified, use the default.")
+                        .short("m")
+                        .long("indexer-memory-size")
+                        .value_name("INDEXER_MEMORY_SIZE")
+                        .default_value("1000000000")
+                        .takes_value(true),
+                )
         )
         .subcommand(
             SubCommand::with_name("probe")

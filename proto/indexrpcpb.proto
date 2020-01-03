@@ -6,19 +6,21 @@ import "eraftpb.proto";
 enum RespErr {
     OK = 0;
     ErrWrongLeader = 1;
-    ErrProbeFailed = 2;
-    ErrPeerFailed = 3;
-    ErrMetricsFailed = 4;
-    ErrGetFailed = 5;
-    ErrPutFailed = 6;
-    ErrDeleteFailed = 7;
-    ErrBulkPutFailed = 8;
-    ErrBulkDeleteFailed = 9;
-    ErrCommitFailed = 10;
-    ErrRollbackFailed = 11;
-    ErrMergeFailed = 12;
-    ErrSearchFailed = 13;
-    ErrSchemaFailed = 14;
+    ErrTimeout = 2;
+    ErrDisconnected = 3;
+    ErrProbeFailed = 4;
+    ErrPeerFailed = 5;
+    ErrMetricsFailed = 6;
+    ErrGetFailed = 7;
+    ErrPutFailed = 8;
+    ErrDeleteFailed = 9;
+    ErrBulkPutFailed = 10;
+    ErrBulkDeleteFailed = 11;
+    ErrCommitFailed = 12;
+    ErrRollbackFailed = 13;
+    ErrMergeFailed = 14;
+    ErrSearchFailed = 15;
+    ErrSchemaFailed = 16;
 }
 
 enum ReqType {

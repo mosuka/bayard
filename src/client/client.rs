@@ -560,7 +560,13 @@ impl Clerk {
                     resp
                 });
             match reply.err {
-                RespErr::OK => return reply.value,
+                RespErr::OK => {
+                    debug!("commit succeeded");
+                    return reply.value;
+                }
+                RespErr::ErrWrongLeader => error!("wrong leader"),
+                RespErr::ErrTimeout => error!("timeout"),
+                RespErr::ErrDisconnected => error!("disconnected"),
                 _ => error!("failed to commit index"),
             }
             self.leader_id = (self.leader_id + 1) % self.servers.len();
