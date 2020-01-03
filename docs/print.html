@@ -215,7 +215,7 @@ Bayard makes easy for programmers to develop search applications with advanced f
 <p>You'll see the result in JSON format. The result of the above command is:</p>
 <pre><code class="language-json">[
   {
-    &quot;name&quot;: &quot;id&quot;,
+    &quot;name&quot;: &quot;_id&quot;,
     &quot;type&quot;: &quot;text&quot;,
     &quot;options&quot;: {
       &quot;indexing&quot;: {
@@ -293,6 +293,9 @@ $ ./bin/bayard commit | jq .
 </code></pre>
 <p>You'll see the result in JSON format. The result of the above command is:</p>
 <pre><code class="language-json">{
+  &quot;_id&quot;: [
+    &quot;1&quot;
+  ],
   &quot;category&quot;: [
     &quot;/category/search/server&quot;,
     &quot;/language/rust&quot;
@@ -300,14 +303,14 @@ $ ./bin/bayard commit | jq .
   &quot;description&quot;: [
     &quot;Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.&quot;
   ],
-  &quot;id&quot;: [
-    &quot;1&quot;
-  ],
   &quot;name&quot;: [
     &quot;Bayard&quot;
   ],
   &quot;popularity&quot;: [
-    1132
+    1152
+  ],
+  &quot;timestamp&quot;: [
+    &quot;2019-12-19T01:41:00+00:00&quot;
   ],
   &quot;url&quot;: [
     &quot;https://github.com/bayard-search/bayard&quot;
@@ -329,6 +332,9 @@ $ ./bin/bayard commit | jq .
   &quot;docs&quot;: [
     {
       &quot;fields&quot;: {
+        &quot;_id&quot;: [
+          &quot;8&quot;
+        ],
         &quot;category&quot;: [
           &quot;/category/search/library&quot;,
           &quot;/language/rust&quot;
@@ -336,14 +342,14 @@ $ ./bin/bayard commit | jq .
         &quot;description&quot;: [
           &quot;Tantivy is a full-text search engine library inspired by Apache Lucene and written in Rust.&quot;
         ],
-        &quot;id&quot;: [
-          &quot;8&quot;
-        ],
         &quot;name&quot;: [
           &quot;Tantivy&quot;
         ],
         &quot;popularity&quot;: [
-          3100
+          3142
+        ],
+        &quot;timestamp&quot;: [
+          &quot;2019-12-19T01:07:00+00:00&quot;
         ],
         &quot;url&quot;: [
           &quot;https://github.com/tantivy-search/tantivy&quot;
@@ -353,6 +359,9 @@ $ ./bin/bayard commit | jq .
     },
     {
       &quot;fields&quot;: {
+        &quot;_id&quot;: [
+          &quot;1&quot;
+        ],
         &quot;category&quot;: [
           &quot;/category/search/server&quot;,
           &quot;/language/rust&quot;
@@ -360,14 +369,14 @@ $ ./bin/bayard commit | jq .
         &quot;description&quot;: [
           &quot;Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy.&quot;
         ],
-        &quot;id&quot;: [
-          &quot;1&quot;
-        ],
         &quot;name&quot;: [
           &quot;Bayard&quot;
         ],
         &quot;popularity&quot;: [
-          1132
+          1152
+        ],
+        &quot;timestamp&quot;: [
+          &quot;2019-12-19T01:41:00+00:00&quot;
         ],
         &quot;url&quot;: [
           &quot;https://github.com/bayard-search/bayard&quot;
@@ -378,9 +387,9 @@ $ ./bin/bayard commit | jq .
   ],
   &quot;facet&quot;: {
     &quot;category&quot;: {
-      &quot;/category/search/server&quot;: 1,
+      &quot;/language/rust&quot;: 2,
       &quot;/category/search/library&quot;: 1,
-      &quot;/language/rust&quot;: 2
+      &quot;/category/search/server&quot;: 1
     }
   }
 }
@@ -629,8 +638,7 @@ You can start servers in cluster mode with the following command:</p>
     --host=0.0.0.0 \
     --port=5001 \
     --data-directory=./data/1 \
-    --schema-file=./etc/schema.json \
-    --unique-key-field-name=id
+    --schema-file=./etc/schema.json
 </code></pre>
 <pre><code class="language-text">$ ./bin/bayard serve \
     --id=2 \
@@ -638,8 +646,7 @@ You can start servers in cluster mode with the following command:</p>
     --port=5002 \
     --peers=&quot;1=0.0.0.0:5001&quot; \
     --data-directory=./data/2 \
-    --schema-file=./etc/schema.json \
-    --unique-key-field-name=id
+    --schema-file=./etc/schema.json
 </code></pre>
 <pre><code class="language-text">$ ./bin/bayard serve \
     --id=3 \
@@ -647,8 +654,7 @@ You can start servers in cluster mode with the following command:</p>
     --port=5003 \
     --peers=&quot;1=0.0.0.0:5001,2=0.0.0.0:5002&quot; \
     --data-directory=./data/3 \
-    --schema-file=./etc/schema.json \
-    --unique-key-field-name=id
+    --schema-file=./etc/schema.json
 </code></pre>
 <p>The above commands run servers on the same host, so each server must listen on a different port. This would not be necessary if each server runs on a different host.
 Recommend 3 or more odd number of servers in the cluster to avoid split-brain.<br />

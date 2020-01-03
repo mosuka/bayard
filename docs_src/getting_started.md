@@ -37,7 +37,7 @@ You'll see the result in JSON format. The result of the above command is:
 ```json
 [
   {
-    "name": "id",
+    "name": "_id",
     "type": "text",
     "options": {
       "indexing": {
@@ -126,6 +126,9 @@ You'll see the result in JSON format. The result of the above command is:
 
 ```json
 {
+  "_id": [
+    "1"
+  ],
   "category": [
     "/category/search/server",
     "/language/rust"
@@ -133,14 +136,14 @@ You'll see the result in JSON format. The result of the above command is:
   "description": [
     "Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy."
   ],
-  "id": [
-    "1"
-  ],
   "name": [
     "Bayard"
   ],
   "popularity": [
-    1132
+    1152
+  ],
+  "timestamp": [
+    "2019-12-19T01:41:00+00:00"
   ],
   "url": [
     "https://github.com/bayard-search/bayard"
@@ -173,6 +176,9 @@ You'll see the result in JSON format. The result of the above command is:
   "docs": [
     {
       "fields": {
+        "_id": [
+          "8"
+        ],
         "category": [
           "/category/search/library",
           "/language/rust"
@@ -180,14 +186,14 @@ You'll see the result in JSON format. The result of the above command is:
         "description": [
           "Tantivy is a full-text search engine library inspired by Apache Lucene and written in Rust."
         ],
-        "id": [
-          "8"
-        ],
         "name": [
           "Tantivy"
         ],
         "popularity": [
-          3100
+          3142
+        ],
+        "timestamp": [
+          "2019-12-19T01:07:00+00:00"
         ],
         "url": [
           "https://github.com/tantivy-search/tantivy"
@@ -197,6 +203,9 @@ You'll see the result in JSON format. The result of the above command is:
     },
     {
       "fields": {
+        "_id": [
+          "1"
+        ],
         "category": [
           "/category/search/server",
           "/language/rust"
@@ -204,14 +213,14 @@ You'll see the result in JSON format. The result of the above command is:
         "description": [
           "Bayard is a full text search and indexing server, written in Rust, built on top of Tantivy."
         ],
-        "id": [
-          "1"
-        ],
         "name": [
           "Bayard"
         ],
         "popularity": [
-          1132
+          1152
+        ],
+        "timestamp": [
+          "2019-12-19T01:41:00+00:00"
         ],
         "url": [
           "https://github.com/bayard-search/bayard"
@@ -222,9 +231,9 @@ You'll see the result in JSON format. The result of the above command is:
   ],
   "facet": {
     "category": {
-      "/category/search/server": 1,
+      "/language/rust": 2,
       "/category/search/library": 1,
-      "/language/rust": 2
+      "/category/search/server": 1
     }
   }
 }

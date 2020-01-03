@@ -158,8 +158,7 @@ You can start servers in cluster mode with the following command:</p>
     --host=0.0.0.0 \
     --port=5001 \
     --data-directory=./data/1 \
-    --schema-file=./etc/schema.json \
-    --unique-key-field-name=id
+    --schema-file=./etc/schema.json
 </code></pre>
 <pre><code class="language-text">$ ./bin/bayard serve \
     --id=2 \
@@ -167,8 +166,7 @@ You can start servers in cluster mode with the following command:</p>
     --port=5002 \
     --peers=&quot;1=0.0.0.0:5001&quot; \
     --data-directory=./data/2 \
-    --schema-file=./etc/schema.json \
-    --unique-key-field-name=id
+    --schema-file=./etc/schema.json
 </code></pre>
 <pre><code class="language-text">$ ./bin/bayard serve \
     --id=3 \
@@ -176,8 +174,7 @@ You can start servers in cluster mode with the following command:</p>
     --port=5003 \
     --peers=&quot;1=0.0.0.0:5001,2=0.0.0.0:5002&quot; \
     --data-directory=./data/3 \
-    --schema-file=./etc/schema.json \
-    --unique-key-field-name=id
+    --schema-file=./etc/schema.json
 </code></pre>
 <p>The above commands run servers on the same host, so each server must listen on a different port. This would not be necessary if each server runs on a different host.
 Recommend 3 or more odd number of servers in the cluster to avoid split-brain.<br />
