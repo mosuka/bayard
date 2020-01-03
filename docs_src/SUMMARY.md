@@ -7,6 +7,7 @@
 - [Designing schema](designing_schema.md)
 - [Cluster mode](cluster_mode.md)
 - [Accessing over HTTP](accessing_over_http.md)
+- [Scheduling jobs](scheduling_jobs.md)
 - [Running on Docker](running_on_docker.md)
 - [Reference](reference.md)
     - [bayard](reference/bayard.md)

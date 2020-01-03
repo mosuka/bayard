@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Schema API - Bayard</title>
+        <title>Scheduling jobs - Bayard</title>
         
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
@@ -11,21 +11,21 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
 
-        <link rel="shortcut icon" href="../../favicon.png">
-        <link rel="stylesheet" href="../../css/variables.css">
-        <link rel="stylesheet" href="../../css/general.css">
-        <link rel="stylesheet" href="../../css/chrome.css">
-        <link rel="stylesheet" href="../../css/print.css" media="print">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
 
         <!-- Fonts -->
-        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
         <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
         <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" href="../../highlight.css">
-        <link rel="stylesheet" href="../../tomorrow-night.css">
-        <link rel="stylesheet" href="../../ayu-highlight.css">
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
         
@@ -35,7 +35,7 @@
     <body>
         <!-- Provide site root to javascript -->
         <script type="text/javascript">
-            var path_to_root = "../../";
+            var path_to_root = "";
             var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "light";
         </script>
 
@@ -81,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div id="sidebar-scrollbox" class="sidebar-scrollbox">
-                <ol class="chapter"><li class="expanded affix "><a href="../../overview.html">Overview</a></li><li class="expanded "><a href="../../building_bayard.html"><strong aria-hidden="true">1.</strong> Building Bayard</a></li><li class="expanded "><a href="../../getting_started.html"><strong aria-hidden="true">2.</strong> Getting started</a></li><li class="expanded "><a href="../../designing_schema.html"><strong aria-hidden="true">3.</strong> Designing schema</a></li><li class="expanded "><a href="../../cluster_mode.html"><strong aria-hidden="true">4.</strong> Cluster mode</a></li><li class="expanded "><a href="../../accessing_over_http.html"><strong aria-hidden="true">5.</strong> Accessing over HTTP</a></li><li class="expanded "><a href="../../scheduling_jobs.html"><strong aria-hidden="true">6.</strong> Scheduling jobs</a></li><li class="expanded "><a href="../../running_on_docker.html"><strong aria-hidden="true">7.</strong> Running on Docker</a></li><li class="expanded "><a href="../../reference.html"><strong aria-hidden="true">8.</strong> Reference</a></li><li><ol class="section"><li class="expanded "><a href="../../reference/bayard.html"><strong aria-hidden="true">8.1.</strong> bayard</a></li><li><ol class="section"><li class="expanded "><a href="../../reference/bayard/serve.html"><strong aria-hidden="true">8.1.1.</strong> bayard serve</a></li><li class="expanded "><a href="../../reference/bayard/probe.html"><strong aria-hidden="true">8.1.2.</strong> bayard probe</a></li><li class="expanded "><a href="../../reference/bayard/peers.html"><strong aria-hidden="true">8.1.3.</strong> bayard peers</a></li><li class="expanded "><a href="../../reference/bayard/metrics.html"><strong aria-hidden="true">8.1.4.</strong> bayard metrics</a></li><li class="expanded "><a href="../../reference/bayard/leave.html"><strong aria-hidden="true">8.1.5.</strong> bayard leave</a></li><li class="expanded "><a href="../../reference/bayard/put.html"><strong aria-hidden="true">8.1.6.</strong> bayard put</a></li><li class="expanded "><a href="../../reference/bayard/get.html"><strong aria-hidden="true">8.1.7.</strong> bayard get</a></li><li class="expanded "><a href="../../reference/bayard/commit.html"><strong aria-hidden="true">8.1.8.</strong> bayard commit</a></li><li class="expanded "><a href="../../reference/bayard/rollback.html"><strong aria-hidden="true">8.1.9.</strong> bayard rollback</a></li><li class="expanded "><a href="../../reference/bayard/merge.html"><strong aria-hidden="true">8.1.10.</strong> bayard merge</a></li><li class="expanded "><a href="../../reference/bayard/search.html"><strong aria-hidden="true">8.1.11.</strong> bayard search</a></li><li class="expanded "><a href="../../reference/bayard/schema.html"><strong aria-hidden="true">8.1.12.</strong> bayard schema</a></li><li class="expanded "><a href="../../reference/bayard/schedule.html"><strong aria-hidden="true">8.1.13.</strong> bayard schedule</a></li><li class="expanded "><a href="../../reference/bayard/gateway.html"><strong aria-hidden="true">8.1.14.</strong> bayard gateway</a></li></ol></li><li class="expanded "><a href="../../reference/apis.html"><strong aria-hidden="true">8.2.</strong> APIs</a></li><li><ol class="section"><li class="expanded "><a href="../../reference/apis/probe.html"><strong aria-hidden="true">8.2.1.</strong> Probe API</a></li><li class="expanded "><a href="../../reference/apis/peers.html"><strong aria-hidden="true">8.2.2.</strong> Peers API</a></li><li class="expanded "><a href="../../reference/apis/metrics.html"><strong aria-hidden="true">8.2.3.</strong> Metrics API</a></li><li class="expanded "><a href="../../reference/apis/put.html"><strong aria-hidden="true">8.2.4.</strong> Put API</a></li><li class="expanded "><a href="../../reference/apis/get.html"><strong aria-hidden="true">8.2.5.</strong> Get API</a></li><li class="expanded "><a href="../../reference/apis/delete.html"><strong aria-hidden="true">8.2.6.</strong> Delete API</a></li><li class="expanded "><a href="../../reference/apis/search.html"><strong aria-hidden="true">8.2.7.</strong> Search API</a></li><li class="expanded "><a href="../../reference/apis/commit.html"><strong aria-hidden="true">8.2.8.</strong> Commit API</a></li><li class="expanded "><a href="../../reference/apis/rollback.html"><strong aria-hidden="true">8.2.9.</strong> Rollback API</a></li><li class="expanded "><a href="../../reference/apis/merge.html"><strong aria-hidden="true">8.2.10.</strong> Merge API</a></li><li class="expanded "><a href="../../reference/apis/schema.html" class="active"><strong aria-hidden="true">8.2.11.</strong> Schema API</a></li></ol></li></ol></li></ol>
+                <ol class="chapter"><li class="expanded affix "><a href="overview.html">Overview</a></li><li class="expanded "><a href="building_bayard.html"><strong aria-hidden="true">1.</strong> Building Bayard</a></li><li class="expanded "><a href="getting_started.html"><strong aria-hidden="true">2.</strong> Getting started</a></li><li class="expanded "><a href="designing_schema.html"><strong aria-hidden="true">3.</strong> Designing schema</a></li><li class="expanded "><a href="cluster_mode.html"><strong aria-hidden="true">4.</strong> Cluster mode</a></li><li class="expanded "><a href="accessing_over_http.html"><strong aria-hidden="true">5.</strong> Accessing over HTTP</a></li><li class="expanded "><a href="scheduling_jobs.html" class="active"><strong aria-hidden="true">6.</strong> Scheduling jobs</a></li><li class="expanded "><a href="running_on_docker.html"><strong aria-hidden="true">7.</strong> Running on Docker</a></li><li class="expanded "><a href="reference.html"><strong aria-hidden="true">8.</strong> Reference</a></li><li><ol class="section"><li class="expanded "><a href="reference/bayard.html"><strong aria-hidden="true">8.1.</strong> bayard</a></li><li><ol class="section"><li class="expanded "><a href="reference/bayard/serve.html"><strong aria-hidden="true">8.1.1.</strong> bayard serve</a></li><li class="expanded "><a href="reference/bayard/probe.html"><strong aria-hidden="true">8.1.2.</strong> bayard probe</a></li><li class="expanded "><a href="reference/bayard/peers.html"><strong aria-hidden="true">8.1.3.</strong> bayard peers</a></li><li class="expanded "><a href="reference/bayard/metrics.html"><strong aria-hidden="true">8.1.4.</strong> bayard metrics</a></li><li class="expanded "><a href="reference/bayard/leave.html"><strong aria-hidden="true">8.1.5.</strong> bayard leave</a></li><li class="expanded "><a href="reference/bayard/put.html"><strong aria-hidden="true">8.1.6.</strong> bayard put</a></li><li class="expanded "><a href="reference/bayard/get.html"><strong aria-hidden="true">8.1.7.</strong> bayard get</a></li><li class="expanded "><a href="reference/bayard/commit.html"><strong aria-hidden="true">8.1.8.</strong> bayard commit</a></li><li class="expanded "><a href="reference/bayard/rollback.html"><strong aria-hidden="true">8.1.9.</strong> bayard rollback</a></li><li class="expanded "><a href="reference/bayard/merge.html"><strong aria-hidden="true">8.1.10.</strong> bayard merge</a></li><li class="expanded "><a href="reference/bayard/search.html"><strong aria-hidden="true">8.1.11.</strong> bayard search</a></li><li class="expanded "><a href="reference/bayard/schema.html"><strong aria-hidden="true">8.1.12.</strong> bayard schema</a></li><li class="expanded "><a href="reference/bayard/schedule.html"><strong aria-hidden="true">8.1.13.</strong> bayard schedule</a></li><li class="expanded "><a href="reference/bayard/gateway.html"><strong aria-hidden="true">8.1.14.</strong> bayard gateway</a></li></ol></li><li class="expanded "><a href="reference/apis.html"><strong aria-hidden="true">8.2.</strong> APIs</a></li><li><ol class="section"><li class="expanded "><a href="reference/apis/probe.html"><strong aria-hidden="true">8.2.1.</strong> Probe API</a></li><li class="expanded "><a href="reference/apis/peers.html"><strong aria-hidden="true">8.2.2.</strong> Peers API</a></li><li class="expanded "><a href="reference/apis/metrics.html"><strong aria-hidden="true">8.2.3.</strong> Metrics API</a></li><li class="expanded "><a href="reference/apis/put.html"><strong aria-hidden="true">8.2.4.</strong> Put API</a></li><li class="expanded "><a href="reference/apis/get.html"><strong aria-hidden="true">8.2.5.</strong> Get API</a></li><li class="expanded "><a href="reference/apis/delete.html"><strong aria-hidden="true">8.2.6.</strong> Delete API</a></li><li class="expanded "><a href="reference/apis/search.html"><strong aria-hidden="true">8.2.7.</strong> Search API</a></li><li class="expanded "><a href="reference/apis/commit.html"><strong aria-hidden="true">8.2.8.</strong> Commit API</a></li><li class="expanded "><a href="reference/apis/rollback.html"><strong aria-hidden="true">8.2.9.</strong> Rollback API</a></li><li class="expanded "><a href="reference/apis/merge.html"><strong aria-hidden="true">8.2.10.</strong> Merge API</a></li><li class="expanded "><a href="reference/apis/schema.html"><strong aria-hidden="true">8.2.11.</strong> Schema API</a></li></ol></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -116,7 +116,7 @@
                         <h1 class="menu-title">Bayard</h1>
 
                         <div class="right-buttons">
-                            <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <a href="print.html" title="Print this book" aria-label="Print this book">
                                 <i id="print-button" class="fa fa-print"></i>
                             </a>
                             
@@ -148,14 +148,18 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#schema-api" id="schema-api">Schema API</a></h1>
-<p>Schema API shows the index schema that the server applied.</p>
-<h2><a class="header" href="#request" id="request">Request</a></h2>
-<pre><code class="language-text">GET /index/schema
+                        <h1><a class="header" href="#scheduling-jobs" id="scheduling-jobs">Scheduling jobs</a></h1>
+<p>You can use the Job scheduler to execute periodic commits and index merges.</p>
+<h2><a class="header" href="#using-job-scheduler" id="using-job-scheduler">Using Job scheduler</a></h2>
+<p>Start the job scheduler as follows:</p>
+<pre><code class="language-text">$ ./bin/bayard schedule
 </code></pre>
-<h2><a class="header" href="#examples" id="examples">Examples</a></h2>
-<p>To show the index schema:</p>
-<pre><code class="language-text">$ curl -X GET 'http://localhost:8000/index/schema'
+<p>To specify job scheduler settings:</p>
+<pre><code class="language-text">$ ./bin/bayard schedule --commit=&quot;0/10 * * * * * *&quot; --merge=&quot;0 0 2 * * * *&quot;
+</code></pre>
+<p>The format of the settings is very similar to the crontab.</p>
+<pre><code class="language-text">sec   min   hour   day-of-month   month   day-of-week   year
+*     *     *      *              *       *             *
 </code></pre>
 
                     </main>
@@ -163,11 +167,15 @@
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
                         
-                            <a rel="prev" href="../../reference/apis/merge.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="accessing_over_http.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
                         
 
+                        
+                            <a rel="next" href="running_on_docker.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
                         
 
                         <div style="clear: both"></div>
@@ -177,11 +185,15 @@
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                 
-                    <a href="../../reference/apis/merge.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a href="accessing_over_http.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                 
 
+                
+                    <a href="running_on_docker.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
                 
             </nav>
 
@@ -202,14 +214,14 @@
         
 
         
-        <script src="../../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="../../mark.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="../../searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
         
 
-        <script src="../../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="../../highlight.js" type="text/javascript" charset="utf-8"></script>
-        <script src="../../book.js" type="text/javascript" charset="utf-8"></script>
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
 
         <!-- Custom JS scripts -->
         
