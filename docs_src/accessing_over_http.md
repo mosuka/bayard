@@ -1,7 +1,7 @@
 # Accessing over the HTTP
 
-
 Bayard supports gRPC connections, but some users may want to use the traditional RESTful API over HTTP. Gateways are useful in such cases.
+
 
 ## Using Gateway
 
