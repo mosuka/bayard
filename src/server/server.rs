@@ -15,6 +15,7 @@ use protobuf::Message;
 use raft::eraftpb::{ConfChange, ConfChangeType, Entry, EntryType, Message as RaftMessage};
 use stringreader::StringReader;
 use tantivy::collector::{Count, FacetCollector, MultiCollector, TopDocs};
+use tantivy::merge_policy::LogMergePolicy;
 use tantivy::query::{QueryParser, TermQuery};
 use tantivy::schema::{Field, FieldType, IndexRecordOption, Schema};
 use tantivy::{Document, Index, IndexWriter, Term};
@@ -43,7 +44,6 @@ pub struct IndexServer {
     rf_message_ch: SyncSender<PeerMessage>,
     notify_ch_map: Arc<Mutex<HashMap<u64, SyncSender<NotifyArgs>>>>,
     index: Arc<Index>,
-    //    unique_key_field_name: String,
     index_writer: Arc<Mutex<IndexWriter>>,
     metrics: Arc<Mutex<Metrics>>,
 }
@@ -56,6 +56,8 @@ impl IndexServer {
         peers_addr: HashMap<u64, String>,
         data_directory: &str,
         schema_file: &str,
+        indexer_threads: usize,
+        indexer_memory_size: usize,
     ) {
         let mut peers = HashMap::new();
         peers.insert(id, create_client(&format!("{}:{}", host, port)));
@@ -78,15 +80,15 @@ impl IndexServer {
             Index::create_in_dir(index_path.to_str().unwrap(), schema).unwrap()
         };
 
-        let num_threads = 1;
-        let buffer_size_per_thread = 50_000_000;
-        let index_writer = if num_threads > 0 {
+        let index_writer = if indexer_threads > 0 {
             index
-                .writer_with_num_threads(num_threads, buffer_size_per_thread)
+                .writer_with_num_threads(indexer_threads, indexer_memory_size)
                 .unwrap()
         } else {
-            index.writer(buffer_size_per_thread).unwrap()
+            index.writer(indexer_memory_size).unwrap()
         };
+        index_writer.set_merge_policy(Box::new(LogMergePolicy::default()));
+        //        index_writer.set_merge_policy(Box::new(NoMergePolicy));
 
         let (rf_sender, rf_receiver) = mpsc::sync_channel(100);
         let (rpc_sender, rpc_receiver) = mpsc::sync_channel(100);
@@ -101,7 +103,6 @@ impl IndexServer {
             rf_message_ch: rf_sender,
             notify_ch_map: Arc::new(Mutex::new(HashMap::new())),
             index: Arc::new(index),
-            //            unique_key_field_name: unique_key_field_name.to_string(),
             index_writer: Arc::new(Mutex::new(index_writer)),
             metrics: Arc::new(Mutex::new(Metrics::new(id))),
         };
@@ -186,18 +187,28 @@ impl IndexServer {
             .unwrap_or_else(|e| {
                 error!("send propose to raft error: {:?}", e);
             });
-        match rh.recv_timeout(Duration::from_millis(1000)) {
-            Ok(args) => {
-                return (args.2, args.1);
-            }
-            Err(_) => {
+        // TODO: consider appropriate timeout value
+        return match rh.recv_timeout(Duration::from_millis(60000)) {
+            Ok(args) => (args.2, args.1),
+            Err(e) => {
                 {
                     let mut map = self.notify_ch_map.lock().unwrap();
                     map.remove(&req.get_client_id());
                 }
-                return (RespErr::ErrWrongLeader, String::from(""));
+
+                let mut ret = HashMap::new();
+                ret.insert("error", format!("{:?}", e));
+                match e {
+                    mpsc::RecvTimeoutError::Timeout => {
+                        (RespErr::ErrTimeout, serde_json::to_string(&ret).unwrap())
+                    }
+                    mpsc::RecvTimeoutError::Disconnected => (
+                        RespErr::ErrDisconnected,
+                        serde_json::to_string(&ret).unwrap(),
+                    ),
+                }
             }
-        }
+        };
     }
 
     // TODO: check duplicate request.
@@ -487,8 +498,6 @@ impl IndexServer {
 
 impl IndexService for IndexServer {
     fn raft(&mut self, ctx: RpcContext, req: RaftMessage, sink: UnarySink<RaftDone>) {
-        // debug!("request: {:?}", req);
-
         self.metrics.lock().unwrap().inc_request_count("raft");
 
         self.rf_message_ch
@@ -497,8 +506,6 @@ impl IndexService for IndexServer {
                 error!("send message to raft error: {:?}", e);
             });
         let resp = RaftDone::new();
-
-        // debug!("response: {:?}", resp);
 
         ctx.spawn(
             sink.success(resp)

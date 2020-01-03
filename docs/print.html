@@ -770,19 +770,29 @@ help        Prints this message or the help of the given subcommand(s)
 </code></pre>
 <h2><a class="header" href="#options-1" id="options-1">OPTIONS</a></h2>
 <pre><code>-i, --id &lt;ID&gt;
-        Server ID. Must specify a numeric ID that is unique within the cluster. If not specified, use the default ID. [default: 1]
+        Server ID. Must specify a numeric ID that is unique within the cluster. If not specified, use the default
+        ID. [default: 1]
 -H, --host &lt;HOST&gt;
-        Host address. Must specify the host name or IP address. If not specified, use the default address. [default: 0.0.0.0]
+        Host address. Must specify the host name or IP address. If not specified, use the default address. [default:
+        0.0.0.0]
 -P, --port &lt;PORT&gt;
-        Port number. This port is used for communication via gRPC. If not specified, use the default port. [default: 5000]
+        Port number. This port is used for communication via gRPC. If not specified, use the default port. [default:
+        5000]
 -p, --peers &lt;ID=IP:PORT&gt;...
-        Server ID and addresses in an existing cluster separated by &quot;,&quot;. If specified, the server will join the cluster.
+        Server ID and addresses in an existing cluster separated by &quot;,&quot;. If specified, the server will join the
+        cluster.
 -d, --data-directory &lt;DATA_DIRECTORY&gt;
-        Data directory. Stores index, snapshots, and raft logs. If not specified, use the default directory. [default: ./data]
+        Data directory. Stores index, snapshots, and raft logs. If not specified, use the default directory.
+        [default: ./data]
 -s, --schema-file &lt;SCHEMA_FILE&gt;
-        Schema file. Must specify An existing file name. If not specified, use the default schema file. [default: ./etc/schema.json]
--u, --unique-key-field-name &lt;UNIQUE_KEY_FIELD_NAME&gt;
-        Unique key field name. Specify the field name to be treated as a unique key in the field defined in the schema. If not specified, use the default unique key field name. [default: id]
+        Schema file. Must specify An existing file name. If not specified, use the default schema file. [default:
+        ./etc/schema.json]
+-t, --indexer-threads &lt;INDEXER_THREADS&gt;
+        Number of indexer threads. If not specified, number of CPU cores - 1 will be used. [default: 7]
+
+-m, --indexer-memory-size &lt;INDEXER_MEMORY_SIZE&gt;
+        Total memory size (in bytes) used by the indexer. It will be split for the different thread. If not
+        specified, use the default. [default: 1000000000]
 </code></pre>
 <h2><a class="header" href="#examples-1" id="examples-1">EXAMPLES</a></h2>
 <p>To start a server with default options:</p>
@@ -794,8 +804,7 @@ help        Prints this message or the help of the given subcommand(s)
       --host=0.0.0.0 \
       --port=5001 \
       --data-directory=./data/1 \
-      --schema-file=./etc/schema.json \
-      --unique-key-field-name=id
+      --schema-file=./etc/schema.json
 </code></pre>
 <h1><a class="header" href="#bayard-probe" id="bayard-probe">bayard probe</a></h1>
 <p>The <code>bayard probe</code> CLI probes the server.</p>
