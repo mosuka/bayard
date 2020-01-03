@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## 0.3.0
+- Add indexer flag #58 @mosuka
 - Add docs for job scheduler #57 @mosuka
 - Add document for gateway #56 @mosuka
 - Update dependencies #55 @mosuka
