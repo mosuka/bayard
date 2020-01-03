@@ -31,5 +31,5 @@ $ ./bin/bayard gateway
 To start gateway with options:
 
 ```text
-$ ./bin/bayard gateway --host=localhost --port=8080 --servers=127.0.0.1:5001
+$ ./bin/bayard gateway --servers=127.0.0.1:5001,127.0.0.1:5002,127.0.0.1:5003
 ```
