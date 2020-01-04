@@ -46,7 +46,7 @@ When deploying to a single host, if that host goes down due to hardware failure,
 You can check the peers in the cluster with the following command:
 
 ```text
-$ ./bin/bayard peers --servers localhost:5001 | jq .
+$ ./bin/bayard peers --server localhost:5001 | jq .
 ```
 
 You'll see the result in JSON format. The result of the above command is:

@@ -10,10 +10,10 @@ use raft::eraftpb::{ConfChange, ConfChangeType};
 
 use crate::proto::indexpb_grpc::IndexClient;
 use crate::proto::indexrpcpb::{
-    ApplyReq, BulkDeleteReq, BulkDeleteResp, BulkPutReq, BulkPutResp, CommitReq, CommitResp,
-    ConfChangeReq, DeleteReq, DeleteResp, GetReq, GetResp, MergeReq, MergeResp, MetricsReq,
-    MetricsResp, PeersReq, PeersResp, ProbeReq, ProbeResp, PutReq, PutResp, RaftDone, ReqType,
-    RespErr, RollbackReq, RollbackResp, SchemaReq, SchemaResp, SearchReq, SearchResp,
+    BulkDeleteReq, BulkDeleteResp, BulkPutReq, BulkPutResp, CommitReq, CommitResp, ConfChangeReq,
+    DeleteReq, DeleteResp, GetReq, GetResp, MergeReq, MergeResp, MetricsReq, MetricsResp, PeersReq,
+    PeersResp, ProbeReq, ProbeResp, PutReq, PutResp, RaftDone, RespErr, RollbackReq, RollbackResp,
+    SchemaReq, SchemaResp, SearchReq, SearchResp,
 };
 
 pub fn create_client(addr: &str) -> IndexClient {
@@ -316,15 +316,10 @@ impl Clerk {
     }
 
     pub fn put(&mut self, doc: &str) -> String {
-        let mut put_req = PutReq::new();
-        put_req.set_client_id(self.client_id);
-        put_req.set_seq(self.request_seq);
-        put_req.set_doc(doc.to_owned());
-
-        let mut req = ApplyReq::new();
+        let mut req = PutReq::new();
         req.set_client_id(self.client_id);
-        req.set_req_type(ReqType::Put);
-        req.set_put_req(put_req);
+        req.set_seq(self.request_seq);
+        req.set_doc(doc.to_owned());
 
         self.request_seq += 1;
 
@@ -366,15 +361,10 @@ impl Clerk {
     }
 
     pub fn delete(&mut self, doc_id: &str) -> String {
-        let mut delete_req = DeleteReq::new();
-        delete_req.set_client_id(self.client_id);
-        delete_req.set_seq(self.request_seq);
-        delete_req.set_doc_id(doc_id.to_owned());
-
-        let mut req = ApplyReq::new();
+        let mut req = DeleteReq::new();
         req.set_client_id(self.client_id);
-        req.set_req_type(ReqType::Delete);
-        req.set_delete_req(delete_req);
+        req.set_seq(self.request_seq);
+        req.set_doc_id(doc_id.to_owned());
 
         self.request_seq += 1;
 
@@ -418,15 +408,10 @@ impl Clerk {
     }
 
     pub fn bulk_put(&mut self, docs: &str) -> String {
-        let mut bulk_put_req = BulkPutReq::new();
-        bulk_put_req.set_client_id(self.client_id);
-        bulk_put_req.set_seq(self.request_seq);
-        bulk_put_req.set_docs(docs.to_owned());
-
-        let mut req = ApplyReq::new();
+        let mut req = BulkPutReq::new();
         req.set_client_id(self.client_id);
-        req.set_req_type(ReqType::BulkPut);
-        req.set_bulk_put_req(bulk_put_req);
+        req.set_seq(self.request_seq);
+        req.set_docs(docs.to_owned());
 
         self.request_seq += 1;
 
@@ -470,15 +455,10 @@ impl Clerk {
     }
 
     pub fn bulk_delete(&mut self, docs: &str) -> String {
-        let mut bulk_delete_req = BulkDeleteReq::new();
-        bulk_delete_req.set_client_id(self.client_id);
-        bulk_delete_req.set_seq(self.request_seq);
-        bulk_delete_req.set_docs(docs.to_owned());
-
-        let mut req = ApplyReq::new();
+        let mut req = BulkDeleteReq::new();
         req.set_client_id(self.client_id);
-        req.set_req_type(ReqType::BulkDelete);
-        req.set_bulk_delete_req(bulk_delete_req);
+        req.set_seq(self.request_seq);
+        req.set_docs(docs.to_owned());
 
         self.request_seq += 1;
 
@@ -522,14 +502,9 @@ impl Clerk {
     }
 
     pub fn commit(&mut self) -> String {
-        let mut commit_req = CommitReq::new();
-        commit_req.set_client_id(self.client_id);
-        commit_req.set_seq(self.request_seq);
-
-        let mut req = ApplyReq::new();
+        let mut req = CommitReq::new();
         req.set_client_id(self.client_id);
-        req.set_req_type(ReqType::Commit);
-        req.set_commit_req(commit_req);
+        req.set_seq(self.request_seq);
 
         self.request_seq += 1;
 
@@ -567,7 +542,8 @@ impl Clerk {
                 RespErr::ErrWrongLeader => error!("wrong leader"),
                 RespErr::ErrTimeout => error!("timeout"),
                 RespErr::ErrDisconnected => error!("disconnected"),
-                _ => error!("failed to commit index"),
+                RespErr::ErrCommitFailed => error!("failed to commit index"),
+                _ => error!("unexpected error"),
             }
             self.leader_id = (self.leader_id + 1) % self.servers.len();
             request_count += 1;
@@ -578,14 +554,9 @@ impl Clerk {
     }
 
     pub fn rollback(&mut self) -> String {
-        let mut rollback_req = RollbackReq::new();
-        rollback_req.set_client_id(self.client_id);
-        rollback_req.set_seq(self.request_seq);
-
-        let mut req = ApplyReq::new();
+        let mut req = RollbackReq::new();
         req.set_client_id(self.client_id);
-        req.set_req_type(ReqType::Rollback);
-        req.set_rollback_req(rollback_req);
+        req.set_seq(self.request_seq);
 
         self.request_seq += 1;
 
@@ -629,14 +600,9 @@ impl Clerk {
     }
 
     pub fn merge(&mut self) -> String {
-        let mut merge_req = MergeReq::new();
-        merge_req.set_client_id(self.client_id);
-        merge_req.set_seq(self.request_seq);
-
-        let mut req = ApplyReq::new();
+        let mut req = MergeReq::new();
         req.set_client_id(self.client_id);
-        req.set_req_type(ReqType::Merge);
-        req.set_merge_req(merge_req);
+        req.set_seq(self.request_seq);
 
         self.request_seq += 1;
 

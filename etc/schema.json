@@ -48,8 +48,8 @@
     "type": "u64",
     "options": {
       "indexed": true,
-      "stored": true,
-      "fast": "single"
+      "fast": "single",
+      "stored": true
     }
   },
   {
@@ -61,8 +61,8 @@
     "type": "date",
     "options": {
       "indexed": true,
-      "stored": true,
-      "fast": "single"
+      "fast": "single",
+      "stored": true
     }
   }
 ]
