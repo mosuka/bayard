@@ -60,49 +60,49 @@ const METHOD_INDEX_GET: ::grpcio::Method<super::indexrpcpb::GetReq, super::index
     resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
 };
 
-const METHOD_INDEX_PUT: ::grpcio::Method<super::indexrpcpb::ApplyReq, super::indexrpcpb::PutResp> = ::grpcio::Method {
+const METHOD_INDEX_PUT: ::grpcio::Method<super::indexrpcpb::PutReq, super::indexrpcpb::PutResp> = ::grpcio::Method {
     ty: ::grpcio::MethodType::Unary,
     name: "/indexpb.Index/Put",
     req_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
     resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
 };
 
-const METHOD_INDEX_DELETE: ::grpcio::Method<super::indexrpcpb::ApplyReq, super::indexrpcpb::DeleteResp> = ::grpcio::Method {
+const METHOD_INDEX_DELETE: ::grpcio::Method<super::indexrpcpb::DeleteReq, super::indexrpcpb::DeleteResp> = ::grpcio::Method {
     ty: ::grpcio::MethodType::Unary,
     name: "/indexpb.Index/Delete",
     req_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
     resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
 };
 
-const METHOD_INDEX_BULK_PUT: ::grpcio::Method<super::indexrpcpb::ApplyReq, super::indexrpcpb::BulkPutResp> = ::grpcio::Method {
+const METHOD_INDEX_BULK_PUT: ::grpcio::Method<super::indexrpcpb::BulkPutReq, super::indexrpcpb::BulkPutResp> = ::grpcio::Method {
     ty: ::grpcio::MethodType::Unary,
     name: "/indexpb.Index/BulkPut",
     req_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
     resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
 };
 
-const METHOD_INDEX_BULK_DELETE: ::grpcio::Method<super::indexrpcpb::ApplyReq, super::indexrpcpb::BulkDeleteResp> = ::grpcio::Method {
+const METHOD_INDEX_BULK_DELETE: ::grpcio::Method<super::indexrpcpb::BulkDeleteReq, super::indexrpcpb::BulkDeleteResp> = ::grpcio::Method {
     ty: ::grpcio::MethodType::Unary,
     name: "/indexpb.Index/BulkDelete",
     req_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
     resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
 };
 
-const METHOD_INDEX_COMMIT: ::grpcio::Method<super::indexrpcpb::ApplyReq, super::indexrpcpb::CommitResp> = ::grpcio::Method {
+const METHOD_INDEX_COMMIT: ::grpcio::Method<super::indexrpcpb::CommitReq, super::indexrpcpb::CommitResp> = ::grpcio::Method {
     ty: ::grpcio::MethodType::Unary,
     name: "/indexpb.Index/Commit",
     req_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
     resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
 };
 
-const METHOD_INDEX_ROLLBACK: ::grpcio::Method<super::indexrpcpb::ApplyReq, super::indexrpcpb::RollbackResp> = ::grpcio::Method {
+const METHOD_INDEX_ROLLBACK: ::grpcio::Method<super::indexrpcpb::RollbackReq, super::indexrpcpb::RollbackResp> = ::grpcio::Method {
     ty: ::grpcio::MethodType::Unary,
     name: "/indexpb.Index/Rollback",
     req_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
     resp_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
 };
 
-const METHOD_INDEX_MERGE: ::grpcio::Method<super::indexrpcpb::ApplyReq, super::indexrpcpb::MergeResp> = ::grpcio::Method {
+const METHOD_INDEX_MERGE: ::grpcio::Method<super::indexrpcpb::MergeReq, super::indexrpcpb::MergeResp> = ::grpcio::Method {
     ty: ::grpcio::MethodType::Unary,
     name: "/indexpb.Index/Merge",
     req_mar: ::grpcio::Marshaller { ser: ::grpcio::pb_ser, de: ::grpcio::pb_de },
@@ -231,115 +231,115 @@ impl IndexClient {
         self.get_async_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn put_opt(&self, req: &super::indexrpcpb::ApplyReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::PutResp> {
+    pub fn put_opt(&self, req: &super::indexrpcpb::PutReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::PutResp> {
         self.client.unary_call(&METHOD_INDEX_PUT, req, opt)
     }
 
-    pub fn put(&self, req: &super::indexrpcpb::ApplyReq) -> ::grpcio::Result<super::indexrpcpb::PutResp> {
+    pub fn put(&self, req: &super::indexrpcpb::PutReq) -> ::grpcio::Result<super::indexrpcpb::PutResp> {
         self.put_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn put_async_opt(&self, req: &super::indexrpcpb::ApplyReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::PutResp>> {
+    pub fn put_async_opt(&self, req: &super::indexrpcpb::PutReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::PutResp>> {
         self.client.unary_call_async(&METHOD_INDEX_PUT, req, opt)
     }
 
-    pub fn put_async(&self, req: &super::indexrpcpb::ApplyReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::PutResp>> {
+    pub fn put_async(&self, req: &super::indexrpcpb::PutReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::PutResp>> {
         self.put_async_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn delete_opt(&self, req: &super::indexrpcpb::ApplyReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::DeleteResp> {
+    pub fn delete_opt(&self, req: &super::indexrpcpb::DeleteReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::DeleteResp> {
         self.client.unary_call(&METHOD_INDEX_DELETE, req, opt)
     }
 
-    pub fn delete(&self, req: &super::indexrpcpb::ApplyReq) -> ::grpcio::Result<super::indexrpcpb::DeleteResp> {
+    pub fn delete(&self, req: &super::indexrpcpb::DeleteReq) -> ::grpcio::Result<super::indexrpcpb::DeleteResp> {
         self.delete_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn delete_async_opt(&self, req: &super::indexrpcpb::ApplyReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::DeleteResp>> {
+    pub fn delete_async_opt(&self, req: &super::indexrpcpb::DeleteReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::DeleteResp>> {
         self.client.unary_call_async(&METHOD_INDEX_DELETE, req, opt)
     }
 
-    pub fn delete_async(&self, req: &super::indexrpcpb::ApplyReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::DeleteResp>> {
+    pub fn delete_async(&self, req: &super::indexrpcpb::DeleteReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::DeleteResp>> {
         self.delete_async_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn bulk_put_opt(&self, req: &super::indexrpcpb::ApplyReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::BulkPutResp> {
+    pub fn bulk_put_opt(&self, req: &super::indexrpcpb::BulkPutReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::BulkPutResp> {
         self.client.unary_call(&METHOD_INDEX_BULK_PUT, req, opt)
     }
 
-    pub fn bulk_put(&self, req: &super::indexrpcpb::ApplyReq) -> ::grpcio::Result<super::indexrpcpb::BulkPutResp> {
+    pub fn bulk_put(&self, req: &super::indexrpcpb::BulkPutReq) -> ::grpcio::Result<super::indexrpcpb::BulkPutResp> {
         self.bulk_put_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn bulk_put_async_opt(&self, req: &super::indexrpcpb::ApplyReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::BulkPutResp>> {
+    pub fn bulk_put_async_opt(&self, req: &super::indexrpcpb::BulkPutReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::BulkPutResp>> {
         self.client.unary_call_async(&METHOD_INDEX_BULK_PUT, req, opt)
     }
 
-    pub fn bulk_put_async(&self, req: &super::indexrpcpb::ApplyReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::BulkPutResp>> {
+    pub fn bulk_put_async(&self, req: &super::indexrpcpb::BulkPutReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::BulkPutResp>> {
         self.bulk_put_async_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn bulk_delete_opt(&self, req: &super::indexrpcpb::ApplyReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::BulkDeleteResp> {
+    pub fn bulk_delete_opt(&self, req: &super::indexrpcpb::BulkDeleteReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::BulkDeleteResp> {
         self.client.unary_call(&METHOD_INDEX_BULK_DELETE, req, opt)
     }
 
-    pub fn bulk_delete(&self, req: &super::indexrpcpb::ApplyReq) -> ::grpcio::Result<super::indexrpcpb::BulkDeleteResp> {
+    pub fn bulk_delete(&self, req: &super::indexrpcpb::BulkDeleteReq) -> ::grpcio::Result<super::indexrpcpb::BulkDeleteResp> {
         self.bulk_delete_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn bulk_delete_async_opt(&self, req: &super::indexrpcpb::ApplyReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::BulkDeleteResp>> {
+    pub fn bulk_delete_async_opt(&self, req: &super::indexrpcpb::BulkDeleteReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::BulkDeleteResp>> {
         self.client.unary_call_async(&METHOD_INDEX_BULK_DELETE, req, opt)
     }
 
-    pub fn bulk_delete_async(&self, req: &super::indexrpcpb::ApplyReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::BulkDeleteResp>> {
+    pub fn bulk_delete_async(&self, req: &super::indexrpcpb::BulkDeleteReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::BulkDeleteResp>> {
         self.bulk_delete_async_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn commit_opt(&self, req: &super::indexrpcpb::ApplyReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::CommitResp> {
+    pub fn commit_opt(&self, req: &super::indexrpcpb::CommitReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::CommitResp> {
         self.client.unary_call(&METHOD_INDEX_COMMIT, req, opt)
     }
 
-    pub fn commit(&self, req: &super::indexrpcpb::ApplyReq) -> ::grpcio::Result<super::indexrpcpb::CommitResp> {
+    pub fn commit(&self, req: &super::indexrpcpb::CommitReq) -> ::grpcio::Result<super::indexrpcpb::CommitResp> {
         self.commit_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn commit_async_opt(&self, req: &super::indexrpcpb::ApplyReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::CommitResp>> {
+    pub fn commit_async_opt(&self, req: &super::indexrpcpb::CommitReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::CommitResp>> {
         self.client.unary_call_async(&METHOD_INDEX_COMMIT, req, opt)
     }
 
-    pub fn commit_async(&self, req: &super::indexrpcpb::ApplyReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::CommitResp>> {
+    pub fn commit_async(&self, req: &super::indexrpcpb::CommitReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::CommitResp>> {
         self.commit_async_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn rollback_opt(&self, req: &super::indexrpcpb::ApplyReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::RollbackResp> {
+    pub fn rollback_opt(&self, req: &super::indexrpcpb::RollbackReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::RollbackResp> {
         self.client.unary_call(&METHOD_INDEX_ROLLBACK, req, opt)
     }
 
-    pub fn rollback(&self, req: &super::indexrpcpb::ApplyReq) -> ::grpcio::Result<super::indexrpcpb::RollbackResp> {
+    pub fn rollback(&self, req: &super::indexrpcpb::RollbackReq) -> ::grpcio::Result<super::indexrpcpb::RollbackResp> {
         self.rollback_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn rollback_async_opt(&self, req: &super::indexrpcpb::ApplyReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::RollbackResp>> {
+    pub fn rollback_async_opt(&self, req: &super::indexrpcpb::RollbackReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::RollbackResp>> {
         self.client.unary_call_async(&METHOD_INDEX_ROLLBACK, req, opt)
     }
 
-    pub fn rollback_async(&self, req: &super::indexrpcpb::ApplyReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::RollbackResp>> {
+    pub fn rollback_async(&self, req: &super::indexrpcpb::RollbackReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::RollbackResp>> {
         self.rollback_async_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn merge_opt(&self, req: &super::indexrpcpb::ApplyReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::MergeResp> {
+    pub fn merge_opt(&self, req: &super::indexrpcpb::MergeReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<super::indexrpcpb::MergeResp> {
         self.client.unary_call(&METHOD_INDEX_MERGE, req, opt)
     }
 
-    pub fn merge(&self, req: &super::indexrpcpb::ApplyReq) -> ::grpcio::Result<super::indexrpcpb::MergeResp> {
+    pub fn merge(&self, req: &super::indexrpcpb::MergeReq) -> ::grpcio::Result<super::indexrpcpb::MergeResp> {
         self.merge_opt(req, ::grpcio::CallOption::default())
     }
 
-    pub fn merge_async_opt(&self, req: &super::indexrpcpb::ApplyReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::MergeResp>> {
+    pub fn merge_async_opt(&self, req: &super::indexrpcpb::MergeReq, opt: ::grpcio::CallOption) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::MergeResp>> {
         self.client.unary_call_async(&METHOD_INDEX_MERGE, req, opt)
     }
 
-    pub fn merge_async(&self, req: &super::indexrpcpb::ApplyReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::MergeResp>> {
+    pub fn merge_async(&self, req: &super::indexrpcpb::MergeReq) -> ::grpcio::Result<::grpcio::ClientUnaryReceiver<super::indexrpcpb::MergeResp>> {
         self.merge_async_opt(req, ::grpcio::CallOption::default())
     }
 
@@ -386,13 +386,13 @@ pub trait Index {
     fn peers(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::PeersReq, sink: ::grpcio::UnarySink<super::indexrpcpb::PeersResp>);
     fn metrics(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::MetricsReq, sink: ::grpcio::UnarySink<super::indexrpcpb::MetricsResp>);
     fn get(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::GetReq, sink: ::grpcio::UnarySink<super::indexrpcpb::GetResp>);
-    fn put(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::ApplyReq, sink: ::grpcio::UnarySink<super::indexrpcpb::PutResp>);
-    fn delete(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::ApplyReq, sink: ::grpcio::UnarySink<super::indexrpcpb::DeleteResp>);
-    fn bulk_put(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::ApplyReq, sink: ::grpcio::UnarySink<super::indexrpcpb::BulkPutResp>);
-    fn bulk_delete(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::ApplyReq, sink: ::grpcio::UnarySink<super::indexrpcpb::BulkDeleteResp>);
-    fn commit(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::ApplyReq, sink: ::grpcio::UnarySink<super::indexrpcpb::CommitResp>);
-    fn rollback(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::ApplyReq, sink: ::grpcio::UnarySink<super::indexrpcpb::RollbackResp>);
-    fn merge(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::ApplyReq, sink: ::grpcio::UnarySink<super::indexrpcpb::MergeResp>);
+    fn put(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::PutReq, sink: ::grpcio::UnarySink<super::indexrpcpb::PutResp>);
+    fn delete(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::DeleteReq, sink: ::grpcio::UnarySink<super::indexrpcpb::DeleteResp>);
+    fn bulk_put(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::BulkPutReq, sink: ::grpcio::UnarySink<super::indexrpcpb::BulkPutResp>);
+    fn bulk_delete(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::BulkDeleteReq, sink: ::grpcio::UnarySink<super::indexrpcpb::BulkDeleteResp>);
+    fn commit(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::CommitReq, sink: ::grpcio::UnarySink<super::indexrpcpb::CommitResp>);
+    fn rollback(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::RollbackReq, sink: ::grpcio::UnarySink<super::indexrpcpb::RollbackResp>);
+    fn merge(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::MergeReq, sink: ::grpcio::UnarySink<super::indexrpcpb::MergeResp>);
     fn search(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::SearchReq, sink: ::grpcio::UnarySink<super::indexrpcpb::SearchResp>);
     fn schema(&mut self, ctx: ::grpcio::RpcContext, req: super::indexrpcpb::SchemaReq, sink: ::grpcio::UnarySink<super::indexrpcpb::SchemaResp>);
 }

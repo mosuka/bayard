@@ -17,19 +17,19 @@ service Index {
     }
     rpc Get (indexrpcpb.GetReq) returns (indexrpcpb.GetResp) {
     }
-    rpc Put (indexrpcpb.ApplyReq) returns (indexrpcpb.PutResp) {
+    rpc Put (indexrpcpb.PutReq) returns (indexrpcpb.PutResp) {
     }
-    rpc Delete (indexrpcpb.ApplyReq) returns (indexrpcpb.DeleteResp) {
+    rpc Delete (indexrpcpb.DeleteReq) returns (indexrpcpb.DeleteResp) {
     }
-    rpc BulkPut (indexrpcpb.ApplyReq) returns (indexrpcpb.BulkPutResp) {
+    rpc BulkPut (indexrpcpb.BulkPutReq) returns (indexrpcpb.BulkPutResp) {
     }
-    rpc BulkDelete (indexrpcpb.ApplyReq) returns (indexrpcpb.BulkDeleteResp) {
+    rpc BulkDelete (indexrpcpb.BulkDeleteReq) returns (indexrpcpb.BulkDeleteResp) {
     }
-    rpc Commit (indexrpcpb.ApplyReq) returns (indexrpcpb.CommitResp) {
+    rpc Commit (indexrpcpb.CommitReq) returns (indexrpcpb.CommitResp) {
     }
-    rpc Rollback (indexrpcpb.ApplyReq) returns (indexrpcpb.RollbackResp) {
+    rpc Rollback (indexrpcpb.RollbackReq) returns (indexrpcpb.RollbackResp) {
     }
-    rpc Merge (indexrpcpb.ApplyReq) returns (indexrpcpb.MergeResp) {
+    rpc Merge (indexrpcpb.MergeReq) returns (indexrpcpb.MergeResp) {
     }
     rpc Search (indexrpcpb.SearchReq) returns (indexrpcpb.SearchResp) {
     }

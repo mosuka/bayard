@@ -305,7 +305,7 @@ The document can have any number of values associated to the document. This is m
 <p>Here is a sample schema:</p>
 <pre><code class="language-json">[
   {
-    &quot;name&quot;: &quot;id&quot;,
+    &quot;name&quot;: &quot;_id&quot;,
     &quot;type&quot;: &quot;text&quot;,
     &quot;options&quot;: {
       &quot;indexing&quot;: {
@@ -353,8 +353,8 @@ The document can have any number of values associated to the document. This is m
     &quot;type&quot;: &quot;u64&quot;,
     &quot;options&quot;: {
       &quot;indexed&quot;: true,
-      &quot;stored&quot;: true,
-      &quot;fast&quot;: &quot;single&quot;
+      &quot;fast&quot;: &quot;single&quot;,
+      &quot;stored&quot;: true
     }
   },
   {
@@ -366,8 +366,8 @@ The document can have any number of values associated to the document. This is m
     &quot;type&quot;: &quot;date&quot;,
     &quot;options&quot;: {
       &quot;indexed&quot;: true,
-      &quot;stored&quot;: true,
-      &quot;fast&quot;: &quot;single&quot;
+      &quot;fast&quot;: &quot;single&quot;,
+      &quot;stored&quot;: true
     }
   }
 ]

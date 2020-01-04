@@ -110,7 +110,7 @@ Here is a sample schema:
 ```json
 [
   {
-    "name": "id",
+    "name": "_id",
     "type": "text",
     "options": {
       "indexing": {
@@ -158,8 +158,8 @@ Here is a sample schema:
     "type": "u64",
     "options": {
       "indexed": true,
-      "stored": true,
-      "fast": "single"
+      "fast": "single",
+      "stored": true
     }
   },
   {
@@ -171,8 +171,8 @@ Here is a sample schema:
     "type": "date",
     "options": {
       "indexed": true,
-      "stored": true,
-      "fast": "single"
+      "fast": "single",
+      "stored": true
     }
   }
 ]

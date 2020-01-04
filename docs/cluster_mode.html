@@ -181,7 +181,7 @@ Recommend 3 or more odd number of servers in the cluster to avoid split-brain.<b
 When deploying to a single host, if that host goes down due to hardware failure, all of the servers in the cluster will be stopped, so recommend deploying to a different host.</p>
 <h2><a class="header" href="#cluster-peers" id="cluster-peers">Cluster peers</a></h2>
 <p>You can check the peers in the cluster with the following command:</p>
-<pre><code class="language-text">$ ./bin/bayard peers --servers localhost:5001 | jq .
+<pre><code class="language-text">$ ./bin/bayard peers --server localhost:5001 | jq .
 </code></pre>
 <p>You'll see the result in JSON format. The result of the above command is:</p>
 <pre><code class="language-json">{

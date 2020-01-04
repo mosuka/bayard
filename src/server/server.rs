@@ -23,10 +23,10 @@ use tantivy::{Document, Index, IndexWriter, Term};
 use crate::client::client::{create_client, Clerk};
 use crate::proto::indexpb_grpc::{self, Index as IndexService, IndexClient};
 use crate::proto::indexrpcpb::{
-    ApplyReq, BulkDeleteResp, BulkPutResp, CommitResp, ConfChangeReq, DeleteResp, GetReq, GetResp,
-    JoinReq, LeaveReq, MergeResp, MetricsReq, MetricsResp, PeersReq, PeersResp, ProbeReq,
-    ProbeResp, PutResp, RaftDone, ReqType, RespErr, RollbackResp, SchemaReq, SchemaResp, SearchReq,
-    SearchResp,
+    ApplyReq, BulkDeleteReq, BulkDeleteResp, BulkPutReq, BulkPutResp, CommitReq, CommitResp,
+    ConfChangeReq, DeleteReq, DeleteResp, GetReq, GetResp, JoinReq, LeaveReq, MergeReq, MergeResp,
+    MetricsReq, MetricsResp, PeersReq, PeersResp, ProbeReq, ProbeResp, PutReq, PutResp, RaftDone,
+    ReqType, RespErr, RollbackReq, RollbackResp, SchemaReq, SchemaResp, SearchReq, SearchResp,
 };
 use crate::server::metrics::Metrics;
 use crate::server::peer::PeerMessage;
@@ -172,7 +172,7 @@ impl IndexServer {
         });
     }
 
-    fn start_op(&mut self, req: &ApplyReq) -> (RespErr, String) {
+    fn apply(&mut self, req: &ApplyReq) -> (RespErr, String) {
         let (sh, rh) = mpsc::sync_channel(0);
         {
             let mut map = self.notify_ch_map.lock().unwrap();
@@ -543,7 +543,7 @@ impl IndexService for IndexServer {
                 apply_req.set_leave_req(leave_req);
             }
         }
-        let (err, _) = self.start_op(&apply_req);
+        let (err, _) = self.apply(&apply_req);
         match err {
             RespErr::OK => {
                 let (sh, rh) = mpsc::sync_channel(0);
@@ -654,10 +654,15 @@ impl IndexService for IndexServer {
         )
     }
 
-    fn put(&mut self, ctx: RpcContext, req: ApplyReq, sink: UnarySink<PutResp>) {
+    fn put(&mut self, ctx: RpcContext, req: PutReq, sink: UnarySink<PutResp>) {
         debug!("request: {:?}", req);
 
-        let (err, ret) = Self::start_op(self, &req);
+        let mut apply_req = ApplyReq::new();
+        apply_req.set_client_id(req.get_client_id());
+        apply_req.set_req_type(ReqType::Put);
+        apply_req.set_put_req(req.to_owned());
+
+        let (err, ret) = Self::apply(self, &apply_req);
         let mut resp = PutResp::new();
         resp.set_err(err);
         resp.set_value(ret);
@@ -666,14 +671,19 @@ impl IndexService for IndexServer {
 
         ctx.spawn(
             sink.success(resp)
-                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
+                .map_err(move |e| error!("failed to reply {:?}: {:?}", apply_req, e)),
         )
     }
 
-    fn delete(&mut self, ctx: RpcContext, req: ApplyReq, sink: UnarySink<DeleteResp>) {
+    fn delete(&mut self, ctx: RpcContext, req: DeleteReq, sink: UnarySink<DeleteResp>) {
         debug!("request: {:?}", req);
 
-        let (err, ret) = Self::start_op(self, &req);
+        let mut apply_req = ApplyReq::new();
+        apply_req.set_client_id(req.get_client_id());
+        apply_req.set_req_type(ReqType::Delete);
+        apply_req.set_delete_req(req.to_owned());
+
+        let (err, ret) = Self::apply(self, &apply_req);
         let mut resp = DeleteResp::new();
         resp.set_err(err);
         resp.set_value(ret);
@@ -682,14 +692,19 @@ impl IndexService for IndexServer {
 
         ctx.spawn(
             sink.success(resp)
-                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
+                .map_err(move |e| error!("failed to reply {:?}: {:?}", apply_req, e)),
         )
     }
 
-    fn bulk_put(&mut self, ctx: RpcContext, req: ApplyReq, sink: UnarySink<BulkPutResp>) {
+    fn bulk_put(&mut self, ctx: RpcContext, req: BulkPutReq, sink: UnarySink<BulkPutResp>) {
         debug!("request: {:?}", req);
 
-        let (err, ret) = Self::start_op(self, &req);
+        let mut apply_req = ApplyReq::new();
+        apply_req.set_client_id(req.get_client_id());
+        apply_req.set_req_type(ReqType::BulkPut);
+        apply_req.set_bulk_put_req(req.to_owned());
+
+        let (err, ret) = Self::apply(self, &apply_req);
         let mut resp = BulkPutResp::new();
         resp.set_err(err);
         resp.set_value(ret);
@@ -698,14 +713,24 @@ impl IndexService for IndexServer {
 
         ctx.spawn(
             sink.success(resp)
-                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
+                .map_err(move |e| error!("failed to reply {:?}: {:?}", apply_req, e)),
         )
     }
 
-    fn bulk_delete(&mut self, ctx: RpcContext, req: ApplyReq, sink: UnarySink<BulkDeleteResp>) {
+    fn bulk_delete(
+        &mut self,
+        ctx: RpcContext,
+        req: BulkDeleteReq,
+        sink: UnarySink<BulkDeleteResp>,
+    ) {
         debug!("request: {:?}", req);
 
-        let (err, ret) = Self::start_op(self, &req);
+        let mut apply_req = ApplyReq::new();
+        apply_req.set_client_id(req.get_client_id());
+        apply_req.set_req_type(ReqType::BulkDelete);
+        apply_req.set_bulk_delete_req(req.to_owned());
+
+        let (err, ret) = Self::apply(self, &apply_req);
         let mut resp = BulkDeleteResp::new();
         resp.set_err(err);
         resp.set_value(ret);
@@ -714,14 +739,19 @@ impl IndexService for IndexServer {
 
         ctx.spawn(
             sink.success(resp)
-                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
+                .map_err(move |e| error!("failed to reply {:?}: {:?}", apply_req, e)),
         )
     }
 
-    fn commit(&mut self, ctx: RpcContext, req: ApplyReq, sink: UnarySink<CommitResp>) {
+    fn commit(&mut self, ctx: RpcContext, req: CommitReq, sink: UnarySink<CommitResp>) {
         debug!("request: {:?}", req);
 
-        let (err, ret) = Self::start_op(self, &req);
+        let mut apply_req = ApplyReq::new();
+        apply_req.set_client_id(req.get_client_id());
+        apply_req.set_req_type(ReqType::Commit);
+        apply_req.set_commit_req(req.to_owned());
+
+        let (err, ret) = Self::apply(self, &apply_req);
         let mut resp = CommitResp::new();
         resp.set_err(err);
         resp.set_value(ret);
@@ -730,14 +760,19 @@ impl IndexService for IndexServer {
 
         ctx.spawn(
             sink.success(resp)
-                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
+                .map_err(move |e| error!("failed to reply {:?}: {:?}", apply_req, e)),
         )
     }
 
-    fn rollback(&mut self, ctx: RpcContext, req: ApplyReq, sink: UnarySink<RollbackResp>) {
+    fn rollback(&mut self, ctx: RpcContext, req: RollbackReq, sink: UnarySink<RollbackResp>) {
         debug!("request: {:?}", req);
 
-        let (err, ret) = Self::start_op(self, &req);
+        let mut apply_req = ApplyReq::new();
+        apply_req.set_client_id(req.get_client_id());
+        apply_req.set_req_type(ReqType::Rollback);
+        apply_req.set_rollback_req(req.to_owned());
+
+        let (err, ret) = Self::apply(self, &apply_req);
         let mut resp = RollbackResp::new();
         resp.set_err(err);
         resp.set_value(ret);
@@ -746,14 +781,19 @@ impl IndexService for IndexServer {
 
         ctx.spawn(
             sink.success(resp)
-                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
+                .map_err(move |e| error!("failed to reply {:?}: {:?}", apply_req, e)),
         )
     }
 
-    fn merge(&mut self, ctx: RpcContext, req: ApplyReq, sink: UnarySink<MergeResp>) {
+    fn merge(&mut self, ctx: RpcContext, req: MergeReq, sink: UnarySink<MergeResp>) {
         debug!("request: {:?}", req);
 
-        let (err, ret) = Self::start_op(self, &req);
+        let mut apply_req = ApplyReq::new();
+        apply_req.set_client_id(req.get_client_id());
+        apply_req.set_req_type(ReqType::Merge);
+        apply_req.set_merge_req(req.to_owned());
+
+        let (err, ret) = Self::apply(self, &apply_req);
         let mut resp = MergeResp::new();
         resp.set_err(err);
         resp.set_value(ret);
@@ -762,7 +802,7 @@ impl IndexService for IndexServer {
 
         ctx.spawn(
             sink.success(resp)
-                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
+                .map_err(move |e| error!("failed to reply {:?}: {:?}", apply_req, e)),
         )
     }
 
