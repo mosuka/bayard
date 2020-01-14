@@ -27,7 +27,7 @@
     "options": {
       "indexing": {
         "record": "position",
-        "tokenizer": "en_stem"
+        "tokenizer": "bi_ngram"
       },
       "stored": true
     }
@@ -38,7 +38,7 @@
     "options": {
       "indexing": {
         "record": "position",
-        "tokenizer": "en_stem"
+        "tokenizer": "en_text"
       },
       "stored": true
     }

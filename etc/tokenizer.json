@@ -1,0 +1,80 @@
+{
+  "raw": {
+    "tokenizer": {
+      "name": "raw"
+    }
+  },
+  "default": {
+    "tokenizer": {
+      "name": "simple"
+    },
+    "filters": [
+      {
+        "name": "remove_long",
+        "args": {
+          "length_limit": 80
+        }
+      },
+      {
+        "name": "lower_case"
+      }
+    ]
+  },
+  "en_text": {
+    "tokenizer": {
+      "name": "simple"
+    },
+    "filters": [
+      {
+        "name": "lower_case"
+      }
+    ]
+  },
+  "en_text2": {
+    "tokenizer": {
+      "name": "simple"
+    },
+    "filters": [
+      {
+        "name": "remove_long",
+        "args": {
+          "length_limit": 50
+        }
+      },
+      {
+        "name": "lower_case"
+      },
+      {
+        "name": "stemming",
+        "args": {
+          "stemmer_algorithm": "english"
+        }
+      },
+      {
+        "name": "stop_word",
+        "args": {
+          "words": [
+            "a", "an", "and", "are", "as", "at", "be", "but", "by", "for", "if", "in", "into",
+            "is", "it", "no", "not", "of", "on", "or", "such", "that", "the", "their", "then",
+            "there", "these", "they", "this", "to", "was", "will", "with"
+          ]
+        }
+      }
+    ]
+  },
+  "bi_ngram": {
+    "tokenizer": {
+      "name": "ngram",
+      "args": {
+        "min_gram": 1,
+        "max_gram": 2,
+        "prefix_only": false
+      }
+    },
+    "filters": [
+      {
+        "name": "lower_case"
+      }
+    ]
+  }
+}

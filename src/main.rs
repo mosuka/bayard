@@ -109,6 +109,14 @@ fn main() {
                         .takes_value(true),
                 )
                 .arg(
+                    Arg::with_name("TOKENIZER_FILE")
+                        .help("Tokenizer file. Must specify An existing file name. If not specified, use the default settings.")
+                        .short("T")
+                        .long("tokenizer-file")
+                        .value_name("TOKENIZER_FILE")
+                        .takes_value(true),
+                )
+                .arg(
                     Arg::with_name("INDEXER_THREADS")
                         .help("Number of indexer threads. If not specified, number of CPU cores - 1 will be used.")
                         .short("t")

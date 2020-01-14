@@ -21,6 +21,9 @@ build:
 	cargo build --release
 	cp -p ./target/release/bayard $(BIN_DIR)
 
+test:
+	cargo test
+
 build-docker:
 	docker build -t bayardsearch/bayard:latest .
 	docker tag bayardsearch/bayard:latest bayardsearch/bayard:$(VERSION)

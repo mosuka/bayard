@@ -24,6 +24,11 @@ pub fn run_serve_cli(matches: &ArgMatches) -> Result<(), String> {
     }
     let data_directory = matches.value_of("DATA_DIRECTORY").unwrap();
     let schema_file = matches.value_of("SCHEMA_FILE").unwrap();
+    let mut tokenizer_file = "";
+    if let Some(f) = matches.value_of("TOKENIZER_FILE") {
+        tokenizer_file = f;
+    }
+
     let indexer_threads = matches
         .value_of("INDEXER_THREADS")
         .unwrap()
@@ -42,6 +47,7 @@ pub fn run_serve_cli(matches: &ArgMatches) -> Result<(), String> {
         peers_addr,
         data_directory,
         schema_file,
+        tokenizer_file,
         indexer_threads,
         indexer_memory_size,
     );

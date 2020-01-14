@@ -31,6 +31,7 @@ use crate::proto::indexrpcpb::{
 use crate::server::metrics::Metrics;
 use crate::server::peer::PeerMessage;
 use crate::server::{peer, util};
+use crate::tokenizer::tokenizer_initializer::TokenizerInitializer;
 use crate::util::search_result::{ScoredNamedFieldDocument, SearchResult};
 use crate::util::signal::sigterm_channel;
 
@@ -56,6 +57,7 @@ impl IndexServer {
         peers_addr: HashMap<u64, String>,
         data_directory: &str,
         schema_file: &str,
+        tokenizer_file: &str,
         indexer_threads: usize,
         indexer_memory_size: usize,
     ) {
@@ -80,6 +82,14 @@ impl IndexServer {
             Index::create_in_dir(index_path.to_str().unwrap(), schema).unwrap()
         };
 
+        if tokenizer_file != "" {
+            debug!("{}", tokenizer_file);
+            let tokenizer_content = fs::read_to_string(tokenizer_file).unwrap();
+            let mut tokenizer_initializer = TokenizerInitializer::new();
+            tokenizer_initializer.init(index.tokenizers(), tokenizer_content.as_str());
+            // TokenizerInitializer::init(index.tokenizers(), tokenizer_content.as_str())
+        }
+
         let index_writer = if indexer_threads > 0 {
             index
                 .writer_with_num_threads(indexer_threads, indexer_memory_size)
@@ -88,7 +98,7 @@ impl IndexServer {
             index.writer(indexer_memory_size).unwrap()
         };
         index_writer.set_merge_policy(Box::new(LogMergePolicy::default()));
-        //        index_writer.set_merge_policy(Box::new(NoMergePolicy));
+        // index_writer.set_merge_policy(Box::new(NoMergePolicy));
 
         let (rf_sender, rf_receiver) = mpsc::sync_channel(100);
         let (rpc_sender, rpc_receiver) = mpsc::sync_channel(100);
