@@ -408,6 +408,7 @@ mod tests {
         let manager = TokenizerManager::default();
 
         let mut initializer = TokenizerInitializer::new();
+        initializer.initialize(&manager);
         initializer.configure(&manager, config);
 
         let tokenizer = manager.get("lang_en").unwrap();

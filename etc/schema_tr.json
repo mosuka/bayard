@@ -27,7 +27,7 @@
     "options": {
       "indexing": {
         "record": "position",
-        "tokenizer": "bingram"
+        "tokenizer": "bigram"
       },
       "stored": true
     }

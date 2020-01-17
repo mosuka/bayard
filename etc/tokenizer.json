@@ -52,7 +52,7 @@
       }
     ]
   },
-  "bingram": {
+  "bigram": {
     "tokenizer": {
       "name": "ngram",
       "args": {
