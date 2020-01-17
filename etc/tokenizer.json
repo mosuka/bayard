@@ -20,17 +20,7 @@
       }
     ]
   },
-  "en_text": {
-    "tokenizer": {
-      "name": "simple"
-    },
-    "filters": [
-      {
-        "name": "lower_case"
-      }
-    ]
-  },
-  "en_text2": {
+  "lang_en": {
     "tokenizer": {
       "name": "simple"
     },
@@ -62,7 +52,7 @@
       }
     ]
   },
-  "bi_ngram": {
+  "bingram": {
     "tokenizer": {
       "name": "ngram",
       "args": {

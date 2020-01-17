@@ -1,6 +1,10 @@
+use cang_jie::CangJieTokenizer;
 use log::*;
 use serde_json::Value;
-use tantivy::tokenizer::TokenizerManager;
+use tantivy::tokenizer::{
+    AsciiFoldingFilter, Language, LowerCaser, NgramTokenizer, RemoveLongFilter, SimpleTokenizer,
+    Stemmer, Tokenizer, TokenizerManager,
+};
 
 use crate::tokenizer::alpha_num_only_filter_factory::AlphaNumOnlyFilterFactory;
 use crate::tokenizer::ascii_folding_filter_factory::AsciiFoldingFilterFactory;
@@ -44,7 +48,180 @@ impl TokenizerInitializer {
         }
     }
 
-    pub fn init(&mut self, manager: &TokenizerManager, config: &str) {
+    pub fn initialize(&mut self, manager: &TokenizerManager) {
+        // pre-configured tokenizers
+        manager.register(
+            "unigram",
+            NgramTokenizer::new(1, 1, false)
+                .filter(LowerCaser)
+                .filter(AsciiFoldingFilter),
+        );
+        manager.register(
+            "bigram",
+            NgramTokenizer::new(1, 2, false)
+                .filter(LowerCaser)
+                .filter(AsciiFoldingFilter),
+        );
+        manager.register(
+            "trigram",
+            NgramTokenizer::new(1, 3, false)
+                .filter(LowerCaser)
+                .filter(AsciiFoldingFilter),
+        );
+        manager.register(
+            "lang_ar",
+            SimpleTokenizer
+                .filter(RemoveLongFilter::limit(40))
+                .filter(LowerCaser)
+                .filter(AsciiFoldingFilter)
+                .filter(Stemmer::new(Language::Arabic)),
+        );
+        manager.register(
+            "lang_da",
+            SimpleTokenizer
+                .filter(RemoveLongFilter::limit(40))
+                .filter(LowerCaser)
+                .filter(AsciiFoldingFilter)
+                .filter(Stemmer::new(Language::Danish)),
+        );
+        manager.register(
+            "lang_de",
+            SimpleTokenizer
+                .filter(RemoveLongFilter::limit(40))
+                .filter(LowerCaser)
+                .filter(AsciiFoldingFilter)
+                .filter(Stemmer::new(Language::German)),
+        );
+        manager.register(
+            "lang_el",
+            SimpleTokenizer
+                .filter(RemoveLongFilter::limit(40))
+                .filter(LowerCaser)
+                .filter(AsciiFoldingFilter)
+                .filter(Stemmer::new(Language::Greek)),
+        );
+        manager.register(
+            "lang_en",
+            SimpleTokenizer
+                .filter(RemoveLongFilter::limit(40))
+                .filter(LowerCaser)
+                .filter(AsciiFoldingFilter)
+                .filter(Stemmer::new(Language::English)),
+        );
+        manager.register(
+            "lang_es",
+            SimpleTokenizer
+                .filter(RemoveLongFilter::limit(40))
+                .filter(LowerCaser)
+                .filter(AsciiFoldingFilter)
+                .filter(Stemmer::new(Language::Spanish)),
+        );
+        manager.register(
+            "lang_fi",
+            SimpleTokenizer
+                .filter(RemoveLongFilter::limit(40))
+                .filter(LowerCaser)
+                .filter(AsciiFoldingFilter)
+                .filter(Stemmer::new(Language::Finnish)),
+        );
+        manager.register(
+            "lang_fr",
+            SimpleTokenizer
+                .filter(RemoveLongFilter::limit(40))
+                .filter(LowerCaser)
+                .filter(AsciiFoldingFilter)
+                .filter(Stemmer::new(Language::French)),
+        );
+        manager.register(
+            "lang_hu",
+            SimpleTokenizer
+                .filter(RemoveLongFilter::limit(40))
+                .filter(LowerCaser)
+                .filter(AsciiFoldingFilter)
+                .filter(Stemmer::new(Language::Hungarian)),
+        );
+        manager.register(
+            "lang_it",
+            SimpleTokenizer
+                .filter(RemoveLongFilter::limit(40))
+                .filter(LowerCaser)
+                .filter(AsciiFoldingFilter)
+                .filter(Stemmer::new(Language::Italian)),
+        );
+        manager.register(
+            "lang_nl",
+            SimpleTokenizer
+                .filter(RemoveLongFilter::limit(40))
+                .filter(LowerCaser)
+                .filter(AsciiFoldingFilter)
+                .filter(Stemmer::new(Language::Dutch)),
+        );
+        manager.register(
+            "lang_no",
+            SimpleTokenizer
+                .filter(RemoveLongFilter::limit(40))
+                .filter(LowerCaser)
+                .filter(AsciiFoldingFilter)
+                .filter(Stemmer::new(Language::Norwegian)),
+        );
+        manager.register(
+            "lang_pt",
+            SimpleTokenizer
+                .filter(RemoveLongFilter::limit(40))
+                .filter(LowerCaser)
+                .filter(AsciiFoldingFilter)
+                .filter(Stemmer::new(Language::Portuguese)),
+        );
+        manager.register(
+            "lang_ro",
+            SimpleTokenizer
+                .filter(RemoveLongFilter::limit(40))
+                .filter(LowerCaser)
+                .filter(AsciiFoldingFilter)
+                .filter(Stemmer::new(Language::Romanian)),
+        );
+        manager.register(
+            "lang_ru",
+            SimpleTokenizer
+                .filter(RemoveLongFilter::limit(40))
+                .filter(LowerCaser)
+                .filter(AsciiFoldingFilter)
+                .filter(Stemmer::new(Language::Russian)),
+        );
+        manager.register(
+            "lang_sv",
+            SimpleTokenizer
+                .filter(RemoveLongFilter::limit(40))
+                .filter(LowerCaser)
+                .filter(AsciiFoldingFilter)
+                .filter(Stemmer::new(Language::Swedish)),
+        );
+        manager.register(
+            "lang_ta",
+            SimpleTokenizer
+                .filter(RemoveLongFilter::limit(40))
+                .filter(LowerCaser)
+                .filter(AsciiFoldingFilter)
+                .filter(Stemmer::new(Language::Tamil)),
+        );
+        manager.register(
+            "lang_tr",
+            SimpleTokenizer
+                .filter(RemoveLongFilter::limit(40))
+                .filter(LowerCaser)
+                .filter(AsciiFoldingFilter)
+                .filter(Stemmer::new(Language::Turkish)),
+        );
+        manager.register(
+            "lang_zh",
+            CangJieTokenizer::default()
+                .filter(RemoveLongFilter::limit(40))
+                .filter(LowerCaser)
+                .filter(AsciiFoldingFilter),
+        );
+    }
+
+    pub fn configure(&mut self, manager: &TokenizerManager, config: &str) {
         let config_value: Value = serde_json::from_str(config).unwrap();
 
         let config_map = config_value.as_object().unwrap();
@@ -182,22 +359,18 @@ mod tests {
     use std::fs;
     use std::path::PathBuf;
 
-    use tantivy::tokenizer::{LowerCaser, SimpleTokenizer, Tokenizer, TokenizerManager};
+    use tantivy::tokenizer::{LowerCaser, SimpleTokenizer, TokenizerManager};
 
     use crate::tokenizer::lower_case_filter_factory::LowerCaseFilterFactory;
     use crate::tokenizer::simple_tokenizer_factory::SimpleTokenizerFactory;
     use crate::tokenizer::stop_word_filter_factory::StopWordFilterFactory;
     use crate::tokenizer::tokenizer_initializer::TokenizerInitializer;
 
-    fn read_file(path: &str) -> String {
-        fs::read_to_string(path).unwrap()
-    }
-
     #[test]
     fn test_tokenizer() {
         let config = r#"
             {
-              "en_text": {
+              "lang_en": {
                 "tokenizer": {
                   "name": "simple"
                 },
@@ -235,10 +408,10 @@ mod tests {
         let manager = TokenizerManager::default();
 
         let mut initializer = TokenizerInitializer::new();
-        initializer.init(&manager, config);
+        initializer.configure(&manager, config);
 
-        let tokenizer = manager.get("en_text").unwrap();
-        let mut stream = tokenizer.token_stream("HELLO world!");
+        let tokenizer = manager.get("lang_en").unwrap();
+        let mut stream = tokenizer.token_stream("hello world!");
         {
             let token = stream.next().unwrap();
             assert_eq!(token.text, "hello");

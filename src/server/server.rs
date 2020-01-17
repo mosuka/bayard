@@ -82,12 +82,13 @@ impl IndexServer {
             Index::create_in_dir(index_path.to_str().unwrap(), schema).unwrap()
         };
 
+        let mut tokenizer_initializer = TokenizerInitializer::new();
+        tokenizer_initializer.initialize(index.tokenizers());
+
         if tokenizer_file != "" {
             debug!("{}", tokenizer_file);
             let tokenizer_content = fs::read_to_string(tokenizer_file).unwrap();
-            let mut tokenizer_initializer = TokenizerInitializer::new();
-            tokenizer_initializer.init(index.tokenizers(), tokenizer_content.as_str());
-            // TokenizerInitializer::init(index.tokenizers(), tokenizer_content.as_str())
+            tokenizer_initializer.configure(index.tokenizers(), tokenizer_content.as_str());
         }
 
         let index_writer = if indexer_threads > 0 {
