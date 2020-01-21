@@ -16,8 +16,7 @@ RUN set -ex \
     && rm -rf /var/lib/apt/lists/*
 
 # Cache dependencies.
-# COPY ./Cargo.toml ./Cargo.lock ./
-COPY ./Cargo.toml ./
+COPY ./Cargo.toml ./Cargo.lock ./
 RUN mkdir -p src \
     && echo "fn main() {}" > src/main.rs \
     && touch src/lib.rs \
