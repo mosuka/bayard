@@ -1,4 +1,4 @@
-FROM rust:1.38.0-slim-stretch as builder
+FROM rust:1.39.0-slim-stretch as builder
 
 WORKDIR /repo
 ADD . /repo/

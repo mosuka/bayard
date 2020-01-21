@@ -1,10 +1,10 @@
+use std::{fs, thread};
 use std::collections::HashMap;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
-use std::sync::mpsc::{self, Receiver, SyncSender};
 use std::sync::{Arc, Mutex};
+use std::sync::mpsc::{self, Receiver, SyncSender};
 use std::time::Duration;
-use std::{fs, thread};
 
 use async_std::task::block_on;
 use crossbeam_channel::select;
@@ -14,13 +14,13 @@ use log::*;
 use protobuf::Message;
 use raft::eraftpb::{ConfChange, ConfChangeType, Entry, EntryType, Message as RaftMessage};
 use stringreader::StringReader;
+use tantivy::{Document, Index, IndexWriter, Term};
 use tantivy::collector::{Count, FacetCollector, MultiCollector, TopDocs};
 use tantivy::merge_policy::LogMergePolicy;
 use tantivy::query::{QueryParser, TermQuery};
 use tantivy::schema::{Field, FieldType, IndexRecordOption, Schema};
-use tantivy::{Document, Index, IndexWriter, Term};
 
-use crate::client::client::{create_client, Clerk};
+use crate::client::client::{Clerk, create_client};
 use crate::proto::indexpb_grpc::{self, Index as IndexService, IndexClient};
 use crate::proto::indexrpcpb::{
     ApplyReq, BulkDeleteReq, BulkDeleteResp, BulkPutReq, BulkPutResp, CommitReq, CommitResp,
@@ -28,9 +28,10 @@ use crate::proto::indexrpcpb::{
     MetricsReq, MetricsResp, PeersReq, PeersResp, ProbeReq, ProbeResp, PutReq, PutResp, RaftDone,
     ReqType, RespErr, RollbackReq, RollbackResp, SchemaReq, SchemaResp, SearchReq, SearchResp,
 };
+use crate::server::{peer, util};
 use crate::server::metrics::Metrics;
 use crate::server::peer::PeerMessage;
-use crate::server::{peer, util};
+use crate::tokenizer::tokenizer_initializer::TokenizerInitializer;
 use crate::util::search_result::{ScoredNamedFieldDocument, SearchResult};
 use crate::util::signal::sigterm_channel;
 
@@ -56,6 +57,7 @@ impl IndexServer {
         peers_addr: HashMap<u64, String>,
         data_directory: &str,
         schema_file: &str,
+        tokenizer_file: &str,
         indexer_threads: usize,
         indexer_memory_size: usize,
     ) {
@@ -80,6 +82,16 @@ impl IndexServer {
             Index::create_in_dir(index_path.to_str().unwrap(), schema).unwrap()
         };
 
+        let mut tokenizer_initializer = TokenizerInitializer::new();
+        tokenizer_initializer.initialize(index.tokenizers());
+
+        if tokenizer_file != "" {
+            debug!("{}", tokenizer_file);
+            warn!("Not implemented yet.");
+            // let tokenizer_content = fs::read_to_string(tokenizer_file).unwrap();
+            // tokenizer_initializer.configure(index.tokenizers(), tokenizer_content.as_str());
+        }
+
         let index_writer = if indexer_threads > 0 {
             index
                 .writer_with_num_threads(indexer_threads, indexer_memory_size)
@@ -88,7 +100,7 @@ impl IndexServer {
             index.writer(indexer_memory_size).unwrap()
         };
         index_writer.set_merge_policy(Box::new(LogMergePolicy::default()));
-        //        index_writer.set_merge_policy(Box::new(NoMergePolicy));
+        // index_writer.set_merge_policy(Box::new(NoMergePolicy));
 
         let (rf_sender, rf_receiver) = mpsc::sync_channel(100);
         let (rpc_sender, rpc_receiver) = mpsc::sync_channel(100);
