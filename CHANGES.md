@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+
+- Fix Dockerfile #66 @mosuka
+- chore: Add Cargo.lock #65 @kenoss
+- chore: Use docker layer cache #64 @kenoss
 
 ## 0.4.0 (2020-01-21)
 - Initialize TokenizerManager #61 @mosuka
