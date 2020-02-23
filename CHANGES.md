@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## 0.5.0 (2020-02-23)
 - Make the text anlyzers configurable #68 @mosuka
 - Fix Dockerfile #66 @mosuka
 - chore: Add Cargo.lock #65 @kenoss
