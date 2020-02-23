@@ -11,6 +11,7 @@ readme = "README.md"
 keywords = ["search", "index", "server", "information", "retrieval"]
 categories = ["database"]
 license = "MIT"
+exclude = ["docs", "docs_src", "etc"]
 
 [lib]
 name = "bayard"

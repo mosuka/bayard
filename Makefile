@@ -8,7 +8,6 @@ endif
 
 clean:
 	rm -rf $(BIN_DIR)
-	rm -rf $(DOCS_DIR)
 	cargo clean
 
 format:
@@ -39,4 +38,5 @@ clean-docker:
 
 .PHONY: docs
 docs:
+	rm -rf $(DOCS_DIR)
 	mdbook build
