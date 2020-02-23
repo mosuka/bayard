@@ -1,13 +1,10 @@
-use cang_jie::CangJieTokenizer;
 use log::*;
 use serde_json::Value;
-use tantivy::tokenizer::{
-    AsciiFoldingFilter, Language, LowerCaser, NgramTokenizer, RemoveLongFilter, SimpleTokenizer,
-    Stemmer, Tokenizer, TokenizerManager,
-};
+use tantivy::tokenizer::{BoxTokenFilter, TextAnalyzer, TokenizerManager};
 
 use crate::tokenizer::alpha_num_only_filter_factory::AlphaNumOnlyFilterFactory;
 use crate::tokenizer::ascii_folding_filter_factory::AsciiFoldingFilterFactory;
+use crate::tokenizer::cang_jie_tokenizer_factory::CangJieTokenizerFactory;
 use crate::tokenizer::facet_tokenizer_factory::FacetTokenizerFactory;
 use crate::tokenizer::lower_case_filter_factory::LowerCaseFilterFactory;
 use crate::tokenizer::ngram_tokenizer_factory::NgramTokenizerFactory;
@@ -22,6 +19,7 @@ pub struct TokenizerInitializer {
     ngram_tokenizer_factory: NgramTokenizerFactory,
     raw_tokenizer_factory: RawTokenizerFactory,
     simple_tokenizer_factory: SimpleTokenizerFactory,
+    cang_jie_tokenizer_factory: CangJieTokenizerFactory,
 
     alpha_num_only_filter_factory: AlphaNumOnlyFilterFactory,
     ascii_folding_filter_factory: AsciiFoldingFilterFactory,
@@ -38,6 +36,7 @@ impl TokenizerInitializer {
             ngram_tokenizer_factory: NgramTokenizerFactory::new(),
             raw_tokenizer_factory: RawTokenizerFactory::new(),
             simple_tokenizer_factory: SimpleTokenizerFactory::new(),
+            cang_jie_tokenizer_factory: CangJieTokenizerFactory::new(),
 
             alpha_num_only_filter_factory: AlphaNumOnlyFilterFactory::new(),
             ascii_folding_filter_factory: AsciiFoldingFilterFactory::new(),
@@ -46,179 +45,6 @@ impl TokenizerInitializer {
             stemming_filter_factory: StemmingFilterFactory::new(),
             stop_word_filter_factory: StopWordFilterFactory::new(),
         }
-    }
-
-    pub fn initialize(&mut self, manager: &TokenizerManager) {
-        // pre-configured tokenizers
-        manager.register(
-            "unigram",
-            NgramTokenizer::new(1, 1, false)
-                .filter(LowerCaser)
-                .filter(AsciiFoldingFilter),
-        );
-        manager.register(
-            "bigram",
-            NgramTokenizer::new(1, 2, false)
-                .filter(LowerCaser)
-                .filter(AsciiFoldingFilter),
-        );
-        manager.register(
-            "trigram",
-            NgramTokenizer::new(1, 3, false)
-                .filter(LowerCaser)
-                .filter(AsciiFoldingFilter),
-        );
-        manager.register(
-            "lang_ar",
-            SimpleTokenizer
-                .filter(RemoveLongFilter::limit(40))
-                .filter(LowerCaser)
-                .filter(AsciiFoldingFilter)
-                .filter(Stemmer::new(Language::Arabic)),
-        );
-        manager.register(
-            "lang_da",
-            SimpleTokenizer
-                .filter(RemoveLongFilter::limit(40))
-                .filter(LowerCaser)
-                .filter(AsciiFoldingFilter)
-                .filter(Stemmer::new(Language::Danish)),
-        );
-        manager.register(
-            "lang_de",
-            SimpleTokenizer
-                .filter(RemoveLongFilter::limit(40))
-                .filter(LowerCaser)
-                .filter(AsciiFoldingFilter)
-                .filter(Stemmer::new(Language::German)),
-        );
-        manager.register(
-            "lang_el",
-            SimpleTokenizer
-                .filter(RemoveLongFilter::limit(40))
-                .filter(LowerCaser)
-                .filter(AsciiFoldingFilter)
-                .filter(Stemmer::new(Language::Greek)),
-        );
-        manager.register(
-            "lang_en",
-            SimpleTokenizer
-                .filter(RemoveLongFilter::limit(40))
-                .filter(LowerCaser)
-                .filter(AsciiFoldingFilter)
-                .filter(Stemmer::new(Language::English)),
-        );
-        manager.register(
-            "lang_es",
-            SimpleTokenizer
-                .filter(RemoveLongFilter::limit(40))
-                .filter(LowerCaser)
-                .filter(AsciiFoldingFilter)
-                .filter(Stemmer::new(Language::Spanish)),
-        );
-        manager.register(
-            "lang_fi",
-            SimpleTokenizer
-                .filter(RemoveLongFilter::limit(40))
-                .filter(LowerCaser)
-                .filter(AsciiFoldingFilter)
-                .filter(Stemmer::new(Language::Finnish)),
-        );
-        manager.register(
-            "lang_fr",
-            SimpleTokenizer
-                .filter(RemoveLongFilter::limit(40))
-                .filter(LowerCaser)
-                .filter(AsciiFoldingFilter)
-                .filter(Stemmer::new(Language::French)),
-        );
-        manager.register(
-            "lang_hu",
-            SimpleTokenizer
-                .filter(RemoveLongFilter::limit(40))
-                .filter(LowerCaser)
-                .filter(AsciiFoldingFilter)
-                .filter(Stemmer::new(Language::Hungarian)),
-        );
-        manager.register(
-            "lang_it",
-            SimpleTokenizer
-                .filter(RemoveLongFilter::limit(40))
-                .filter(LowerCaser)
-                .filter(AsciiFoldingFilter)
-                .filter(Stemmer::new(Language::Italian)),
-        );
-        manager.register(
-            "lang_nl",
-            SimpleTokenizer
-                .filter(RemoveLongFilter::limit(40))
-                .filter(LowerCaser)
-                .filter(AsciiFoldingFilter)
-                .filter(Stemmer::new(Language::Dutch)),
-        );
-        manager.register(
-            "lang_no",
-            SimpleTokenizer
-                .filter(RemoveLongFilter::limit(40))
-                .filter(LowerCaser)
-                .filter(AsciiFoldingFilter)
-                .filter(Stemmer::new(Language::Norwegian)),
-        );
-        manager.register(
-            "lang_pt",
-            SimpleTokenizer
-                .filter(RemoveLongFilter::limit(40))
-                .filter(LowerCaser)
-                .filter(AsciiFoldingFilter)
-                .filter(Stemmer::new(Language::Portuguese)),
-        );
-        manager.register(
-            "lang_ro",
-            SimpleTokenizer
-                .filter(RemoveLongFilter::limit(40))
-                .filter(LowerCaser)
-                .filter(AsciiFoldingFilter)
-                .filter(Stemmer::new(Language::Romanian)),
-        );
-        manager.register(
-            "lang_ru",
-            SimpleTokenizer
-                .filter(RemoveLongFilter::limit(40))
-                .filter(LowerCaser)
-                .filter(AsciiFoldingFilter)
-                .filter(Stemmer::new(Language::Russian)),
-        );
-        manager.register(
-            "lang_sv",
-            SimpleTokenizer
-                .filter(RemoveLongFilter::limit(40))
-                .filter(LowerCaser)
-                .filter(AsciiFoldingFilter)
-                .filter(Stemmer::new(Language::Swedish)),
-        );
-        manager.register(
-            "lang_ta",
-            SimpleTokenizer
-                .filter(RemoveLongFilter::limit(40))
-                .filter(LowerCaser)
-                .filter(AsciiFoldingFilter)
-                .filter(Stemmer::new(Language::Tamil)),
-        );
-        manager.register(
-            "lang_tr",
-            SimpleTokenizer
-                .filter(RemoveLongFilter::limit(40))
-                .filter(LowerCaser)
-                .filter(AsciiFoldingFilter)
-                .filter(Stemmer::new(Language::Turkish)),
-        );
-        manager.register(
-            "lang_zh",
-            CangJieTokenizer::default()
-                .filter(RemoveLongFilter::limit(40))
-                .filter(LowerCaser)
-                .filter(AsciiFoldingFilter),
-        );
     }
 
     pub fn configure(&mut self, manager: &TokenizerManager, config: &str) {
@@ -243,9 +69,38 @@ impl TokenizerInitializer {
             }
             debug!("tokenizer_args: {:?}", tokenizer_args);
 
+            // create tokenizer
+            let mut tokenizer;
+            match tokenizer_name {
+                "facet" => {
+                    tokenizer = TextAnalyzer::from(self.facet_tokenizer_factory.clone().create());
+                }
+                "ngram" => {
+                    tokenizer = TextAnalyzer::from(
+                        self.ngram_tokenizer_factory
+                            .clone()
+                            .create(tokenizer_args.as_ref()),
+                    );
+                }
+                "raw" => {
+                    tokenizer = TextAnalyzer::from(self.raw_tokenizer_factory.clone().create());
+                }
+                "simple" => {
+                    tokenizer = TextAnalyzer::from(self.simple_tokenizer_factory.clone().create());
+                }
+                "cang_jie" => {
+                    tokenizer = TextAnalyzer::from(
+                        self.cang_jie_tokenizer_factory
+                            .clone()
+                            .create(tokenizer_args.as_ref()),
+                    );
+                }
+                _ => {
+                    panic!("unknown tokenizer: {}", tokenizer_name);
+                }
+            }
+
             // filters
-            // create vector for storing filters
-            //let mut filters: Vec<_> = Vec::new();
             if tokenizer_config_map.contains_key("filters") {
                 let filters_config_value = tokenizer_config_map["filters"].as_array().unwrap();
                 for filter_config_value in filters_config_value {
@@ -264,41 +119,40 @@ impl TokenizerInitializer {
                     // create filter
                     match filter_name {
                         "alpha_num_only" => {
-                            let _filter = self.alpha_num_only_filter_factory.clone().create();
-                            // push created filter to vector
-                            //filters.push(_filter);
+                            tokenizer = tokenizer.filter(BoxTokenFilter::from(
+                                self.alpha_num_only_filter_factory.clone().create(),
+                            ));
                         }
                         "ascii_folding" => {
-                            let _filter = self.ascii_folding_filter_factory.clone().create();
-                            // push created filter to vector
-                            //filters.push(_filter);
+                            tokenizer = tokenizer.filter(BoxTokenFilter::from(
+                                self.ascii_folding_filter_factory.clone().create(),
+                            ));
                         }
                         "lower_case" => {
-                            let _filter = self.lower_case_filter_factory.clone().create();
+                            tokenizer = tokenizer.filter(BoxTokenFilter::from(
+                                self.lower_case_filter_factory.clone().create(),
+                            ));
                         }
                         "remove_long" => {
-                            let _filter = self
-                                .remove_long_filter_factory
-                                .clone()
-                                .create(filter_args.as_ref());
-                            // push created filter to vector
-                            //filters.push(_filter);
+                            tokenizer = tokenizer.filter(BoxTokenFilter::from(
+                                self.remove_long_filter_factory
+                                    .clone()
+                                    .create(filter_args.as_ref()),
+                            ));
                         }
                         "stemming" => {
-                            let _filter = self
-                                .stemming_filter_factory
-                                .clone()
-                                .create(filter_args.as_ref());
-                            // push created filter to vector
-                            //filters.push(_filter);
+                            tokenizer = tokenizer.filter(BoxTokenFilter::from(
+                                self.stemming_filter_factory
+                                    .clone()
+                                    .create(filter_args.as_ref()),
+                            ));
                         }
                         "stop_word" => {
-                            let _filter = self
-                                .stop_word_filter_factory
-                                .clone()
-                                .create(filter_args.as_ref());
-                            // push created filter to vector
-                            //filters.push(_filter);
+                            tokenizer = tokenizer.filter(BoxTokenFilter::from(
+                                self.stop_word_filter_factory
+                                    .clone()
+                                    .create(filter_args.as_ref()),
+                            ));
                         }
                         _ => {
                             panic!("unknown filter: {}", filter_name);
@@ -307,47 +161,7 @@ impl TokenizerInitializer {
                 }
             }
 
-            // create tokenizer
-            match tokenizer_name {
-                "facet" => {
-                    let tokenizer = self.facet_tokenizer_factory.clone().create();
-                    // add filters to tokenizer
-                    //for filter in filters.iter() {
-                    //    tokenizer.filter(filter);
-                    //}
-                    manager.register(name, tokenizer)
-                }
-                "ngram" => {
-                    let tokenizer = self
-                        .ngram_tokenizer_factory
-                        .clone()
-                        .create(tokenizer_args.as_ref());
-                    // add filters to tokenizer
-                    //for filter in filters.iter() {
-                    //    tokenizer.filter(filter);
-                    //}
-                    manager.register(name, tokenizer)
-                }
-                "raw" => {
-                    let tokenizer = self.raw_tokenizer_factory.clone().create();
-                    // add filters to tokenizer
-                    //for filter in filters.iter() {
-                    //    tokenizer.filter(filter);
-                    //}
-                    manager.register(name, tokenizer)
-                }
-                "simple" => {
-                    let tokenizer = self.simple_tokenizer_factory.clone().create();
-                    // add filters to tokenizer
-                    //for filter in filters.iter() {
-                    //    tokenizer.filter(filter);
-                    //}
-                    manager.register(name, tokenizer)
-                }
-                _ => {
-                    panic!("unknown tokenizer: {}", tokenizer_name);
-                }
-            }
+            manager.register(name, tokenizer)
         }
 
         debug!("tokenizers are initialized");
@@ -356,14 +170,8 @@ impl TokenizerInitializer {
 
 #[cfg(test)]
 mod tests {
-    use std::fs;
-    use std::path::PathBuf;
+    use tantivy::tokenizer::TokenizerManager;
 
-    use tantivy::tokenizer::{LowerCaser, SimpleTokenizer, TokenizerManager};
-
-    use crate::tokenizer::lower_case_filter_factory::LowerCaseFilterFactory;
-    use crate::tokenizer::simple_tokenizer_factory::SimpleTokenizerFactory;
-    use crate::tokenizer::stop_word_filter_factory::StopWordFilterFactory;
     use crate::tokenizer::tokenizer_initializer::TokenizerInitializer;
 
     #[test]
@@ -408,22 +216,39 @@ mod tests {
         let manager = TokenizerManager::default();
 
         let mut initializer = TokenizerInitializer::new();
-        initializer.initialize(&manager);
         initializer.configure(&manager, config);
 
         let tokenizer = manager.get("lang_en").unwrap();
-        let mut stream = tokenizer.token_stream("hello world!");
+        let mut stream = tokenizer.token_stream("I am saying HELLO WORLD!");
+        {
+            let token = stream.next().unwrap();
+            assert_eq!(token.text, "i");
+            assert_eq!(token.offset_from, 0);
+            assert_eq!(token.offset_to, 1);
+        }
+        {
+            let token = stream.next().unwrap();
+            assert_eq!(token.text, "am");
+            assert_eq!(token.offset_from, 2);
+            assert_eq!(token.offset_to, 4);
+        }
+        {
+            let token = stream.next().unwrap();
+            assert_eq!(token.text, "say");
+            assert_eq!(token.offset_from, 5);
+            assert_eq!(token.offset_to, 11);
+        }
         {
             let token = stream.next().unwrap();
             assert_eq!(token.text, "hello");
-            assert_eq!(token.offset_from, 0);
-            assert_eq!(token.offset_to, 5);
+            assert_eq!(token.offset_from, 12);
+            assert_eq!(token.offset_to, 17);
         }
         {
             let token = stream.next().unwrap();
             assert_eq!(token.text, "world");
-            assert_eq!(token.offset_from, 6);
-            assert_eq!(token.offset_to, 11);
+            assert_eq!(token.offset_from, 18);
+            assert_eq!(token.offset_to, 23);
         }
         assert!(stream.next().is_none());
     }

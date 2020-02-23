@@ -11,7 +11,13 @@ impl StopWordFilterFactory {
     }
 
     pub fn create(self, json: &str) -> StopWordFilter {
-        let v: Value = serde_json::from_str(json).unwrap();
+        let v: Value = match serde_json::from_str(json) {
+            Result::Ok(val) => val,
+            Result::Err(err) => {
+                warn!("failed to parse JSON: {}", err.to_string());
+                serde_json::Value::Null
+            }
+        };
 
         match v["words"].as_array() {
             Some(w) => {
@@ -34,7 +40,7 @@ impl StopWordFilterFactory {
 
 #[cfg(test)]
 mod tests {
-    use tantivy::tokenizer::{SimpleTokenizer, TokenStream, Tokenizer};
+    use tantivy::tokenizer::{SimpleTokenizer, TextAnalyzer};
 
     use crate::tokenizer::stop_word_filter_factory::StopWordFilterFactory;
 
@@ -53,7 +59,9 @@ mod tests {
         let filter = factory.create(json);
 
         let mut tokens = vec![];
-        let mut token_stream = SimpleTokenizer.filter(filter).token_stream(text);
+        let mut token_stream = TextAnalyzer::from(SimpleTokenizer)
+            .filter(filter)
+            .token_stream(text);
         while token_stream.advance() {
             let token_text = token_stream.token().text.clone();
             tokens.push(token_text);

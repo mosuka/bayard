@@ -15,7 +15,7 @@ impl SimpleTokenizerFactory {
 
 #[cfg(test)]
 mod tests {
-    use tantivy::tokenizer::{TokenStream, Tokenizer};
+    use tantivy::tokenizer::Tokenizer;
 
     use crate::tokenizer::simple_tokenizer_factory::SimpleTokenizerFactory;
 

@@ -11,7 +11,13 @@ impl NgramTokenizerFactory {
     }
 
     pub fn create(self, json: &str) -> NgramTokenizer {
-        let v: Value = serde_json::from_str(json).unwrap();
+        let v: Value = match serde_json::from_str(json) {
+            Result::Ok(val) => val,
+            Result::Err(err) => {
+                warn!("failed to parse JSON: {}", err.to_string());
+                serde_json::Value::Null
+            }
+        };
 
         let min_gram: usize;
         match v["min_gram"].as_f64() {
@@ -52,7 +58,7 @@ impl NgramTokenizerFactory {
 
 #[cfg(test)]
 mod tests {
-    use tantivy::tokenizer::{TokenStream, Tokenizer};
+    use tantivy::tokenizer::Tokenizer;
 
     use crate::tokenizer::ngram_tokenizer_factory::NgramTokenizerFactory;
 

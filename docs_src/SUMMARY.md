@@ -5,7 +5,7 @@
 - [Building Bayard](building_bayard.md)
 - [Getting started](getting_started.md)
 - [Designing schema](designing_schema.md)
-- [Pre-configured tokenizers](pre_configured_tokenizers.md)
+- [Configure text analyzers](configure_text_analyzers.md)
 - [Cluster mode](cluster_mode.md)
 - [Accessing over HTTP](accessing_over_http.md)
 - [Scheduling jobs](scheduling_jobs.md)

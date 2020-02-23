@@ -11,7 +11,13 @@ impl StemmingFilterFactory {
     }
 
     pub fn create(self, json: &str) -> Stemmer {
-        let v: Value = serde_json::from_str(json).unwrap();
+        let v: Value = match serde_json::from_str(json) {
+            Result::Ok(val) => val,
+            Result::Err(err) => {
+                warn!("failed to parse JSON: {}", err.to_string());
+                serde_json::Value::Null
+            }
+        };
 
         let stemmer_algorithm: Language;
         match v["stemmer_algorithm"].as_str() {
@@ -50,7 +56,7 @@ impl StemmingFilterFactory {
 
 #[cfg(test)]
 mod tests {
-    use tantivy::tokenizer::{SimpleTokenizer, TokenStream, Tokenizer};
+    use tantivy::tokenizer::{SimpleTokenizer, TextAnalyzer};
 
     use crate::tokenizer::stemming_filter_factory::StemmingFilterFactory;
 
@@ -65,7 +71,9 @@ mod tests {
         let filter = factory.create(json);
 
         let mut tokens = vec![];
-        let mut token_stream = SimpleTokenizer.filter(filter).token_stream(text);
+        let mut token_stream = TextAnalyzer::from(SimpleTokenizer)
+            .filter(filter)
+            .token_stream(text);
         while token_stream.advance() {
             let token_text = token_stream.token().text.clone();
             tokens.push(token_text);

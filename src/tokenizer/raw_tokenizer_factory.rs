@@ -15,7 +15,7 @@ impl RawTokenizerFactory {
 
 #[cfg(test)]
 mod tests {
-    use tantivy::tokenizer::{TokenStream, Tokenizer};
+    use tantivy::tokenizer::Tokenizer;
 
     use crate::tokenizer::raw_tokenizer_factory::RawTokenizerFactory;
 

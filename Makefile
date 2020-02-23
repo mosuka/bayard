@@ -1,4 +1,5 @@
 BIN_DIR ?= $(CURDIR)/bin
+DOCS_DIR ?= $(CURDIR)/docs
 VERSION ?=
 
 ifeq ($(VERSION),)
@@ -7,6 +8,7 @@ endif
 
 clean:
 	rm -rf $(BIN_DIR)
+	rm -rf $(DOCS_DIR)
 	cargo clean
 
 format:
@@ -35,5 +37,6 @@ push-docker:
 clean-docker:
 	docker rmi -f $(shell docker images --filter "dangling=true" -q --no-trunc)
 
-build-docs:
+.PHONY: docs
+docs:
 	mdbook build

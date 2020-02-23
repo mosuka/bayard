@@ -16,7 +16,7 @@ impl FacetTokenizerFactory {
 #[cfg(test)]
 mod tests {
     use tantivy::schema::Facet;
-    use tantivy::tokenizer::{Token, TokenStream, Tokenizer};
+    use tantivy::tokenizer::{Token, Tokenizer};
 
     use crate::tokenizer::facet_tokenizer_factory::FacetTokenizerFactory;
 
