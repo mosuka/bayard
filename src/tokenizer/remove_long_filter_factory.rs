@@ -11,7 +11,13 @@ impl RemoveLongFilterFactory {
     }
 
     pub fn create(self, json: &str) -> RemoveLongFilter {
-        let v: Value = serde_json::from_str(json).unwrap();
+        let v: Value = match serde_json::from_str(json) {
+            Result::Ok(val) => val,
+            Result::Err(err) => {
+                warn!("failed to parse JSON: {}", err.to_string());
+                serde_json::Value::Null
+            }
+        };
 
         let length_limit: usize;
         match v["length_limit"].as_f64() {
@@ -34,7 +40,7 @@ impl RemoveLongFilterFactory {
 
 #[cfg(test)]
 mod tests {
-    use tantivy::tokenizer::{SimpleTokenizer, TokenStream, Tokenizer};
+    use tantivy::tokenizer::{SimpleTokenizer, TextAnalyzer};
 
     use crate::tokenizer::remove_long_filter_factory::RemoveLongFilterFactory;
 
@@ -49,7 +55,9 @@ mod tests {
         let filter = factory.create(json);
 
         let mut tokens = vec![];
-        let mut token_stream = SimpleTokenizer.filter(filter).token_stream(text);
+        let mut token_stream = TextAnalyzer::from(SimpleTokenizer)
+            .filter(filter)
+            .token_stream(text);
         while token_stream.advance() {
             let token_text = token_stream.token().text.clone();
             tokens.push(token_text);
