@@ -2,6 +2,7 @@ pub mod alpha_num_only_filter_factory;
 pub mod ascii_folding_filter_factory;
 pub mod cang_jie_tokenizer_factory;
 pub mod facet_tokenizer_factory;
+pub mod lindera_tokenizer_factory;
 pub mod lower_case_filter_factory;
 pub mod ngram_tokenizer_factory;
 pub mod raw_tokenizer_factory;

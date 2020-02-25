@@ -32,6 +32,7 @@ grpcio = { version = "0.4.7", features = [ "secure" ] }
 iron = "0.6.1"
 jieba-rs = "0.4.10"
 job_scheduler = "1.1.0"
+lindera-tantivy = "0.1.0"
 log = "0.4.8"
 logger = "0.4.0"
 num_cpus = "1.11.1"
