@@ -207,6 +207,32 @@
   }
 }
 </code></pre>
+<h3><a class="header" href="#lindera" id="lindera">lindera</a></h3>
+<p>A Tokenizer based on <a href="https://github.com/lindera-morphology/lindera">Lindera</a>.</p>
+<ul>
+<li>mode: Tokenization mode.
+<ul>
+<li><code>normal</code>: Tokenize faithfully based on words registered in the dictionary. (Default)</li>
+<li><code>decompose</code>: Tokenize a compound noun words additionally.</li>
+</ul>
+</li>
+<li>dict: Specify the pre-built dictionary directory path instead of the default dictionary (IPADIC).
+Please refer to the following repository for building a dictionary:
+<ul>
+<li><a href="https://github.com/bayard-search/lindera-ipadic-builder" target="_blank">Lindera IPADIC Builder</a> (Japanese)</li>
+<li><a href="https://github.com/bayard-search/lindera-ipadic-neologd-builder" target="_blank">Lindera IPDIC NEologd Builder</a> (Japanese)</li>
+<li><a href="https://github.com/bayard-search/lindera-unidic-builder" target="_blank">Lindera UniDic Builder</a> (Japanese)</li>
+<li><a href="https://github.com/bayard-search/lindera-ko-dic-builder" target="_blank">Lindera ko-dic Builder</a> (Korean)</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;lindera&quot;,
+  &quot;args&quot;: {
+    &quot;mode&quot;: &quot;decompose&quot;
+  }
+}
+</code></pre>
 <h2><a class="header" href="#filters" id="filters">Filters</a></h2>
 <p>Filters examine a stream of tokens and keep them, transform them or discard them, depending on the filter type being used.</p>
 <h3><a class="header" href="#alpha_num_only" id="alpha_num_only">alpha_num_only</a></h3>

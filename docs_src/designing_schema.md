@@ -61,15 +61,8 @@ Essentially, should be store the term frequency and/or the positions, the name o
     - "position"  
     Records the document id, the term frequency and the positions of the occurences in the document. Positions are required to run phrase queries.
 
-  - tokenizer
-    - "default"  
-    Chops the text on according to whitespace and punctuation, removes tokens that are too long, and lowercases tokens.
-    
-    - "raw"  
-    Does not process nor tokenize the text.
-    
-    - "en_stem"  
-    Like `default`, but also applies stemming on the resulting tokens. Stemming can improve the recall of your search engine.
+  - tokenizer  
+    Specify a text analyzer. See [Configure text analyzers](configure_text_analyzers.md#text-analyzers).
   
 - stored
   - true  

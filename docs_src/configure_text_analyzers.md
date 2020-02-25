@@ -76,6 +76,29 @@ A Chinese tokenizer based on [jieba-rs](https://github.com/messense/jieba-rs).
 }
 ```
 
+### lindera
+
+A Tokenizer based on [Lindera](https://github.com/lindera-morphology/lindera).
+
+- mode: Tokenization mode.
+    - `normal`: Tokenize faithfully based on words registered in the dictionary. (Default)
+    - `decompose`: Tokenize a compound noun words additionally.
+- dict: Specify the pre-built dictionary directory path instead of the default dictionary (IPADIC).
+Please refer to the following repository for building a dictionary:
+    - <a href="https://github.com/bayard-search/lindera-ipadic-builder" target="_blank">Lindera IPADIC Builder</a> (Japanese)
+    - <a href="https://github.com/bayard-search/lindera-ipadic-neologd-builder" target="_blank">Lindera IPDIC NEologd Builder</a> (Japanese)
+    - <a href="https://github.com/bayard-search/lindera-unidic-builder" target="_blank">Lindera UniDic Builder</a> (Japanese)
+    - <a href="https://github.com/bayard-search/lindera-ko-dic-builder" target="_blank">Lindera ko-dic Builder</a> (Korean)
+
+```json
+{
+  "name": "lindera",
+  "args": {
+    "mode": "decompose"
+  }
+}
+```
+
 ## Filters
 
 Filters examine a stream of tokens and keep them, transform them or discard them, depending on the filter type being used.

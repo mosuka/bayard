@@ -337,6 +337,28 @@
       }
     ]
   },
+  "lang_ja": {
+    "tokenizer": {
+      "name": "lindera",
+      "args": {
+        "mode": "decompose"
+      }
+    },
+    "filters": [
+      {
+        "name": "remove_long",
+        "args": {
+          "length_limit": 40
+        }
+      },
+      {
+        "name": "ascii_folding"
+      },
+      {
+        "name": "lower_case"
+      }
+    ]
+  },
   "lang_nl": {
     "tokenizer": {
       "name": "simple"

@@ -6,6 +6,7 @@ use crate::tokenizer::alpha_num_only_filter_factory::AlphaNumOnlyFilterFactory;
 use crate::tokenizer::ascii_folding_filter_factory::AsciiFoldingFilterFactory;
 use crate::tokenizer::cang_jie_tokenizer_factory::CangJieTokenizerFactory;
 use crate::tokenizer::facet_tokenizer_factory::FacetTokenizerFactory;
+use crate::tokenizer::lindera_tokenizer_factory::LinderaTokenizerFactory;
 use crate::tokenizer::lower_case_filter_factory::LowerCaseFilterFactory;
 use crate::tokenizer::ngram_tokenizer_factory::NgramTokenizerFactory;
 use crate::tokenizer::raw_tokenizer_factory::RawTokenizerFactory;
@@ -20,6 +21,7 @@ pub struct TokenizerInitializer {
     raw_tokenizer_factory: RawTokenizerFactory,
     simple_tokenizer_factory: SimpleTokenizerFactory,
     cang_jie_tokenizer_factory: CangJieTokenizerFactory,
+    lindera_tokenizer_factory: LinderaTokenizerFactory,
 
     alpha_num_only_filter_factory: AlphaNumOnlyFilterFactory,
     ascii_folding_filter_factory: AsciiFoldingFilterFactory,
@@ -37,6 +39,7 @@ impl TokenizerInitializer {
             raw_tokenizer_factory: RawTokenizerFactory::new(),
             simple_tokenizer_factory: SimpleTokenizerFactory::new(),
             cang_jie_tokenizer_factory: CangJieTokenizerFactory::new(),
+            lindera_tokenizer_factory: LinderaTokenizerFactory::new(),
 
             alpha_num_only_filter_factory: AlphaNumOnlyFilterFactory::new(),
             ascii_folding_filter_factory: AsciiFoldingFilterFactory::new(),
@@ -91,6 +94,13 @@ impl TokenizerInitializer {
                 "cang_jie" => {
                     tokenizer = TextAnalyzer::from(
                         self.cang_jie_tokenizer_factory
+                            .clone()
+                            .create(tokenizer_args.as_ref()),
+                    );
+                }
+                "lindera" => {
+                    tokenizer = TextAnalyzer::from(
+                        self.lindera_tokenizer_factory
                             .clone()
                             .create(tokenizer_args.as_ref()),
                     );

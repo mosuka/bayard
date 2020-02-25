@@ -482,21 +482,8 @@ Records the document id, the term frequency and the positions of the occurences 
 </ul>
 </li>
 <li>
-<p>tokenizer</p>
-<ul>
-<li>
-<p>&quot;default&quot;<br />
-Chops the text on according to whitespace and punctuation, removes tokens that are too long, and lowercases tokens.</p>
-</li>
-<li>
-<p>&quot;raw&quot;<br />
-Does not process nor tokenize the text.</p>
-</li>
-<li>
-<p>&quot;en_stem&quot;<br />
-Like <code>default</code>, but also applies stemming on the resulting tokens. Stemming can improve the recall of your search engine.</p>
-</li>
-</ul>
+<p>tokenizer<br />
+Specify a text analyzer. See <a href="configure_text_analyzers.html#text-analyzers">Configure text analyzers</a>.</p>
 </li>
 </ul>
 </li>
@@ -684,6 +671,32 @@ The document can have any number of values associated to the document. This is m
   &quot;args&quot;: {
     &quot;hmm&quot;: false,
     &quot;tokenizer_option&quot;: &quot;search&quot;
+  }
+}
+</code></pre>
+<h3><a class="header" href="#lindera" id="lindera">lindera</a></h3>
+<p>A Tokenizer based on <a href="https://github.com/lindera-morphology/lindera">Lindera</a>.</p>
+<ul>
+<li>mode: Tokenization mode.
+<ul>
+<li><code>normal</code>: Tokenize faithfully based on words registered in the dictionary. (Default)</li>
+<li><code>decompose</code>: Tokenize a compound noun words additionally.</li>
+</ul>
+</li>
+<li>dict: Specify the pre-built dictionary directory path instead of the default dictionary (IPADIC).
+Please refer to the following repository for building a dictionary:
+<ul>
+<li><a href="https://github.com/bayard-search/lindera-ipadic-builder" target="_blank">Lindera IPADIC Builder</a> (Japanese)</li>
+<li><a href="https://github.com/bayard-search/lindera-ipadic-neologd-builder" target="_blank">Lindera IPDIC NEologd Builder</a> (Japanese)</li>
+<li><a href="https://github.com/bayard-search/lindera-unidic-builder" target="_blank">Lindera UniDic Builder</a> (Japanese)</li>
+<li><a href="https://github.com/bayard-search/lindera-ko-dic-builder" target="_blank">Lindera ko-dic Builder</a> (Korean)</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;lindera&quot;,
+  &quot;args&quot;: {
+    &quot;mode&quot;: &quot;decompose&quot;
   }
 }
 </code></pre>

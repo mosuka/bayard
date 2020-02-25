@@ -6,6 +6,8 @@ ifeq ($(VERSION),)
   VERSION = $(shell cargo metadata --no-deps --format-version=1 | jq -r '.packages[] | select(.name=="bayard") | .version')
 endif
 
+.DEFAULT_GOAL := build
+
 clean:
 	rm -rf $(BIN_DIR)
 	cargo clean
