@@ -561,7 +561,11 @@
   },
   "lang_zh": {
     "tokenizer": {
-      "name": "cang_jie"
+      "name": "cang_jie",
+      "args": {
+        "hmm": false,
+        "tokenizer_option": "search"
+      }
     },
     "filters": [
       {
