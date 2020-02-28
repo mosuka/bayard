@@ -15,12 +15,8 @@ clean:
 format:
 	cargo fmt
 
-protoc:
-	./generate_proto.sh
-
 build:
 	mkdir -p $(BIN_DIR)
-	cargo update -p protobuf --precise 2.8.0
 	cargo build --release
 	cp -p ./target/release/bayard $(BIN_DIR)
 

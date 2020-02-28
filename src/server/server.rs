@@ -7,6 +7,13 @@ use std::time::Duration;
 use std::{fs, thread};
 
 use async_std::task::block_on;
+use bayard_proto::proto::indexpb_grpc::{self, Index as IndexService, IndexClient};
+use bayard_proto::proto::indexrpcpb::{
+    ApplyReq, BulkDeleteReq, BulkDeleteResp, BulkPutReq, BulkPutResp, CommitReq, CommitResp,
+    ConfChangeReq, DeleteReq, DeleteResp, GetReq, GetResp, JoinReq, LeaveReq, MergeReq, MergeResp,
+    MetricsReq, MetricsResp, PeersReq, PeersResp, ProbeReq, ProbeResp, PutReq, PutResp, RaftDone,
+    ReqType, RespErr, RollbackReq, RollbackResp, SchemaReq, SchemaResp, SearchReq, SearchResp,
+};
 use crossbeam_channel::select;
 use futures::Future;
 use grpcio::{ChannelBuilder, EnvBuilder, Environment, RpcContext, ServerBuilder, UnarySink};
@@ -21,13 +28,6 @@ use tantivy::schema::{Field, FieldType, IndexRecordOption, Schema};
 use tantivy::{Document, Index, IndexWriter, Term};
 
 use crate::client::client::{create_client, Clerk};
-use crate::proto::indexpb_grpc::{self, Index as IndexService, IndexClient};
-use crate::proto::indexrpcpb::{
-    ApplyReq, BulkDeleteReq, BulkDeleteResp, BulkPutReq, BulkPutResp, CommitReq, CommitResp,
-    ConfChangeReq, DeleteReq, DeleteResp, GetReq, GetResp, JoinReq, LeaveReq, MergeReq, MergeResp,
-    MetricsReq, MetricsResp, PeersReq, PeersResp, ProbeReq, ProbeResp, PutReq, PutResp, RaftDone,
-    ReqType, RespErr, RollbackReq, RollbackResp, SchemaReq, SchemaResp, SearchReq, SearchResp,
-};
 use crate::server::metrics::Metrics;
 use crate::server::peer::PeerMessage;
 use crate::server::{peer, util};

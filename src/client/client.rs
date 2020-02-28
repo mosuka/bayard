@@ -3,18 +3,17 @@ use std::sync::Arc;
 use std::thread;
 use std::time::Duration;
 
-use grpcio::{ChannelBuilder, EnvBuilder};
-use log::*;
-use protobuf::RepeatedField;
-use raft::eraftpb::{ConfChange, ConfChangeType};
-
-use crate::proto::indexpb_grpc::IndexClient;
-use crate::proto::indexrpcpb::{
+use bayard_proto::proto::indexpb_grpc::IndexClient;
+use bayard_proto::proto::indexrpcpb::{
     BulkDeleteReq, BulkDeleteResp, BulkPutReq, BulkPutResp, CommitReq, CommitResp, ConfChangeReq,
     DeleteReq, DeleteResp, GetReq, GetResp, MergeReq, MergeResp, MetricsReq, MetricsResp, PeersReq,
     PeersResp, ProbeReq, ProbeResp, PutReq, PutResp, RaftDone, RespErr, RollbackReq, RollbackResp,
     SchemaReq, SchemaResp, SearchReq, SearchResp,
 };
+use grpcio::{ChannelBuilder, EnvBuilder};
+use log::*;
+use protobuf::RepeatedField;
+use raft::eraftpb::{ConfChange, ConfChangeType};
 
 pub fn create_client(addr: &str) -> IndexClient {
     let env = Arc::new(EnvBuilder::new().build());
