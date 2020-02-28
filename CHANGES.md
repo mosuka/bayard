@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+- Migrate to bayard-proto #72 @mosuka
+
 ## 0.6.0 (2020-02-25)
 - Add Lindera tokenizer #69 @mosuka
 
