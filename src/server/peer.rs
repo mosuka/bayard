@@ -1,12 +1,12 @@
-//use std::collections::HashMap;
+use std::collections::HashMap;
 use std::sync::mpsc::{Receiver, RecvTimeoutError, SyncSender};
 use std::thread;
 use std::time::{Duration, Instant};
 
 use log::*;
+use raft::{self, RawNode};
 use raft::eraftpb::{ConfChange, Entry, EntryType, Message};
 use raft::storage::MemStorage as PeerStorage;
-use raft::{self, RawNode};
 
 use crate::server::util;
 
@@ -17,11 +17,11 @@ pub enum PeerMessage {
 }
 
 pub struct Peer {
-    pub raft_group: RawNode<PeerStorage>,
+    pub raw_node: RawNode<PeerStorage>,
     // last_applying_idx: u64,
     // last_compacted_idx: u64,
     apply_ch: SyncSender<Entry>,
-    // peers_addr: HashMap<u64, (String, u32)>, // id, (host, port)
+    peers_addr: HashMap<u64, (String, u32)>, // id, (host, port)
 }
 
 impl Peer {
@@ -29,11 +29,11 @@ impl Peer {
         let cfg = util::default_raft_config(id, peers);
         let storge = PeerStorage::new();
         let peer = Peer {
-            raft_group: RawNode::new(&cfg, storge, vec![]).unwrap(),
+            raw_node: RawNode::new(&cfg, storge, vec![]).unwrap(),
             // last_applying_idx: 0,
             // last_compacted_idx: 0,
             apply_ch,
-            // peers_addr: HashMap::new(),
+            peers_addr: HashMap::new(),
         };
         peer
     }
@@ -49,17 +49,17 @@ impl Peer {
         let mut timeout = Duration::from_millis(100);
         loop {
             match receiver.recv_timeout(timeout) {
-                Ok(PeerMessage::Propose(p)) => match self.raft_group.propose(vec![], p) {
+                Ok(PeerMessage::Propose(p)) => match self.raw_node.propose(vec![], p) {
                     Ok(_) => (),
                     Err(_) => self.apply_message(Entry::new()),
                 },
                 Ok(PeerMessage::ConfChange(cc)) => {
-                    match self.raft_group.propose_conf_change(vec![], cc.clone()) {
+                    match self.raw_node.propose_conf_change(vec![], cc.clone()) {
                         Ok(_) => (),
                         Err(_) => error!("conf change failed: {:?}", cc),
                     }
                 }
-                Ok(PeerMessage::Message(m)) => self.raft_group.step(m).unwrap(),
+                Ok(PeerMessage::Message(m)) => self.raw_node.step(m).unwrap(),
                 Err(RecvTimeoutError::Timeout) => (),
                 Err(RecvTimeoutError::Disconnected) => return,
             }
@@ -68,7 +68,7 @@ impl Peer {
             if d >= timeout {
                 t = Instant::now();
                 timeout = Duration::from_millis(200);
-                self.raft_group.tick();
+                self.raw_node.tick();
             } else {
                 timeout -= d;
             }
@@ -78,12 +78,12 @@ impl Peer {
     }
 
     fn on_ready(&mut self, sender: SyncSender<Message>) {
-        if !self.raft_group.has_ready() {
+        if !self.raw_node.has_ready() {
             return;
         }
 
-        let mut ready = self.raft_group.ready();
-        let is_leader = self.raft_group.raft.leader_id == self.raft_group.raft.id;
+        let mut ready = self.raw_node.ready();
+        let is_leader = self.raw_node.raft.leader_id == self.raw_node.raft.id;
         if is_leader {
             // debug!("I'm leader");
             let msgs = ready.messages.drain(..);
@@ -93,7 +93,7 @@ impl Peer {
         }
 
         if !raft::is_empty_snap(&ready.snapshot) {
-            self.raft_group
+            self.raw_node
                 .mut_store()
                 .wl()
                 .apply_snapshot(ready.snapshot.clone())
@@ -101,7 +101,7 @@ impl Peer {
         }
 
         if !ready.entries.is_empty() {
-            self.raft_group
+            self.raw_node
                 .mut_store()
                 .wl()
                 .append(&ready.entries)
@@ -109,7 +109,7 @@ impl Peer {
         }
 
         if let Some(ref hs) = ready.hs {
-            self.raft_group.mut_store().wl().set_hardstate(hs.clone());
+            self.raw_node.mut_store().wl().set_hardstate(hs.clone());
         }
 
         if !is_leader {
@@ -140,7 +140,7 @@ impl Peer {
                     EntryType::EntryConfChange => {
                         let cc = util::parse_data(&entry.data);
                         debug!("config: {:?}", cc);
-                        self.raft_group.apply_conf_change(&cc);
+                        self.raw_node.apply_conf_change(&cc);
                         debug!("apply conf change");
                         self.apply_message(entry.clone());
                     }
@@ -149,7 +149,7 @@ impl Peer {
         }
 
         // Advance the Raft
-        self.raft_group.advance(ready);
+        self.raw_node.advance(ready);
     }
 
     fn send_message(sender: SyncSender<Message>, msg: Message) {
