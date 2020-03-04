@@ -1,8 +1,8 @@
 use std::fs;
 
+use bayard_client::client::client::{create_client, Clerk};
 use clap::ArgMatches;
 
-use crate::client::client::{create_client, Clerk};
 use crate::util::log::set_logger;
 
 pub fn run_delete_cli(matches: &ArgMatches) -> Result<(), String> {

@@ -5,7 +5,7 @@ authors = ["Minoru Osuka <minoru.osuka@gmail.com>"]
 edition = "2018"
 description = "Bayard is a full-text search and indexing server written in Rust."
 documentation = "https://bayard-search.github.io/bayard/"
-homepage = "https://github.com/bayard-search/bayard"
+homepage = "https://github.com/bayard-search"
 repository = "https://github.com/bayard-search/bayard"
 readme = "README.md"
 keywords = ["search", "index", "server", "information", "retrieval"]
@@ -22,6 +22,7 @@ path = "src/main.rs"
 
 [dependencies]
 async-std = "1.4.0"
+bayard-client = "0.1.0"
 bayard-proto = "0.2.0"
 cang-jie = "0.7.0"
 clap = "2.33.0"

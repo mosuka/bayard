@@ -1,5 +1,6 @@
 use std::io::Read;
 
+use bayard_client::client::client::{create_client, Clerk};
 use clap::ArgMatches;
 use iron::headers::ContentType;
 use iron::prelude::*;
@@ -11,7 +12,6 @@ use router::Router;
 use serde_json::Value;
 use urlencoded::UrlEncodedQuery;
 
-use crate::client::client::{create_client, Clerk};
 use crate::util::log::set_http_logger;
 
 #[derive(Copy, Clone)]

@@ -1,10 +1,10 @@
 use std::fs;
 
+use bayard_client::client::client::{create_client, Clerk};
 use clap::ArgMatches;
 use serde_json;
 use serde_json::Value;
 
-use crate::client::client::{create_client, Clerk};
 use crate::util::log::set_logger;
 
 pub fn run_put_cli(matches: &ArgMatches) -> Result<(), String> {

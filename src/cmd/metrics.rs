@@ -1,6 +1,6 @@
+use bayard_client::client::client::{create_client, Clerk};
 use clap::ArgMatches;
 
-use crate::client::client::{create_client, Clerk};
 use crate::util::log::set_logger;
 
 pub fn run_metrics_cli(matches: &ArgMatches) -> Result<(), String> {

@@ -7,6 +7,7 @@ use std::time::Duration;
 use std::{fs, thread};
 
 use async_std::task::block_on;
+use bayard_client::client::client::{create_client, Clerk};
 use bayard_proto::proto::indexpb_grpc::{self, Index as IndexService, IndexClient};
 use bayard_proto::proto::indexrpcpb::{
     ApplyReq, BulkDeleteReq, BulkDeleteResp, BulkPutReq, BulkPutResp, CommitReq, CommitResp,
@@ -27,7 +28,6 @@ use tantivy::query::{QueryParser, TermQuery};
 use tantivy::schema::{Field, FieldType, IndexRecordOption, Schema};
 use tantivy::{Document, Index, IndexWriter, Term};
 
-use crate::client::client::{create_client, Clerk};
 use crate::server::metrics::Metrics;
 use crate::server::peer::PeerMessage;
 use crate::server::{peer, util};
