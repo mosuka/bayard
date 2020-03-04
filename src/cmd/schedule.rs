@@ -1,11 +1,11 @@
 use std::time::Duration;
 
+use bayard_client::client::client::{create_client, Clerk};
 use clap::ArgMatches;
 use crossbeam_channel::{select, tick};
 use job_scheduler::{Job, JobScheduler};
 use log::*;
 
-use crate::client::client::{create_client, Clerk};
 use crate::util::log::set_logger;
 use crate::util::signal::sigterm_channel;
 

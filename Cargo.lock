@@ -126,6 +126,7 @@ name = "bayard"
 version = "0.6.0"
 dependencies = [
  "async-std 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "bayard-client 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "bayard-proto 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "cang-jie 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "clap 2.33.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -152,6 +153,19 @@ dependencies = [
  "stringreader 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "tantivy 0.12.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "urlencoded 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "bayard-client"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "bayard-proto 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "grpcio 0.4.7 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
+ "protobuf 2.10.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "raft 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_json 1.0.48 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -2062,6 +2076,7 @@ dependencies = [
 "checksum backtrace-sys 0.1.32 (registry+https://github.com/rust-lang/crates.io-index)" = "5d6575f128516de27e3ce99689419835fce9643a9b215a14d2b5b685be018491"
 "checksum base64 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)" = "b41b7ea54a0c9d92199de89e20e58d49f02f8e699814ef3fdf266f6f748d15c7"
 "checksum base64 0.9.3 (registry+https://github.com/rust-lang/crates.io-index)" = "489d6c0ed21b11d038c31b6ceccca973e65d73ba3bd8ecb9a2babf5546164643"
+"checksum bayard-client 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "d66d2a49278c09df62d530ac82ea1795dcfe9692ae11beffa0c12f3c016dc92d"
 "checksum bayard-proto 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "2f4a20679da696641d9dd2cbdb8c3854f57dbb9608f156bb2bd453ccd370de49"
 "checksum bincode 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "5753e2a71534719bf3f4e57006c3a4f0d2c672a4b676eec84161f763eca87dbf"
 "checksum bitflags 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "cf1de2fe8c75bc145a2f577add951f8134889b4795d47466a54a5c846d691693"
