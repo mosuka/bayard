@@ -1,13 +1,13 @@
+use std::{fs, thread};
 use std::collections::HashMap;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
-use std::sync::mpsc::{self, Receiver, SyncSender};
 use std::sync::{Arc, Mutex};
+use std::sync::mpsc::{self, Receiver, SyncSender};
 use std::time::Duration;
-use std::{fs, thread};
 
 use async_std::task::block_on;
-use bayard_client::client::client::{create_client, Clerk};
+use bayard_client::client::client::{Clerk, create_client};
 use bayard_proto::proto::indexpb_grpc::{self, Index as IndexService, IndexClient};
 use bayard_proto::proto::indexrpcpb::{
     ApplyReq, BulkDeleteReq, BulkDeleteResp, BulkPutReq, BulkPutResp, CommitReq, CommitResp,
@@ -22,15 +22,15 @@ use log::*;
 use protobuf::Message;
 use raft::eraftpb::{ConfChange, ConfChangeType, Entry, EntryType, Message as RaftMessage};
 use stringreader::StringReader;
+use tantivy::{Document, Index, IndexWriter, Term};
 use tantivy::collector::{Count, FacetCollector, MultiCollector, TopDocs};
 use tantivy::merge_policy::LogMergePolicy;
 use tantivy::query::{QueryParser, TermQuery};
 use tantivy::schema::{Field, FieldType, IndexRecordOption, Schema};
-use tantivy::{Document, Index, IndexWriter, Term};
 
+use crate::server::{peer, util};
 use crate::server::metrics::Metrics;
 use crate::server::peer::PeerMessage;
-use crate::server::{peer, util};
 use crate::tokenizer::tokenizer_initializer::TokenizerInitializer;
 use crate::util::search_result::{ScoredNamedFieldDocument, SearchResult};
 use crate::util::signal::sigterm_channel;
@@ -40,7 +40,7 @@ struct NotifyArgs(u64, String, RespErr);
 #[derive(Clone)]
 pub struct IndexServer {
     id: u64,
-    peers: Arc<Mutex<HashMap<u64, IndexClient>>>,
+    peers_client: Arc<Mutex<HashMap<u64, IndexClient>>>,
     peers_addr: Arc<Mutex<HashMap<u64, String>>>,
     rf_message_ch: SyncSender<PeerMessage>,
     notify_ch_map: Arc<Mutex<HashMap<u64, SyncSender<NotifyArgs>>>>,
@@ -61,10 +61,10 @@ impl IndexServer {
         indexer_threads: usize,
         indexer_memory_size: usize,
     ) {
-        let mut peers = HashMap::new();
-        peers.insert(id, create_client(&format!("{}:{}", host, port)));
+        let mut peers_client = HashMap::new();
+        peers_client.insert(id, create_client(&format!("{}:{}", host, port)));
         for (peer_id, peer_addr) in peers_addr.iter() {
-            peers.insert(*peer_id, create_client(peer_addr));
+            peers_client.insert(*peer_id, create_client(peer_addr));
         }
 
         let raft_path = Path::new(data_directory).join(Path::new("raft"));
@@ -103,11 +103,11 @@ impl IndexServer {
         let (rpc_sender, rpc_receiver) = mpsc::sync_channel(100);
         let (apply_sender, apply_receiver) = mpsc::sync_channel(100);
 
-        let peers_id = peers.keys().map(|id| *id).collect();
+        let peers_id = peers_client.keys().map(|id| *id).collect();
 
         let mut index_server = IndexServer {
             id,
-            peers: Arc::new(Mutex::new(peers)),
+            peers_client: Arc::new(Mutex::new(peers_client)),
             peers_addr: Arc::new(Mutex::new(peers_addr)),
             rf_message_ch: rf_sender,
             notify_ch_map: Arc::new(Mutex::new(HashMap::new())),
@@ -138,7 +138,7 @@ impl IndexServer {
         peer::Peer::activate(peer, rpc_sender, rf_receiver);
 
         let mut servers: Vec<IndexClient> = Vec::new();
-        for (_, value) in index_server.peers.clone().lock().unwrap().iter() {
+        for (_, value) in index_server.peers_client.clone().lock().unwrap().iter() {
             servers.push(value.clone());
         }
 
@@ -160,7 +160,7 @@ impl IndexServer {
     }
 
     fn async_rpc_sender(&mut self, receiver: Receiver<RaftMessage>) {
-        let l = self.peers.clone();
+        let l = self.peers_client.clone();
         thread::spawn(move || loop {
             match receiver.recv() {
                 Ok(m) => {
@@ -223,7 +223,7 @@ impl IndexServer {
     // TODO: check duplicate request.
     fn async_applier(&mut self, apply_receiver: Receiver<Entry>) {
         let notify_ch_map = self.notify_ch_map.clone();
-        let peers = self.peers.clone();
+        let peers = self.peers_client.clone();
         let peers_addr = self.peers_addr.clone();
         let index = self.index.clone();
         let index_writer = self.index_writer.clone();
