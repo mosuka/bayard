@@ -35,6 +35,7 @@ use crate::tokenizer::tokenizer_initializer::TokenizerInitializer;
 use crate::util::search_result::{ScoredNamedFieldDocument, SearchResult};
 use crate::util::signal::sigterm_channel;
 
+#[derive(Debug)]
 struct NotifyArgs(u64, String, RespErr);
 
 #[derive(Clone)]
@@ -187,6 +188,7 @@ impl IndexServer {
             let mut map = self.notify_ch_map.lock().unwrap();
             map.insert(req.get_client_id(), sh);
         }
+
         self.rf_message_ch
             .send(PeerMessage::Propose(req.write_to_bytes().unwrap_or_else(
                 |e| {
@@ -196,6 +198,7 @@ impl IndexServer {
             .unwrap_or_else(|e| {
                 error!("send propose to raft error: {:?}", e);
             });
+
         // TODO: consider appropriate timeout value
         return match rh.recv_timeout(Duration::from_millis(60000)) {
             Ok(args) => (args.2, args.1),
@@ -231,14 +234,16 @@ impl IndexServer {
 
         thread::spawn(move || loop {
             match apply_receiver.recv() {
-                Ok(e) => match e.get_entry_type() {
+                Ok(entry) => match entry.get_entry_type() {
                     EntryType::EntryNormal => {
+                        let req: ApplyReq = util::parse_data(entry.get_data());
+                        debug!("request: {:?}", req);
+
+                        // let client_id = req.get_client_id();
                         let result: NotifyArgs;
-                        let req: ApplyReq = util::parse_data(e.get_data());
-                        let client_id = req.get_client_id();
-                        if e.data.len() > 0 {
+                        if entry.data.len() > 0 {
                             result = Self::apply_entry(
-                                e.term,
+                                entry.term,
                                 &req,
                                 peers.clone(),
                                 peers_addr.clone(),
@@ -246,26 +251,30 @@ impl IndexServer {
                                 index_writer.clone(),
                                 metrics.clone(),
                             );
-                            debug!("{:?}: {:?}", result.2, req);
                         } else {
                             result = NotifyArgs(0, String::from(""), RespErr::ErrWrongLeader);
-                            debug!("{:?}", req);
                         }
+                        debug!("request: {:?}", result);
+
                         let mut map = notify_ch_map.lock().unwrap();
-                        if let Some(s) = map.get(&client_id) {
-                            s.send(result).unwrap_or_else(|e| {
-                                error!("notify apply result error: {:?}", e);
+                        if let Some(sync_sender) = map.get(&req.get_client_id()) {
+                            sync_sender.send(result).unwrap_or_else(|e| {
+                                error!("error sending result: {:?}", e);
                             });
                         }
-                        map.remove(&client_id);
+                        map.remove(&req.get_client_id());
                     }
                     EntryType::EntryConfChange => {
+                        let cc: ConfChange = util::parse_data(entry.get_data());
+                        debug!("config change: {:?}", cc);
+
                         let result = NotifyArgs(0, String::from(""), RespErr::OK);
-                        let cc: ConfChange = util::parse_data(e.get_data());
+                        debug!("request: {:?}", result);
+
                         let mut map = notify_ch_map.lock().unwrap();
-                        if let Some(s) = map.get(&cc.get_node_id()) {
-                            s.send(result).unwrap_or_else(|e| {
-                                error!("notify apply result error: {:?}", e);
+                        if let Some(sync_sender) = map.get(&cc.get_node_id()) {
+                            sync_sender.send(result).unwrap_or_else(|e| {
+                                error!("error sending result: {:?}", e);
                             });
                         }
                         map.remove(&cc.get_node_id());
@@ -509,30 +518,34 @@ impl IndexService for IndexServer {
     fn raft(&mut self, ctx: RpcContext, req: RaftMessage, sink: UnarySink<RaftDone>) {
         self.metrics.lock().unwrap().inc_request_count("raft");
 
+        debug!("request: {:?}", req);
+
         self.rf_message_ch
             .send(PeerMessage::Message(req.clone()))
             .unwrap_or_else(|e| {
-                error!("send message to raft error: {:?}", e);
+                error!("error sending message: {:?}", e);
             });
+
         let resp = RaftDone::new();
 
+        debug!("response: {:?}", resp);
         ctx.spawn(
             sink.success(resp)
-                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
+                .map_err(move |e| error!("failed to reply response: {:?}", e)),
         )
     }
 
     fn raft_conf_change(&mut self, ctx: RpcContext, req: ConfChangeReq, sink: UnarySink<RaftDone>) {
-        debug!("request: {:?}", req);
-
         self.metrics
             .lock()
             .unwrap()
             .inc_request_count("raft_conf_change");
 
+        debug!("request: {:?}", req);
+
         let cc = req.cc.clone().unwrap();
-        let mut resp = RaftDone::new();
         let mut apply_req = ApplyReq::new();
+        let mut resp = RaftDone::new();
 
         match cc.change_type {
             ConfChangeType::AddNode | ConfChangeType::AddLearnerNode => {
@@ -572,17 +585,16 @@ impl IndexService for IndexServer {
         }
 
         debug!("response: {:?}", resp);
-
         ctx.spawn(
             sink.success(resp)
-                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
+                .map_err(move |e| error!("failed to reply response: {:?}", e)),
         )
     }
 
     fn probe(&mut self, ctx: RpcContext, req: ProbeReq, sink: UnarySink<ProbeResp>) {
-        debug!("request: {:?}", req);
-
         self.metrics.lock().unwrap().inc_request_count("probe");
+
+        debug!("request: {:?}", req);
 
         let mut ret = HashMap::new();
         ret.insert("health", "OK");
@@ -592,51 +604,48 @@ impl IndexService for IndexServer {
         resp.set_value(serde_json::to_string(&ret).unwrap());
 
         debug!("response: {:?}", resp);
-
         ctx.spawn(
             sink.success(resp)
-                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
+                .map_err(move |e| error!("failed to reply response: {:?}", e)),
         )
     }
 
     fn peers(&mut self, ctx: RpcContext, req: PeersReq, sink: UnarySink<PeersResp>) {
-        debug!("request: {:?}", req);
-
         self.metrics.lock().unwrap().inc_request_count("peers");
+
+        debug!("request: {:?}", req);
 
         let mut resp = PeersResp::new();
         resp.set_err(RespErr::OK);
         resp.set_value(serde_json::to_string(&self.peers_addr.lock().unwrap().clone()).unwrap());
 
         debug!("response: {:?}", resp);
-
         ctx.spawn(
             sink.success(resp)
-                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
+                .map_err(move |e| error!("failed to reply response: {:?}", e)),
         )
     }
 
     fn metrics(&mut self, ctx: RpcContext, req: MetricsReq, sink: UnarySink<MetricsResp>) {
-        debug!("request: {:?}", req);
-
         self.metrics.lock().unwrap().inc_request_count("metrics");
+
+        debug!("request: {:?}", req);
 
         let mut resp = MetricsResp::new();
         resp.set_err(RespErr::OK);
         resp.set_value(self.metrics.lock().unwrap().get_metrics());
 
         debug!("response: {:?}", resp);
-
         ctx.spawn(
             sink.success(resp)
-                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
+                .map_err(move |e| error!("failed to reply response: {:?}", e)),
         )
     }
 
     fn get(&mut self, ctx: RpcContext, req: GetReq, sink: UnarySink<GetResp>) {
-        debug!("request: {:?}", req);
-
         self.metrics.lock().unwrap().inc_request_count("get");
+
+        debug!("request: {:?}", req);
 
         let t = Term::from_field_text(
             self.index.schema().get_field("_id").unwrap(),
@@ -656,10 +665,9 @@ impl IndexService for IndexServer {
         resp.set_value(serde_json::to_string(&named_doc).unwrap());
 
         debug!("response: {:?}", resp);
-
         ctx.spawn(
             sink.success(resp)
-                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
+                .map_err(move |e| error!("failed to reply response: {:?}", e)),
         )
     }
 
@@ -677,10 +685,9 @@ impl IndexService for IndexServer {
         resp.set_value(ret);
 
         debug!("response: {:?}", resp);
-
         ctx.spawn(
             sink.success(resp)
-                .map_err(move |e| error!("failed to reply {:?}: {:?}", apply_req, e)),
+                .map_err(move |e| error!("failed to reply message: {:?}", e)),
         )
     }
 
@@ -698,10 +705,9 @@ impl IndexService for IndexServer {
         resp.set_value(ret);
 
         debug!("response: {:?}", resp);
-
         ctx.spawn(
             sink.success(resp)
-                .map_err(move |e| error!("failed to reply {:?}: {:?}", apply_req, e)),
+                .map_err(move |e| error!("failed to reply response: {:?}", e)),
         )
     }
 
@@ -719,10 +725,9 @@ impl IndexService for IndexServer {
         resp.set_value(ret);
 
         debug!("response: {:?}", resp);
-
         ctx.spawn(
             sink.success(resp)
-                .map_err(move |e| error!("failed to reply {:?}: {:?}", apply_req, e)),
+                .map_err(move |e| error!("failed to reply response: {:?}", e)),
         )
     }
 
@@ -745,10 +750,9 @@ impl IndexService for IndexServer {
         resp.set_value(ret);
 
         debug!("response: {:?}", resp);
-
         ctx.spawn(
             sink.success(resp)
-                .map_err(move |e| error!("failed to reply {:?}: {:?}", apply_req, e)),
+                .map_err(move |e| error!("failed to reply response: {:?}", e)),
         )
     }
 
@@ -766,10 +770,9 @@ impl IndexService for IndexServer {
         resp.set_value(ret);
 
         debug!("response: {:?}", resp);
-
         ctx.spawn(
             sink.success(resp)
-                .map_err(move |e| error!("failed to reply {:?}: {:?}", apply_req, e)),
+                .map_err(move |e| error!("failed to reply response: {:?}", e)),
         )
     }
 
@@ -787,10 +790,9 @@ impl IndexService for IndexServer {
         resp.set_value(ret);
 
         debug!("response: {:?}", resp);
-
         ctx.spawn(
             sink.success(resp)
-                .map_err(move |e| error!("failed to reply {:?}: {:?}", apply_req, e)),
+                .map_err(move |e| error!("failed to reply response: {:?}", e)),
         )
     }
 
@@ -808,17 +810,16 @@ impl IndexService for IndexServer {
         resp.set_value(ret);
 
         debug!("response: {:?}", resp);
-
         ctx.spawn(
             sink.success(resp)
-                .map_err(move |e| error!("failed to reply {:?}: {:?}", apply_req, e)),
+                .map_err(move |e| error!("failed to reply response: {:?}", e)),
         )
     }
 
     fn search(&mut self, ctx: RpcContext, req: SearchReq, sink: UnarySink<SearchResp>) {
-        debug!("request: {:?}", req);
-
         self.metrics.lock().unwrap().inc_request_count("search");
+
+        debug!("request: {:?}", req);
 
         let schema = self.index.schema();
         let default_fields: Vec<Field> = schema
@@ -882,7 +883,6 @@ impl IndexService for IndexServer {
             let mut facet_kv: HashMap<String, u64> = HashMap::new();
             for facet_prefix in req.get_facet_prefixes() {
                 for (facet_key, facet_value) in facet_counts.get(facet_prefix) {
-                    debug!("{:?}={}", facet_key.to_string(), facet_value);
                     facet_kv.insert(facet_key.to_string(), facet_value);
                 }
             }
@@ -895,12 +895,6 @@ impl IndexService for IndexServer {
             if doc_pos >= req.get_from() {
                 let doc = searcher.doc(doc_address).unwrap();
                 let named_doc = schema.to_named_doc(&doc);
-                debug!(
-                    "score: {:?} doc: {:?}",
-                    score,
-                    serde_json::to_string(&named_doc).unwrap()
-                );
-
                 let scored_doc = ScoredNamedFieldDocument {
                     fields: named_doc,
                     score,
@@ -917,30 +911,25 @@ impl IndexService for IndexServer {
         resp.set_value(serde_json::to_string(&sr).unwrap());
 
         debug!("response: {:?}", resp);
-
         ctx.spawn(
             sink.success(resp)
-                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
+                .map_err(move |e| error!("failed to reply response: {:?}", e)),
         )
     }
 
     fn schema(&mut self, ctx: RpcContext, req: SchemaReq, sink: UnarySink<SchemaResp>) {
-        debug!("request: {:?}", req);
-
         self.metrics.lock().unwrap().inc_request_count("schema");
+
+        debug!("request: {:?}", req);
 
         let mut resp = SchemaResp::new();
         resp.set_err(RespErr::OK);
-        resp.set_value(format!(
-            "{}",
-            serde_json::to_string(&self.index.schema()).unwrap()
-        ));
+        resp.set_value(serde_json::to_string(&self.index.schema()).unwrap());
 
         debug!("response: {:?}", resp);
-
         ctx.spawn(
             sink.success(resp)
-                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e)),
+                .map_err(move |e| error!("failed to reply response: {:?}", e)),
         );
     }
 }
