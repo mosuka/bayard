@@ -114,6 +114,7 @@ fn main() {
                         .short("T")
                         .long("tokenizer-file")
                         .value_name("TOKENIZER_FILE")
+                        .default_value("./etc/tokenizer.json")
                         .takes_value(true),
                 )
                 .arg(

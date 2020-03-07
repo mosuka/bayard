@@ -1,9 +1,7 @@
-use log::*;
 use protobuf::{self, Message};
 use raft::Config;
 
 pub fn default_raft_config(id: u64, peers: Vec<u64>) -> Config {
-    debug!("default_raft_config id:{} peers:{:?}", id, peers);
     Config {
         id,
         peers,
