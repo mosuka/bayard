@@ -17,10 +17,10 @@ Start position of fetching results. If not specified, use default value. [defaul
 Limitation of amount that document to be returned. If not specified, use default value. [default: 10]
 
 - `exclude_count`  
-A flag indicating whether or not to exclude hit count in the search results. If not specified, use default value. [default: true]
+A flag indicating whether or not to exclude hit count in the search results. If not specified, use default value. [default: false]
 
 - `exclude_docs`  
-A flag indicating whether or not to exclude hit documents in the search results. If not specified, use default value. [default: true]
+A flag indicating whether or not to exclude hit documents in the search results. If not specified, use default value. [default: false]
 
 - `query`  
 Query string to search the index.
