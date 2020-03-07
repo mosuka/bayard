@@ -1,13 +1,13 @@
-use std::{fs, thread};
 use std::collections::HashMap;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
-use std::sync::{Arc, Mutex};
 use std::sync::mpsc::{self, Receiver, SyncSender};
+use std::sync::{Arc, Mutex};
 use std::time::Duration;
+use std::{fs, thread};
 
 use async_std::task::block_on;
-use bayard_client::client::client::{Clerk, create_client};
+use bayard_client::client::client::{create_client, Clerk};
 use bayard_proto::proto::indexpb_grpc::{self, Index as IndexService, IndexClient};
 use bayard_proto::proto::indexrpcpb::{
     ApplyReq, BulkDeleteReq, BulkDeleteResp, BulkPutReq, BulkPutResp, CommitReq, CommitResp,
@@ -22,15 +22,15 @@ use log::*;
 use protobuf::Message;
 use raft::eraftpb::{ConfChange, ConfChangeType, Entry, EntryType, Message as RaftMessage};
 use stringreader::StringReader;
-use tantivy::{Document, Index, IndexWriter, Term};
 use tantivy::collector::{Count, FacetCollector, MultiCollector, TopDocs};
 use tantivy::merge_policy::LogMergePolicy;
 use tantivy::query::{QueryParser, TermQuery};
 use tantivy::schema::{Field, FieldType, IndexRecordOption, Schema};
+use tantivy::{Document, Index, IndexWriter, Term};
 
-use crate::server::{peer, util};
 use crate::server::metrics::Metrics;
 use crate::server::peer::PeerMessage;
+use crate::server::{peer, util};
 use crate::tokenizer::tokenizer_initializer::TokenizerInitializer;
 use crate::util::search_result::{ScoredNamedFieldDocument, SearchResult};
 use crate::util::signal::sigterm_channel;

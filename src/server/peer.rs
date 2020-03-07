@@ -4,9 +4,9 @@ use std::thread;
 use std::time::{Duration, Instant};
 
 use log::*;
-use raft::eraftpb::{ConfChange, Entry, EntryType, Message, MessageType};
-use raft::storage::MemStorage as PeerStorage;
 use raft::{self, RawNode};
+use raft::eraftpb::{ConfChange, ConfState, Entry, EntryType, Message, MessageType};
+use raft::storage::MemStorage;
 
 use crate::server::util;
 
@@ -17,9 +17,10 @@ pub enum PeerMessage {
 }
 
 pub struct Peer {
-    pub raw_node: RawNode<PeerStorage>,
-    // last_applying_idx: u64,
+    pub raw_node: RawNode<MemStorage>,
+    last_apply_index: u64,
     // last_compacted_idx: u64,
+    conf_state: Option<ConfState>,
     apply_ch: SyncSender<Entry>,
     // peers_addr: HashMap<u64, (String, u32)>, // id, (host, port)
 }
@@ -27,11 +28,12 @@ pub struct Peer {
 impl Peer {
     pub fn new(id: u64, apply_ch: SyncSender<Entry>, peers: Vec<u64>) -> Peer {
         let cfg = util::default_raft_config(id, peers);
-        let storge = PeerStorage::new();
+        let storge = MemStorage::new();
         let peer = Peer {
             raw_node: RawNode::new(&cfg, storge, vec![]).unwrap(),
-            // last_applying_idx: 0,
+            last_apply_index: 0,
             // last_compacted_idx: 0,
+            conf_state: None,
             apply_ch,
             // peers_addr: HashMap::new(),
         };
@@ -92,8 +94,10 @@ impl Peer {
         }
         let mut ready = self.raw_node.ready();
 
+        let is_leader = self.is_leader();
+
         // leader
-        if self.is_leader() {
+        if is_leader {
             let msgs = ready.messages.drain(..);
             for msg in msgs {
                 Self::send_message(sender.clone(), msg.clone());
@@ -121,7 +125,7 @@ impl Peer {
         }
 
         // not leader
-        if !self.is_leader() {
+        if !is_leader {
             let msgs = ready.messages.drain(..);
             for msg in msgs {
                 Self::send_message(sender.clone(), msg.clone());
@@ -129,11 +133,10 @@ impl Peer {
         }
 
         if let Some(committed_entries) = ready.committed_entries.take() {
-            let mut _last_apply_index = 0;
             for entry in committed_entries {
                 // Mostly, you need to save the last apply index to resume applying
                 // after restart. Here we just ignore this because we use a Memory storage.
-                _last_apply_index = entry.get_index();
+                self.last_apply_index = entry.get_index();
 
                 if entry.get_data().is_empty() {
                     // Emtpy entry, when the peer becomes Leader it will send an empty entry.
@@ -147,13 +150,35 @@ impl Peer {
                         info!("apply config change: {:?}", cc);
                         self.raw_node.apply_conf_change(&cc);
                         self.apply_message(entry.clone());
+
+                        self.conf_state = Some(self.raw_node.apply_conf_change(&cc));
                     }
                 }
             }
+
+            // if last_apply_index > 0 {
+            //     info!("last apply index: {}", last_apply_index);
+            //     let data = b"data".to_vec();
+            //     match self.raw_node.mut_store().wl().create_snapshot(
+            //         last_apply_index,
+            //         conf_state,
+            //         data,
+            //     ) {
+            //         Ok(_s) => (),
+            //         Err(e) => error!("creating snapshot failed: {:?}", e),
+            //     }
+            // }
         }
 
         // Advance the Raft
         self.raw_node.advance(ready);
+
+        // let raft_applied = self.raw_node.raft.raft_log.get_applied();
+        // info!("raft_applied: {}", raft_applied);
+        // match self.raw_node.mut_store().wl().compact(raft_applied) {
+        //     Ok(_) => (),
+        //     Err(e) => error!("compaction failed: {:?}", e),
+        // }
     }
 
     fn send_message(sender: SyncSender<Message>, msg: Message) {
