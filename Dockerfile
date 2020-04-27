@@ -1,4 +1,4 @@
-ARG RUST_VERSION=1.39.0
+ARG RUST_VERSION=1.42.0
 
 
 FROM rust:${RUST_VERSION}-slim-stretch AS builder
@@ -15,23 +15,25 @@ RUN set -ex \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Cache dependencies.
-COPY ./Cargo.toml ./Cargo.lock ./
-RUN mkdir -p src \
-    && echo "fn main() {}" > src/main.rs \
-    && touch src/lib.rs \
-    && cargo build --release
-
 COPY . ./
 RUN make build
 
 
 FROM debian:stretch-slim
 
-RUN mkdir -p /data
 WORKDIR /
+
+RUN set -ex \
+    && apt-get update \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /data
+
 COPY --from=builder /repo/bin /usr/local/bin
 COPY --from=builder /repo/etc/* /etc/
-EXPOSE 5000
+
+EXPOSE 5000 7000
+
 ENTRYPOINT [ "bayard" ]
-CMD [ "serve" ]
+CMD [ "start" ]

@@ -9,32 +9,38 @@ Running in standalone is not fault tolerant. If you need to improve fault tolera
 You can start servers in cluster mode with the following command:
 
 ```text
-$ ./bin/bayard serve \
-    --id=1 \
-    --host=0.0.0.0 \
-    --port=5001 \
-    --data-directory=./data/1 \
-    --schema-file=./etc/schema.json
+$ ./bin/bayard start \
+               --host=0.0.0.0 \
+               --raft-port=7001 \
+               --index-port=5001 \
+               --data-directory=./data/node1 \
+               --schema-file=./etc/schema.json \
+               --tokenizer-file=./etc/tokenizer.json \
+               1
 ```
 
 ```text
-$ ./bin/bayard serve \
-    --id=2 \
-    --host=0.0.0.0 \
-    --port=5002 \
-    --peers="1=0.0.0.0:5001" \
-    --data-directory=./data/2 \
-    --schema-file=./etc/schema.json
+$ ./bin/bayard start \
+               --host=0.0.0.0 \
+               --raft-port=7002 \
+               --index-port=5002 \
+               --peer-raft-address=0.0.0.0:7001 \
+               --data-directory=./data/node2 \
+               --schema-file=./etc/schema.json \
+               --tokenizer-file=./etc/tokenizer.json \
+               2
 ```
 
 ```text
-$ ./bin/bayard serve \
-    --id=3 \
-    --host=0.0.0.0 \
-    --port=5003 \
-    --peers="1=0.0.0.0:5001,2=0.0.0.0:5002" \
-    --data-directory=./data/3 \
-    --schema-file=./etc/schema.json
+$ ./bin/bayard start \
+               --host=0.0.0.0 \
+               --raft-port=7003 \
+               --index-port=5003 \
+               --peer-raft-address=0.0.0.0:7001 \
+               --data-directory=./data/node3 \
+               --schema-file=./etc/schema.json \
+               --tokenizer-file=./etc/tokenizer.json \
+               3
 ```
 
 The above commands run servers on the same host, so each server must listen on a different port. This would not be necessary if each server runs on a different host.
@@ -46,16 +52,39 @@ When deploying to a single host, if that host goes down due to hardware failure,
 You can check the peers in the cluster with the following command:
 
 ```text
-$ ./bin/bayard peers --server localhost:5001 | jq .
+$ ./bin/bayard status
+               --server=0.0.0.0:5001 | jq .
 ```
 
 You'll see the result in JSON format. The result of the above command is:
 
 ```json
 {
-  "1": "0.0.0.0:5001",
-  "2": "0.0.0.0:5002",
-  "3": "0.0.0.0:5003"
+  "leader": 1,
+  "nodes": [
+    {
+      "address": {
+        "index_address": "0.0.0.0:5001",
+        "raft_address": "0.0.0.0:7001"
+      },
+      "id": 1
+    },
+    {
+      "address": {
+        "index_address": "0.0.0.0:5002",
+        "raft_address": "0.0.0.0:7002"
+      },
+      "id": 2
+    },
+    {
+      "address": {
+        "index_address": "0.0.0.0:5003",
+        "raft_address": "0.0.0.0:7003"
+      },
+      "id": 3
+    }
+  ],
+  "status": "OK"
 }
 ```
 
@@ -67,6 +96,6 @@ The following command deletes the server with `id=3` from the cluster:
 
 ```text
 $ ./bin/bayard leave \
-    --servers=127.0.0.1:5001 \
-    --id=3
+               --servers=0.0.0.0:5001 \
+               3
 ```

@@ -5,23 +5,7 @@
 Running node in standalone mode is easy. You can start server with the following command:
 
 ```text
-$ ./bin/bayard serve
-```
-
-You'll see a startup message like following:
-
-```text
-[2019-11-27T00:30:45Z INFO bayard::server::server src/server/server.rs:119] listening on 0.0.0.0:5000
-[2019-11-27T00:30:45Z INFO raft::raft /Users/m-osuka/.cargo/registry/src/github.com-1ecc6299db9ec823/raft-0.4.3/src/raft.rs:723]  became follower at term 0
-[2019-11-27T00:30:45Z INFO raft::raft /Users/m-osuka/.cargo/registry/src/github.com-1ecc6299db9ec823/raft-0.4.3/src/raft.rs:295]  newRaft [peers: [1], term: 0, commit: 0, applied: 0, last_index: 0, last_term: 0]
-[2019-11-27T00:30:45Z INFO raft::raft /Users/m-osuka/.cargo/registry/src/github.com-1ecc6299db9ec823/raft-0.4.3/src/raft.rs:723]  became follower at term 1
-
-[...]
-
-[2019-11-27T00:30:48Z INFO raft::raft /Users/m-osuka/.cargo/registry/src/github.com-1ecc6299db9ec823/raft-0.4.3/src/raft.rs:1094]  is starting a new election at term 1
-[2019-11-27T00:30:48Z INFO raft::raft /Users/m-osuka/.cargo/registry/src/github.com-1ecc6299db9ec823/raft-0.4.3/src/raft.rs:743]  became candidate at term 2
-[2019-11-27T00:30:48Z INFO raft::raft /Users/m-osuka/.cargo/registry/src/github.com-1ecc6299db9ec823/raft-0.4.3/src/raft.rs:858]  received MsgRequestVoteResponse from 1 at term 2
-[2019-11-27T00:30:48Z INFO raft::raft /Users/m-osuka/.cargo/registry/src/github.com-1ecc6299db9ec823/raft-0.4.3/src/raft.rs:793]  became leader at term 2
+$ ./bin/bayard start 1
 ```
 
 ## Getting schema
@@ -110,8 +94,8 @@ You'll see the result in JSON format. The result of the above command is:
 You can index document with the following command:
 
 ```text
-$ ./bin/bayard put --id=1 --file=./examples/doc_1.json | jq .
-$ ./bin/bayard commit | jq .
+$ cat ./examples/doc_1.json | xargs -0 ./bin/bayard set 1
+$ ./bin/bayard commit
 ```
 
 ## Getting document
@@ -119,7 +103,7 @@ $ ./bin/bayard commit | jq .
 You can get document with the following command:
 
 ```text
-$ ./bin/bayard get --id=1 | jq .
+$ ./bin/bayard get 1 | jq .
 ```
 
 You'll see the result in JSON format. The result of the above command is:
@@ -156,8 +140,8 @@ You'll see the result in JSON format. The result of the above command is:
 You can index documents in bulk with the following command:
 
 ```text
-$ ./bin/bayard put --bulk --file=./examples/bulk_put.jsonl | jq .
-$ ./bin/bayard commit | jq .
+$ cat ./examples/bulk_put.jsonl | xargs -0 ./bin/bayard bulk-set
+$ ./bin/bayard commit
 ```
 
 ## Searching documents
@@ -244,8 +228,8 @@ You'll see the result in JSON format. The result of the above command is:
 You can delete document with the following command:
 
 ```text
-$ ./bin/bayard delete --id=1 | jq .
-$ ./bin/bayard commit | jq .
+$ ./bin/bayard delete 1
+$ ./bin/bayard commit
 ```
 
 ## Deleting documents in bulk
@@ -253,6 +237,6 @@ $ ./bin/bayard commit | jq .
 You can delete documents in bulk with the following command:
 
 ```text
-$ ./bin/bayard delete --bulk --file=./examples/bulk_delete.jsonl | jq .
-$ ./bin/bayard commit | jq .
+$ cat ./examples/bulk_delete.jsonl | xargs -0 ./bin/bayard bulk-delete
+$ ./bin/bayard commit
 ```
