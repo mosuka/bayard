@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
+- Split a package #78 @mosuka
 - Update search.md #75 @klausondrag
 - Refactoring #74 @mosuka
 - Migrate to bayard-client #73 @mosuka
