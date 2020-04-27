@@ -40,7 +40,7 @@ ifeq ($(shell cargo show --json bayard-rest | jq -r '.versions[].num' | grep $(R
 	(cd bayard-rest && cargo package && cargo publish)
 	sleep 10
 endif
-ifeq ($(shell cargo show --json bayard-client | jq -r '.versions[].num' | grep $(VERSION)),)
+ifeq ($(shell cargo show --json bayard | jq -r '.versions[].num' | grep $(VERSION)),)
 	(cd bayard && cargo package && cargo publish)
 endif
 
