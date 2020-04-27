@@ -1,4 +1,4 @@
 # Reference
 
-- [bayard](reference/bayard.md)
-- [APIs](reference/apis.md)
+- [Command-line interface](reference/cli.md)
+- [APIs](reference/api.md)

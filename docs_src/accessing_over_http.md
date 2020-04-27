@@ -21,4 +21,4 @@ $ ./bin/bayard gateway --servers=127.0.0.1:5001,127.0.0.1:5002,127.0.0.1:5003
 ## REST API
 
 See following documents:
-- [APIs](reference/apis.md)
+- [APIs](reference/api.md)

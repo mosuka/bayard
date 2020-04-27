@@ -1,0 +1,30 @@
+[package]
+name = "bayard-rest"
+version = "0.7.0"
+authors = ["Minoru Osuka <minoru.osuka@gmail.com>"]
+edition = "2018"
+description = "REST API server for Bayard."
+documentation = "https://bayard-search.github.io/bayard/"
+homepage = "https://github.com/bayard-search"
+repository = "https://github.com/bayard-search/bayard/bayard-rest"
+readme = "README.md"
+keywords = ["full-text", "search", "index", "server", "rest"]
+categories = ["database"]
+license = "MIT"
+
+[[bin]]
+name = "bayard-rest"
+path = "src/main.rs"
+
+[dependencies]
+clap = "2.33.0"
+env_logger = "0.7.1"
+iron = "0.6.1"
+log = "0.4.8"
+logger = "0.4.0"
+persistent = "0.4.0"
+router = "0.6.0"
+serde_json = "1.0.44"
+urlencoded = "0.6.0"
+
+bayard-client = { version = "0.7.0", path = "../bayard-client" }

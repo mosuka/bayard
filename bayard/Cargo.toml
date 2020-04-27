@@ -1,0 +1,33 @@
+[package]
+name = "bayard"
+version = "0.7.0"
+authors = ["Minoru Osuka <minoru.osuka@gmail.com>"]
+edition = "2018"
+description = "Bayard is a distributed search server."
+documentation = "https://bayard-search.github.io/bayard/"
+homepage = "https://github.com/bayard-search"
+repository = "https://github.com/bayard-search/bayard/bayard"
+readme = "README.md"
+keywords = ["full-text", "search", "index", "server"]
+categories = ["database"]
+license = "MIT"
+
+[[bin]]
+name = "bayard"
+path = "src/main.rs"
+
+[dependencies]
+clap = "2.33.0"
+crossbeam-channel = "0.4.0"
+ctrlc = { version = "3.1.3", features = ["termination"] }
+env_logger = "0.7.1"
+futures = "0.1.29"
+grpcio = { version = "0.4.7", features = [ "secure" ] }
+log = "0.4.8"
+num_cpus = "1.11.1"
+raft = "0.4.3"
+serde_json = "1.0.44"
+
+bayard-client = { version = "0.7.0", path = "../bayard-client" }
+bayard-proto = "0.7.0"
+bayard-server = { version = "0.7.0", path = "../bayard-server" }
