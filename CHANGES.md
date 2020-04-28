@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+- Upgrade dependencies #79 @mosuka
+
 ## 0.7.0 (2020-04-27)
 - Split a package #78 @mosuka
 - Update search.md #75 @klausondrag
