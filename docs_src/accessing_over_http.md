@@ -1,24 +1,17 @@
 # Accessing over the HTTP
 
-Bayard supports gRPC connections, but some users may want to use the traditional RESTful API over HTTP. Gateways are useful in such cases.
+Bayard supports gRPC connections, but some users may want to use the traditional RESTful API over HTTP. Bayard REST server is useful in such cases.
 
 
 ## Using Gateway
 
-Starting a Gateway is easy.
+Starting a REST server is easy.
 
 ```text
-$ ./bin/bayard gateway
+$ ./bin/bayard-rest start --port=8000 --server=0.0.0.0:5001
 ```
-
-If you want to start a Gateway that connects to Bayard running in cluster mode, we recommend that you specify a flag as follows:
-
-```text
-$ ./bin/bayard gateway --servers=127.0.0.1:5001,127.0.0.1:5002,127.0.0.1:5003
-```
-
 
 ## REST API
 
 See following documents:
-- [APIs](reference/api.md)
+- [API](reference/api.md)

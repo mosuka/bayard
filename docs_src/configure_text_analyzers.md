@@ -30,9 +30,14 @@ Tokenize the text by splitting on whitespaces and punctuation.
 
 Tokenize the text by splitting words into n-grams of the given size(s).
 
-- min_gram: Min size of the n-gram.
-- max_gram: Max size of the n-gram.
-- prefix_only: If true, will only parse the leading edge of the input.
+- `min_gram`:  
+&nbsp;&nbsp;&nbsp;&nbsp; Min size of the n-gram.
+
+- `max_gram`:  
+&nbsp;&nbsp;&nbsp;&nbsp; Max size of the n-gram.
+
+- `prefix_only`:  
+&nbsp;&nbsp;&nbsp;&nbsp; If true, will only parse the leading edge of the input.
 
 ```json
 {
@@ -59,12 +64,23 @@ Process a facet binary representation and emits a token for all of its parent.
 
 A Chinese tokenizer based on [jieba-rs](https://github.com/messense/jieba-rs).
 
-- hmm: Enable HMM or not.
-- tokenizer_option: Tokenizer option.
-  - `all`: Cut the input text, return all possible words.
-  - `default`: Cut the input text.
-  - `search`: Cut the input text in search mode.
-  - `unicode`: Cut the input text into UTF-8 characters.
+- `hmm`:  
+&nbsp;&nbsp;&nbsp;&nbsp; Enable HMM or not.
+
+- `tokenizer_option`:  
+&nbsp;&nbsp;&nbsp;&nbsp; Tokenizer option.
+
+    - `all`:  
+&nbsp;&nbsp;&nbsp;&nbsp; Cut the input text, return all possible words.
+
+    - `default`:  
+&nbsp;&nbsp;&nbsp;&nbsp; Cut the input text.
+
+    - `search`:  
+&nbsp;&nbsp;&nbsp;&nbsp; Cut the input text in search mode.
+
+    - `unicode`:  
+&nbsp;&nbsp;&nbsp;&nbsp; Cut the input text into UTF-8 characters.
 
 ```json
 {
@@ -80,15 +96,21 @@ A Chinese tokenizer based on [jieba-rs](https://github.com/messense/jieba-rs).
 
 A Tokenizer based on [Lindera](https://github.com/lindera-morphology/lindera).
 
-- mode: Tokenization mode.
-    - `normal`: Tokenize faithfully based on words registered in the dictionary. (Default)
-    - `decompose`: Tokenize a compound noun words additionally.
-- dict: Specify the pre-built dictionary directory path instead of the default dictionary (IPADIC).
-Please refer to the following repository for building a dictionary:
-    - <a href="https://github.com/bayard-search/lindera-ipadic-builder" target="_blank">Lindera IPADIC Builder</a> (Japanese)
-    - <a href="https://github.com/bayard-search/lindera-ipadic-neologd-builder" target="_blank">Lindera IPDIC NEologd Builder</a> (Japanese)
-    - <a href="https://github.com/bayard-search/lindera-unidic-builder" target="_blank">Lindera UniDic Builder</a> (Japanese)
-    - <a href="https://github.com/bayard-search/lindera-ko-dic-builder" target="_blank">Lindera ko-dic Builder</a> (Korean)
+- `mode`:  
+&nbsp;&nbsp;&nbsp;&nbsp; Tokenization mode.
+
+    - `normal`:  
+&nbsp;&nbsp;&nbsp;&nbsp; Tokenize faithfully based on words registered in the dictionary. (Default)
+
+    - `decompose`:  
+&nbsp;&nbsp;&nbsp;&nbsp; Tokenize a compound noun words additionally.
+
+- `dict`:  
+&nbsp;&nbsp;&nbsp;&nbsp; Specify the pre-built dictionary directory path instead of the default dictionary (IPADIC). Please refer to the following repository for building a dictionary:  
+&nbsp;&nbsp;&nbsp;&nbsp; - <a href="https://github.com/bayard-search/lindera-ipadic-builder" target="_blank">Lindera IPADIC Builder</a> (Japanese)  
+&nbsp;&nbsp;&nbsp;&nbsp; - <a href="https://github.com/bayard-search/lindera-ipadic-neologd-builder" target="_blank">Lindera IPDIC NEologd Builder</a> (Japanese)  
+&nbsp;&nbsp;&nbsp;&nbsp; - <a href="https://github.com/bayard-search/lindera-unidic-builder" target="_blank">Lindera UniDic Builder</a> (Japanese)  
+&nbsp;&nbsp;&nbsp;&nbsp; - <a href="https://github.com/bayard-search/lindera-ko-dic-builder" target="_blank">Lindera ko-dic Builder</a> (Korean)  
 
 ```json
 {
@@ -137,7 +159,8 @@ Converts lowercase terms.
 
 Removes tokens that are longer than a given number of bytes (in UTF-8 representation). It is especially useful when indexing unconstrained content. e.g. Mail containing base-64 encoded pictures etc.
 
-- length_limit: A limit in bytes of the UTF-8 representation.
+- `length_limit`:  
+&nbsp;&nbsp;&nbsp;&nbsp; A limit in bytes of the UTF-8 representation.
 
 ```json
 {
@@ -152,25 +175,27 @@ Removes tokens that are longer than a given number of bytes (in UTF-8 representa
 
 Stemming token filter. Several languages are supported. Tokens are expected to be lowercased beforehand.
 
-- stemmer_algorithm: A given language algorithm.
-  - `arabic`
-  - `danish`
-  - `dutch`
-  - `english`
-  - `finnish`
-  - `french`
-  - `german`
-  - `greek`
-  - `hungarian`
-  - `italian`
-  - `norwegian`
-  - `portuguese`
-  - `romanian`
-  - `russian`
-  - `spanish`
-  - `swedish`
-  - `tamil`
-  - `turkish`
+- `stemmer_algorithm`:  
+&nbsp;&nbsp;&nbsp;&nbsp; A given language algorithm.  
+
+    - `arabic`
+    - `danish`
+    - `dutch`
+    - `english`
+    - `finnish`
+    - `french`
+    - `german`
+    - `greek`
+    - `hungarian`
+    - `italian`
+    - `norwegian`
+    - `portuguese`
+    - `romanian`
+    - `russian`
+    - `spanish`
+    - `swedish`
+    - `tamil`
+    - `turkish`
 
 ```json
 {
@@ -185,7 +210,8 @@ Stemming token filter. Several languages are supported. Tokens are expected to b
 
 Removes stop words from a token stream.
 
-- word: A list of words to remove.
+- `word`:  
+&nbsp;&nbsp;&nbsp;&nbsp; A list of words to remove.
 
 ```json
 {

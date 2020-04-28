@@ -22,20 +22,20 @@ See the following list:
 - [Commit API](api/commit.md)  
 &nbsp;&nbsp;&nbsp;&nbsp; Commit API commits updates made to the index.
 
-- [rollback](api/rollback.md)  
-&nbsp;&nbsp;&nbsp;&nbsp; *TODO*
+- [Rollback API](api/rollback.md)  
+&nbsp;&nbsp;&nbsp;&nbsp; Rollback API rolls back any updates made to the index to the last committed state.
 
-- [merge](api/merge.md)  
-&nbsp;&nbsp;&nbsp;&nbsp; *TODO*
+- [Merge API](api/merge.md)  
+&nbsp;&nbsp;&nbsp;&nbsp; Merge API merges fragmented segments in the index.
 
-- [schema](api/schema.md)  
-&nbsp;&nbsp;&nbsp;&nbsp; *TODO*
+- [Schema API](api/schema.md)  
+&nbsp;&nbsp;&nbsp;&nbsp; Schema API shows the index schema that the server applied.
 
-- [search](api/search.md)  
-&nbsp;&nbsp;&nbsp;&nbsp; *TODO*
+- [Search API](api/search.md)  
+&nbsp;&nbsp;&nbsp;&nbsp; Search API searches documents from the index.
 
-- [status](api/status.md)  
-&nbsp;&nbsp;&nbsp;&nbsp; *TODO*
+- [Status API](api/status.md)  
+&nbsp;&nbsp;&nbsp;&nbsp; Status API shows the cluster that the specified server is joining.
 
-- [metrics](api/metrics.md)  
-&nbsp;&nbsp;&nbsp;&nbsp; *TODO*
+- [Metrics API](api/metrics.md)  
+&nbsp;&nbsp;&nbsp;&nbsp; Metrics API shows the server metrics of the specified server. The metrics are output in Prometheus exposition format.

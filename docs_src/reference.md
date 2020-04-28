@@ -1,4 +1,4 @@
 # Reference
 
-- [Command-line interface](reference/cli.md)
-- [APIs](reference/api.md)
+- [CLI](reference/cli.md)
+- [API](reference/api.md)
