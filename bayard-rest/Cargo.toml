@@ -1,6 +1,6 @@
 [package]
 name = "bayard-rest"
-version = "0.7.0"
+version = "0.7.1"
 authors = ["Minoru Osuka <minoru.osuka@gmail.com>"]
 edition = "2018"
 description = "REST API server for Bayard."
@@ -24,7 +24,7 @@ log = "0.4.8"
 logger = "0.4.0"
 persistent = "0.4.0"
 router = "0.6.0"
-serde_json = "1.0.44"
+serde_json = "1.0.51"
 urlencoded = "0.6.0"
 
 bayard-client = { version = "0.7.0", path = "../bayard-client" }

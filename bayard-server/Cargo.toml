@@ -1,6 +1,6 @@
 [package]
 name = "bayard-server"
-version = "0.7.0"
+version = "0.7.1"
 authors = ["MinoruOsuka <minoru.osuka@gmail.com>"]
 edition = "2018"
 description = "Bayard is a distributed search server."
@@ -13,7 +13,7 @@ categories = ["database"]
 license = "MIT"
 
 [dependencies]
-async-std = "1.4.0"
+async-std = "1.5.0"
 bincode = "1.2.1"
 cang-jie = "0.7.0"
 futures = "0.1.29"
@@ -22,12 +22,12 @@ jieba-rs = "0.4.10"
 lazy_static = "1.4.0"
 lindera-tantivy = "0.1.0"
 log = "0.4.8"
-prometheus = "0.7.0"
+prometheus = "0.8.0"
 protobuf = "2.14.0"
 raft = "0.4.3"
-rocksdb = "0.13.0"
-serde = { version = "1.0.104", features = ["derive"] }
-serde_json = "1.0.44"
+rocksdb = "0.14.0"
+serde = { version = "1.0.106", features = ["derive"] }
+serde_json = "1.0.51"
 stringreader = "0.1.1"
 tantivy = "0.12.0"
 
