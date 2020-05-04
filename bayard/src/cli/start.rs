@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::path::Path;
 use std::sync::Arc;
 
+use bayard_proto::proto::{indexpb_grpc, raftpb_grpc};
 use clap::ArgMatches;
 use crossbeam_channel::select;
 use futures::Future;
@@ -10,13 +11,11 @@ use log::*;
 use raft::storage::MemStorage;
 
 use bayard_client::raft::client::RaftClient;
-use bayard_proto::proto::{indexpb_grpc, raftpb_grpc};
 use bayard_server::index::server::IndexServer;
 use bayard_server::raft::config::NodeAddress;
 
 use crate::log::set_logger;
 use crate::signal::sigterm_channel;
-// use bayard_server::metrics::Metrics;
 
 pub fn run_start_cli(matches: &ArgMatches) -> Result<(), std::io::Error> {
     set_logger();
@@ -80,8 +79,6 @@ pub fn run_start_cli(matches: &ArgMatches) -> Result<(), std::io::Error> {
         .to_string();
     let raft_storage = MemStorage::new();
 
-    // let metrics = Metrics::new(id);
-
     let (index, raft) = IndexServer::new(
         index_path,
         schema_file,
@@ -92,7 +89,6 @@ pub fn run_start_cli(matches: &ArgMatches) -> Result<(), std::io::Error> {
         id,
         node_address,
         addresses,
-        // metrics,
     );
 
     let index_service = indexpb_grpc::create_index_service(index);
