@@ -123,11 +123,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "bayard"
-version = "0.7.2"
+version = "0.7.3"
 dependencies = [
- "bayard-client 0.7.2",
+ "bayard-client 0.7.3",
  "bayard-proto 0.7.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "bayard-server 0.7.2",
+ "bayard-server 0.7.3",
  "clap 2.33.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "crossbeam-channel 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "ctrlc 3.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -142,10 +142,10 @@ dependencies = [
 
 [[package]]
 name = "bayard-client"
-version = "0.7.2"
+version = "0.7.3"
 dependencies = [
  "bayard-proto 0.7.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "bayard-server 0.7.2",
+ "bayard-server 0.7.3",
  "bincode 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "grpcio 0.4.7 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -168,9 +168,9 @@ dependencies = [
 
 [[package]]
 name = "bayard-rest"
-version = "0.7.2"
+version = "0.7.3"
 dependencies = [
- "bayard-client 0.7.2",
+ "bayard-client 0.7.3",
  "clap 2.33.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "iron 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -184,7 +184,7 @@ dependencies = [
 
 [[package]]
 name = "bayard-server"
-version = "0.7.2"
+version = "0.7.3"
 dependencies = [
  "async-std 1.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "bayard-proto 0.7.4 (registry+https://github.com/rust-lang/crates.io-index)",
