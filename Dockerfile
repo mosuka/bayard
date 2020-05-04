@@ -8,12 +8,15 @@ WORKDIR /repo
 RUN set -ex \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
-        build-essential \
-        cmake \
-        # For protobuf
-        golang-go \
+       build-essential \
+       cmake \
+       jq \
+       pkg-config \
+       libssl-dev \
+       golang-go \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && cargo install cargo-show
 
 COPY . ./
 RUN make build

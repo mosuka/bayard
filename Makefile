@@ -14,7 +14,7 @@ clean:
 format:
 	cargo fmt
 
-build: format
+build:
 	mkdir -p $(BIN_DIR)
 	cargo build --release
 	cp -p ./target/release/bayard $(BIN_DIR)
@@ -27,7 +27,7 @@ tag:
 	git tag v$(VERSION)
 	git push origin v$(VERSION)
 
-publish: format
+publish:
 ifeq ($(shell cargo show --json bayard-server | jq -r '.versions[].num' | grep $(SERVER_VERSION)),)
 	(cd bayard-server && cargo package && cargo publish)
 	sleep 10
@@ -53,7 +53,15 @@ docker-push:
 	docker push bayardsearch/bayard:$(VERSION)
 
 docker-clean:
-	docker rmi -f $(shell docker images --filter "dangling=true" -q --no-trunc)
+ifneq ($(shell docker ps -f 'status=exited' -q),)
+	docker rm $(shell docker ps -f 'status=exited' -q)
+endif
+ifneq ($(shell docker images -f 'dangling=true' -q),)
+	docker rmi -f $(shell docker images -f 'dangling=true' -q)
+endif
+ifneq ($(docker volume ls -f 'dangling=true' -q),)
+	docker volume rm $(docker volume ls -f 'dangling=true' -q)
+endif
 
 .PHONY: docs
 docs:
