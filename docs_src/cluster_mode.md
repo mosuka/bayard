@@ -9,38 +9,38 @@ Running in standalone is not fault tolerant. If you need to improve fault tolera
 You can start servers in cluster mode with the following command:
 
 ```text
-$ ./bin/bayard start \
-               --host=0.0.0.0 \
-               --raft-port=7001 \
-               --index-port=5001 \
-               --data-directory=./data/node1 \
-               --schema-file=./etc/schema.json \
-               --tokenizer-file=./etc/tokenizer.json \
-               1
+$ bayard --host=0.0.0.0 \
+         --raft-port=7001 \
+         --index-port=5001 \
+         --metrics-port=9001 \
+         --data-directory=./data/node1 \
+         --schema-file=./etc/schema.json \
+         --tokenizer-file=./etc/tokenizer.json \
+         1
 ```
 
 ```text
-$ ./bin/bayard start \
-               --host=0.0.0.0 \
-               --raft-port=7002 \
-               --index-port=5002 \
-               --peer-raft-address=0.0.0.0:7001 \
-               --data-directory=./data/node2 \
-               --schema-file=./etc/schema.json \
-               --tokenizer-file=./etc/tokenizer.json \
-               2
+$ bayard --host=0.0.0.0 \
+         --raft-port=7002 \
+         --index-port=5002 \
+         --metrics-port=9002 \
+         --peer-raft-address=0.0.0.0:7001 \
+         --data-directory=./data/node2 \
+         --schema-file=./etc/schema.json \
+         --tokenizer-file=./etc/tokenizer.json \
+         2
 ```
 
 ```text
-$ ./bin/bayard start \
-               --host=0.0.0.0 \
-               --raft-port=7003 \
-               --index-port=5003 \
-               --peer-raft-address=0.0.0.0:7001 \
-               --data-directory=./data/node3 \
-               --schema-file=./etc/schema.json \
-               --tokenizer-file=./etc/tokenizer.json \
-               3
+$ bayard --host=0.0.0.0 \
+         --raft-port=7003 \
+         --index-port=5003 \
+         --metrics-port=9003 \
+         --peer-raft-address=0.0.0.0:7001 \
+         --data-directory=./data/node3 \
+         --schema-file=./etc/schema.json \
+         --tokenizer-file=./etc/tokenizer.json \
+         3
 ```
 
 The above commands run servers on the same host, so each server must listen on a different port. This would not be necessary if each server runs on a different host.
@@ -52,8 +52,7 @@ When deploying to a single host, if that host goes down due to hardware failure,
 You can check the peers in the cluster with the following command:
 
 ```text
-$ ./bin/bayard status
-               --server=0.0.0.0:5001 | jq .
+$ bayard-cli status --server=0.0.0.0:5001 | jq .
 ```
 
 You'll see the result in JSON format. The result of the above command is:
@@ -95,7 +94,5 @@ If you want the server to join the cluster again, you must remove it from the cl
 The following command deletes the server with `id=3` from the cluster:
 
 ```text
-$ ./bin/bayard leave \
-               --servers=0.0.0.0:5001 \
-               3
+$ bayard-cli leave --server=0.0.0.0:5001 3
 ```

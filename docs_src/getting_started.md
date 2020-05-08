@@ -5,7 +5,7 @@
 Running node in standalone mode is easy. You can start server with the following command:
 
 ```text
-$ ./bin/bayard start 1
+$ ./bin/bayard 1
 ```
 
 ## Getting schema
@@ -13,7 +13,7 @@ $ ./bin/bayard start 1
 You can confirm current schema with the following command:
 
 ```text
-$ ./bin/bayard schema | jq .
+$ ./bin/bayard-cli schema | jq .
 ```
 
 You'll see the result in JSON format. The result of the above command is:
@@ -94,8 +94,8 @@ You'll see the result in JSON format. The result of the above command is:
 You can index document with the following command:
 
 ```text
-$ cat ./examples/doc_1.json | xargs -0 ./bin/bayard set 1
-$ ./bin/bayard commit
+$ cat ./examples/doc_1.json | xargs -0 ./bin/bayard-cli set 1
+$ ./bin/bayard-cli commit
 ```
 
 ## Getting document
@@ -103,7 +103,7 @@ $ ./bin/bayard commit
 You can get document with the following command:
 
 ```text
-$ ./bin/bayard get 1 | jq .
+$ ./bin/bayard-cli get 1 | jq .
 ```
 
 You'll see the result in JSON format. The result of the above command is:
@@ -140,8 +140,8 @@ You'll see the result in JSON format. The result of the above command is:
 You can index documents in bulk with the following command:
 
 ```text
-$ cat ./examples/bulk_put.jsonl | xargs -0 ./bin/bayard bulk-set
-$ ./bin/bayard commit
+$ cat ./examples/bulk_put.jsonl | xargs -0 ./bin/bayard-cli bulk-set
+$ ./bin/bayard-cli commit
 ```
 
 ## Searching documents
@@ -149,7 +149,7 @@ $ ./bin/bayard commit
 You can search documents with the following command:
 
 ```text
-$ ./bin/bayard search --facet-field=category --facet-prefix=/category/search --facet-prefix=/language description:rust | jq .
+$ ./bin/bayard-cli search --facet-field=category --facet-prefix=/category/search --facet-prefix=/language description:rust | jq .
 ```
 
 You'll see the result in JSON format. The result of the above command is:
@@ -228,8 +228,8 @@ You'll see the result in JSON format. The result of the above command is:
 You can delete document with the following command:
 
 ```text
-$ ./bin/bayard delete 1
-$ ./bin/bayard commit
+$ ./bin/bayard-cli delete 1
+$ ./bin/bayard-cli commit
 ```
 
 ## Deleting documents in bulk
@@ -237,6 +237,6 @@ $ ./bin/bayard commit
 You can delete documents in bulk with the following command:
 
 ```text
-$ cat ./examples/bulk_delete.jsonl | xargs -0 ./bin/bayard bulk-delete
-$ ./bin/bayard commit
+$ cat ./examples/bulk_delete.jsonl | xargs -0 ./bin/bayard-cli bulk-delete
+$ ./bin/bayard-cli commit
 ```

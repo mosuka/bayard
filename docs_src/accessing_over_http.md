@@ -8,7 +8,7 @@ Bayard supports gRPC connections, but some users may want to use the traditional
 Starting a REST server is easy.
 
 ```text
-$ ./bin/bayard-rest start --port=8000 --server=0.0.0.0:5001
+$ ./bin/bayard-rest --port=8000 --server=0.0.0.0:5001
 ```
 
 ## REST API

@@ -5,7 +5,7 @@ Metrics API shows the server metrics of the specified server. The metrics are ou
 ## Request
 
 ```text
-GET /v1/metrics
+GET /metrics
 ```
 
 ## Examples
@@ -13,7 +13,7 @@ GET /v1/metrics
 To show metrics:
 
 ```shell script
-$ curl -X GET 'http://localhost:8000/v1/metrics'
+$ curl -X GET 'http://localhost:9000/metrics'
 ```
 
 You'll see the result in Prometheus exposition format. The result of the above command is:

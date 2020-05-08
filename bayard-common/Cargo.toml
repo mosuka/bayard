@@ -1,0 +1,18 @@
+[package]
+name = "bayard-common"
+version = "0.8.0"
+authors = ["Minoru Osuka <minoru.osuka@gmail.com>"]
+edition = "2018"
+description = "Common library for Bayard."
+documentation = "https://bayard-search.github.io/bayard/"
+homepage = "https://github.com/bayard-search"
+repository = "https://github.com/bayard-search/bayard/bayard-common"
+readme = "README.md"
+keywords = ["full-text", "search", "index", "common"]
+categories = ["database"]
+license = "MIT"
+
+[dependencies]
+crossbeam-channel = "0.4.2"
+ctrlc = { version = "3.1.4", features = ["termination"] }
+env_logger = "0.7.1"

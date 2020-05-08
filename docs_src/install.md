@@ -12,4 +12,6 @@ Install Bayard with the following command:
 
 ```text
 $ cargo install bayard
+$ cargo install bayard-cli
+$ cargo install bayard-rest
 ```

@@ -36,6 +36,3 @@ See the following list:
 
 - [Status API](api/status.md)  
 &nbsp;&nbsp;&nbsp;&nbsp; Status API shows the cluster that the specified server is joining.
-
-- [Metrics API](api/metrics.md)  
-&nbsp;&nbsp;&nbsp;&nbsp; Metrics API shows the server metrics of the specified server. The metrics are output in Prometheus exposition format.

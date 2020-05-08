@@ -1,10 +1,10 @@
 # bayard-rest
 
 ## DESCRIPTION
-Manage Bayard REST server
+Bayard REST server
 
 ## USAGE
-bayard-rest \<SUBCOMMAND\>
+bayard-rest [OPTIONS]
 
 ## FLAGS
 - `-h`, `--help`  
@@ -13,6 +13,22 @@ bayard-rest \<SUBCOMMAND\>
 - `-v`, `--version`  
 &nbsp;&nbsp;&nbsp;&nbsp; Prints version information.
 
-## SUBCOMMANDS
-- [start](bayard-rest/start.md)  
-&nbsp;&nbsp;&nbsp;&nbsp; Start REST server
+## OPTIONS
+- `-H`, `--host` `<HOST>`  
+&nbsp;&nbsp;&nbsp;&nbsp; Node address. [default: 0.0.0.0]
+
+- `-p`, `--port` `<PORT>`  
+&nbsp;&nbsp;&nbsp;&nbsp; HTTP service port number. [default: 8000]
+
+- `-s`, `--server` `<IP:PORT>`  
+&nbsp;&nbsp;&nbsp;&nbsp; Index service address. [default: 127.0.0.1:5000]
+
+## EXAMPLES
+
+To start a server with default options:
+
+```shell script
+$ bayard --host=192.168.1.22 \
+         --port=8001 \
+         --server=192.168.1.12:5001
+```
