@@ -7,7 +7,6 @@ use crate::cli::delete::run_delete_cli;
 use crate::cli::get::run_get_cli;
 use crate::cli::leave::run_leave_cli;
 use crate::cli::merge::run_merge_cli;
-// use crate::cli::metrics::run_metrics_cli;
 use crate::cli::rollback::run_rollback_cli;
 use crate::cli::schema::run_schema_cli;
 use crate::cli::search::run_search_cli;
@@ -362,26 +361,6 @@ pub fn run_root_cli() -> Result<(), std::io::Error> {
                         .takes_value(true),
                 ),
         )
-        // .subcommand(
-        //     SubCommand::with_name("metrics")
-        //         .name("metrics")
-        //         .setting(AppSettings::DeriveDisplayOrder)
-        //         .version(crate_version!())
-        //         .author(crate_authors!())
-        //         .about("Shows system metrics")
-        //         .help_message("Prints help information.")
-        //         .version_message("Prints version information.")
-        //         .version_short("v")
-        //         .arg(
-        //             Arg::with_name("SERVER")
-        //                 .help("Index service address.")
-        //                 .short("s")
-        //                 .long("server")
-        //                 .value_name("IP:PORT")
-        //                 .default_value("0.0.0.0:5000")
-        //                 .takes_value(true),
-        //         ),
-        // )
         .get_matches();
 
     let (subcommand, some_options) = app.subcommand();
@@ -399,7 +378,6 @@ pub fn run_root_cli() -> Result<(), std::io::Error> {
         "merge" => run_merge_cli,
         "schema" => run_schema_cli,
         "status" => run_status_cli,
-        // "metrics" => run_metrics_cli,
         _ => panic!("Subcommand {} is unknown", subcommand),
     };
 
