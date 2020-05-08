@@ -7,10 +7,17 @@ use std::time::Duration;
 use std::{fs, thread};
 
 use async_std::task::block_on;
+use bayard_proto::proto::commonpb::State;
+use bayard_proto::proto::indexpb::{
+    BulkDeleteReply, BulkDeleteReq, BulkSetReply, BulkSetReq, CommitReply, CommitReq, DeleteReply,
+    DeleteReq, GetReply, GetReq, MergeReply, MergeReq, RollbackReply, RollbackReq, SchemaReply,
+    SchemaReq, SearchReply, SearchReq, SetReply, SetReq, StatusReply, StatusReq,
+};
+use bayard_proto::proto::indexpb_grpc::IndexService;
 use futures::Future;
 use grpcio::{RpcContext, UnarySink};
 use log::*;
-use prometheus::{CounterVec, Encoder, HistogramVec, TextEncoder};
+use prometheus::{CounterVec, HistogramVec};
 use raft::storage::MemStorage;
 use serde::{Deserialize, Serialize};
 use stringreader::StringReader;
@@ -19,15 +26,6 @@ use tantivy::merge_policy::LogMergePolicy;
 use tantivy::query::{QueryParser, TermQuery};
 use tantivy::schema::{Field, FieldType, IndexRecordOption, Schema};
 use tantivy::{Document, Index, IndexWriter, Term};
-
-use bayard_proto::proto::commonpb::State;
-use bayard_proto::proto::indexpb::{
-    BulkDeleteReply, BulkDeleteReq, BulkSetReply, BulkSetReq, CommitReply, CommitReq, DeleteReply,
-    DeleteReq, GetReply, GetReq, MergeReply, MergeReq, MetricsReply, MetricsReq, RollbackReply,
-    RollbackReq, SchemaReply, SchemaReq, SearchReply, SearchReq, SetReply, SetReq, StatusReply,
-    StatusReq,
-};
-use bayard_proto::proto::indexpb_grpc::IndexService;
 
 use crate::index::search_result::{ScoredNamedFieldDocument, SearchResult};
 use crate::raft::config;
@@ -83,7 +81,6 @@ pub enum Op {
     Rollback {},
     Merge {},
     Schema {},
-    Metrics {},
     Status {},
 }
 
@@ -811,66 +808,6 @@ impl IndexService for IndexServer {
         timer.observe_duration();
     }
 
-    fn metrics(&mut self, ctx: RpcContext, req: MetricsReq, sink: UnarySink<MetricsReply>) {
-        let (s1, r1) = mpsc::channel();
-        let id = self.id.clone();
-        let sender = self.sender.clone();
-        let op = Op::Metrics {};
-        let seq = self.seq;
-        self.seq += 1;
-
-        debug!("metrics: req={:?}", req);
-        REQUEST_COUNTER.with_label_values(&["metrics"]).inc();
-        let timer = REQUEST_HISTOGRAM
-            .with_label_values(&["metrics"])
-            .start_timer();
-
-        sender
-            .send(config::Msg::Propose {
-                seq,
-                op,
-                cb: Box::new(move |leader_id: i32, addresses: Vec<u8>| {
-                    let metric_families = prometheus::gather();
-                    let mut buffer = Vec::<u8>::new();
-                    let encoder = TextEncoder::new();
-                    encoder.encode(&metric_families, &mut buffer).unwrap();
-                    let metrics_text = String::from_utf8(buffer.clone()).unwrap();
-
-                    let (state, metrics_text) = (State::OK, metrics_text);
-
-                    let mut reply = MetricsReply::new();
-                    reply.set_state(state);
-                    if leader_id >= 0 {
-                        // not a leader
-                        reply.set_leader_id(leader_id as u64);
-                    } else {
-                        // a leader
-                        reply.set_leader_id(id);
-                    }
-                    reply.set_metrics(metrics_text);
-                    reply.set_address_map(addresses);
-                    s1.send(reply).expect("cb channel closed");
-                }),
-            })
-            .unwrap();
-
-        let reply = match r1.recv_timeout(Duration::from_secs(2)) {
-            Ok(r) => r,
-            Err(_e) => {
-                let mut r = MetricsReply::new();
-                r.set_state(State::IO_ERROR);
-                r
-            }
-        };
-
-        let f = sink
-            .success(reply.clone())
-            .map_err(move |err| error!("Failed to reply metrics: {:?}", err));
-        ctx.spawn(f);
-
-        timer.observe_duration();
-    }
-
     fn status(&mut self, ctx: RpcContext, req: StatusReq, sink: UnarySink<StatusReply>) {
         let (s1, r1) = mpsc::channel();
         let id = self.id.clone();
@@ -1102,9 +1039,6 @@ fn apply_daemon(receiver: Receiver<Op>, index: Arc<Index>, index_writer: Arc<Mut
                 timer.observe_duration();
             }
             Op::Schema {} => {
-                // noop
-            }
-            Op::Metrics {} => {
                 // noop
             }
             Op::Status {} => {

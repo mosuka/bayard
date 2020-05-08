@@ -1,10 +1,10 @@
 # bayard
 
 ## DESCRIPTION
-Manage Bayard index server
+Bayard server
 
 ## USAGE
-bayard \<SUBCOMMAND\>
+bayard [OPTIONS] [ID]
 
 ## FLAGS
 - `-h`, `--help`  
@@ -13,48 +13,58 @@ bayard \<SUBCOMMAND\>
 - `-v`, `--version`  
 &nbsp;&nbsp;&nbsp;&nbsp; Prints version information.
 
-## SUBCOMMANDS
-- [start](bayard/start.md)  
-&nbsp;&nbsp;&nbsp;&nbsp; Start index server
+## OPTIONS
+- `-H`, `--host` `<HOST>`  
+&nbsp;&nbsp;&nbsp;&nbsp; Node address. [default: 0.0.0.0]
 
-- [leave](bayard/leave.md)  
-&nbsp;&nbsp;&nbsp;&nbsp; Delete document from index server
+- `-r`, `--raft-port` `<RAFT_PORT>`  
+&nbsp;&nbsp;&nbsp;&nbsp; Raft service port number. [default: 7000]
 
-- [get](bayard/get.md)  
-&nbsp;&nbsp;&nbsp;&nbsp; Get document from index server
+- `-i`, `--index-port` `<INDEX_PORT>`  
+&nbsp;&nbsp;&nbsp;&nbsp; Index service port number [default: 5000]
 
-- [set](bayard/set.md)  
-&nbsp;&nbsp;&nbsp;&nbsp; Set document to index server
+- `-M`, `--metrics-port` `<METRICS_PORT>`  
+&nbsp;&nbsp;&nbsp;&nbsp; Metrics service port number [default: 9000]
 
-- [delete](bayard/delete.md)  
-&nbsp;&nbsp;&nbsp;&nbsp; Delete document from index server
+- `-p`, `--peer-raft-address` `<IP:PORT>`  
+&nbsp;&nbsp;&nbsp;&nbsp; Raft address of a peer node running in an existing cluster.
 
-- [bulk-set](bayard/bulk-set.md)  
-&nbsp;&nbsp;&nbsp;&nbsp; Set documents to index server in bulk
+- `-d`, `--data-directory` `<DATA_DIRECTORY>`  
+&nbsp;&nbsp;&nbsp;&nbsp; Data directory. Stores index, snapshots, and raft logs. [default: ./data]
 
-- [bulk-delete](bayard/bulk-delete.md)  
-&nbsp;&nbsp;&nbsp;&nbsp; Delete documents from index server in bulk
+- `-s`, `--schema-file` `<SCHEMA_FILE>`  
+&nbsp;&nbsp;&nbsp;&nbsp; Schema file. Must specify An existing file name. [default: ./etc/schema.json]
 
-- [commit](bayard/commit.md)  
-&nbsp;&nbsp;&nbsp;&nbsp; Commit index
+- `-T`, `--tokenizer-file` `<TOKENIZER_FILE>`  
+&nbsp;&nbsp;&nbsp;&nbsp; Tokenizer file. Must specify An existing file name. [default: ./etc/tokenizer.json]
 
-- [rollback](bayard/rollback.md)  
-&nbsp;&nbsp;&nbsp;&nbsp; Rollback index
+- `-t`, `--indexer-threads` `<INDEXER_THREADS>`
+&nbsp;&nbsp;&nbsp;&nbsp; Number of indexer threads. [default: 7]
 
-- [merge](bayard/merge.md)  
-&nbsp;&nbsp;&nbsp;&nbsp; Merge index
+- `-m`, `--indexer-memory-size` `<INDEXER_MEMORY_SIZE>`  
+&nbsp;&nbsp;&nbsp;&nbsp; Total memory size (in bytes) used by the indexer. [default: 1000000000]
 
-- [schema](bayard/schema.md)  
-&nbsp;&nbsp;&nbsp;&nbsp; Shows index schema that applied
+## ARGS
+- `<ID>`  
+&nbsp;&nbsp;&nbsp;&nbsp; Node ID.
 
-- [search](bayard/search.md)  
-&nbsp;&nbsp;&nbsp;&nbsp; Get document from index server
+## EXAMPLES
 
-- [status](bayard/status.md)  
-&nbsp;&nbsp;&nbsp;&nbsp; Shows system status
+To start a server with default options:
 
-- [metrics](bayard/metrics.md)  
-&nbsp;&nbsp;&nbsp;&nbsp; Shows system metrics
+```shell script
+$ bayard 1
+```
 
-- `help`  
-&nbsp;&nbsp;&nbsp;&nbsp; Prints this message or the help of the given subcommand(s)
+To start a server with options:
+
+```shell script
+$ bayard --host=0.0.0.0 \
+         --raft-port=7001 \
+         --index-port=5001 \
+         --metrics-port=9001 \
+         --data-directory=./data/node1 \
+         --schema-file=./etc/schema.json \
+         --tokenizer-file=./etc/tokenizer.json \
+         1
+```

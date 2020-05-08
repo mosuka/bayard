@@ -2,20 +2,20 @@ use std::collections::HashMap;
 use std::io::{Error, ErrorKind};
 use std::sync::Arc;
 
+use bayard_proto::proto::commonpb::State;
+use bayard_proto::proto::indexpb::{
+    BulkDeleteReq, BulkSetReq, CommitReq, DeleteReq, GetReq, MergeReq, RollbackReq, SchemaReq,
+    SearchReq, SetReq, StatusReq,
+};
+use bayard_proto::proto::indexpb_grpc::IndexServiceClient;
 use bincode::deserialize;
 use grpcio::{ChannelBuilder, EnvBuilder};
 use log::*;
 use protobuf::RepeatedField;
-
-use bayard_proto::proto::commonpb::State;
-use bayard_proto::proto::indexpb::{
-    BulkDeleteReq, BulkSetReq, CommitReq, DeleteReq, GetReq, MergeReq, MetricsReq, RollbackReq,
-    SchemaReq, SearchReq, SetReq, StatusReq,
-};
-use bayard_proto::proto::indexpb_grpc::IndexServiceClient;
-use bayard_server::raft::config::NodeAddress;
 use serde_json::json;
 use serde_json::Value;
+
+use bayard_server::raft::config::NodeAddress;
 
 fn create_client(address: String) -> IndexServiceClient {
     let env = Arc::new(EnvBuilder::new().build());
@@ -24,13 +24,14 @@ fn create_client(address: String) -> IndexServiceClient {
     client
 }
 
+#[derive(Clone)]
 pub struct IndexClient {
-    address: String, // specified server address
-    leader_id: u64,  // leader's node id
+    address: String,
+    leader_id: u64,
     clients: HashMap<u64, Arc<IndexServiceClient>>,
     addresses: HashMap<u64, String>,
     next_index: usize,
-    node_id: u64, // node id
+    node_id: u64,
     client_id: u64,
 }
 
@@ -1083,108 +1084,6 @@ impl IndexClient {
                 _ => {
                     cnt_retry += 1;
                     warn!("failed to get schema");
-                }
-            }
-        }
-    }
-
-    pub fn metrics(&mut self) -> Result<String, std::io::Error> {
-        let mut req = MetricsReq::new();
-        req.set_client_id(self.client_id);
-
-        let max_retry = 10;
-        let mut cnt_retry = 0;
-
-        loop {
-            if max_retry < cnt_retry {
-                return Err(Error::new(
-                    ErrorKind::Other,
-                    format!("max retry count has been exceeded: max_retry={}", max_retry),
-                ));
-            }
-
-            let client = match self.clients.get(&self.node_id) {
-                Some(c) => c,
-                _ => {
-                    return Err(Error::new(
-                        ErrorKind::Other,
-                        format!("failed to get client for node: id={}", self.node_id),
-                    ));
-                }
-            };
-
-            let reply = match client.metrics(&req) {
-                Ok(r) => r,
-                _ => {
-                    return Err(Error::new(
-                        ErrorKind::Other,
-                        "failed to request getting metrics",
-                    ));
-                }
-            };
-
-            // update address list and clients
-            if reply.get_address_map().len() > 0 {
-                let address_map: HashMap<u64, NodeAddress> =
-                    deserialize(&reply.get_address_map()).unwrap();
-                // add new ids
-                for (id, address) in &address_map {
-                    if let Some(grpc_address) = self.addresses.get(&id) {
-                        if grpc_address == address.index_address.as_str() {
-                            debug!(
-                                "node has not been changed: id={}, address={}",
-                                id, grpc_address
-                            );
-                        } else {
-                            debug!("update node: id={}, address={}", id, address.index_address);
-                            self.addresses
-                                .insert(id.clone(), address.index_address.clone());
-                            self.clients.insert(
-                                id.clone(),
-                                Arc::new(create_client(address.index_address.clone())),
-                            );
-                        }
-                    } else {
-                        debug!("add node: id={}, address={}", id, address.index_address);
-                        self.addresses
-                            .insert(id.clone(), address.index_address.clone());
-                        self.clients.insert(
-                            id.clone(),
-                            Arc::new(create_client(address.index_address.clone())),
-                        );
-                    }
-                }
-
-                // remove unused ids
-                for (id, address) in &self.addresses.clone() {
-                    if let Some(_) = address_map.get(&id) {
-                        debug!("node is in use: id={}, address={}", id, address);
-                    } else {
-                        debug!("node is not in use: id={}, address={}", id, address);
-                        self.addresses.remove(id);
-                        self.clients.remove(id);
-                    }
-                }
-
-                debug!("addresses={:?}", self.addresses);
-            }
-
-            // continue to use the same node.
-            for (id, address) in &self.addresses.clone() {
-                if address == self.address.as_str() {
-                    self.node_id = *id;
-                    break;
-                }
-            }
-
-            match reply.get_state() {
-                State::OK => {
-                    self.leader_id = reply.get_leader_id();
-                    return Ok(String::from(reply.get_metrics()));
-                }
-                _ => {
-                    cnt_retry += 1;
-                    warn!("failed to get metrics");
                 }
             }
         }
