@@ -1,7 +1,6 @@
-ARG RUST_VERSION=1.42.0
+FROM rust:1.42.0-slim-stretch AS builder
 
-
-FROM rust:${RUST_VERSION}-slim-stretch AS builder
+ARG BAYARD_VERSION
 
 WORKDIR /repo
 
@@ -15,11 +14,10 @@ RUN set -ex \
        libssl-dev \
        golang-go \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* \
-    && cargo install cargo-show
+    && rm -rf /var/lib/apt/lists/*
 
-COPY . ./
-RUN make build
+COPY ./etc ./etc
+RUN cargo install bayard --root=./ --vers=${BAYARD_VERSION}
 
 
 FROM debian:stretch-slim
@@ -31,12 +29,10 @@ RUN set -ex \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p /data
+COPY --from=builder /repo/bin/* /usr/local/bin/
+COPY --from=builder /repo/etc/* /etc/bayard/
 
-COPY --from=builder /repo/bin /usr/local/bin
-COPY --from=builder /repo/etc/* /etc/
-
-EXPOSE 5000 7000
+EXPOSE 5000 7000 9000
 
 ENTRYPOINT [ "bayard" ]
-CMD [ "start" ]
+CMD [ "1" ]
