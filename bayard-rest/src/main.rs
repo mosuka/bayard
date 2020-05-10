@@ -54,7 +54,10 @@ fn main() -> Result<(), std::io::Error> {
     let port = matches.value_of("PORT").unwrap().parse::<u16>().unwrap();
     let server = matches.value_of("SERVER").unwrap();
 
-    let mut rest_server = RestServer::new(format!("{}:{}", host, port).as_str(), server);
+    let rest_address = format!("{}:{}", host, port);
+
+    let mut rest_server = RestServer::new(rest_address.as_str(), server);
+    info!("start rest service on {}", rest_address.as_str());
 
     // Wait for signals for termination (SIGINT, SIGTERM).
     let sigterm_receiver = sigterm_channel().unwrap();
@@ -68,7 +71,16 @@ fn main() -> Result<(), std::io::Error> {
     }
 
     match rest_server.shutdown() {
-        Ok(_) => Ok(()),
-        Err(e) => Err(e),
+        Ok(_) => {
+            info!("stop rest service on {}:{}", host, port);
+            Ok(())
+        }
+        Err(e) => {
+            error!(
+                "failed to stop rest service on {}:{}: error={}",
+                host, port, e
+            );
+            Err(e)
+        }
     }
 }
