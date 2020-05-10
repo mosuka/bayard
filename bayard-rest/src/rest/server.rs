@@ -8,18 +8,8 @@ use router::Router;
 
 use bayard_client::index::client::IndexClient;
 
-use crate::handler::bulk_delete::bulk_delete;
-use crate::handler::bulk_set::bulk_set;
-use crate::handler::commit::commit;
-use crate::handler::delete::delete;
-use crate::handler::get::get;
-use crate::handler::merge::merge;
-use crate::handler::rollback::rollback;
-use crate::handler::schema::schema;
-use crate::handler::search::search;
-use crate::handler::set::set;
-use crate::handler::status::status;
-use crate::handler::Client;
+use crate::rest::Client;
+use crate::rest::handler::{bulk_delete, bulk_set, commit, delete, get, merge, rollback, schema, search, set, status};
 
 pub struct RestServer {
     address: String,
