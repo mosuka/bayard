@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+- Refactor REST server #84 @mosuka
+
 ## 0.8.0 (2020-05-08)
 - Add cli package #83 @mosuka
 
