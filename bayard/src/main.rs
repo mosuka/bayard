@@ -10,17 +10,14 @@ use clap::{App, AppSettings, Arg};
 use crossbeam_channel::select;
 use futures::Future;
 use grpcio::{Environment, ServerBuilder};
-use iron::{Chain, Iron};
 use log::*;
-use logger::Logger;
 use raft::storage::MemStorage;
-use router::Router;
 
 use bayard_client::raft::client::RaftClient;
 use bayard_common::log::set_logger;
 use bayard_common::signal::sigterm_channel;
 use bayard_server::index::server::IndexServer;
-use bayard_server::metric::handler::metrics;
+use bayard_server::metric::server::MetricsServer;
 use bayard_server::raft::config::NodeAddress;
 
 fn main() -> Result<(), std::io::Error> {
@@ -244,16 +241,8 @@ fn main() -> Result<(), std::io::Error> {
     }
 
     // metrics service
-    let (logger_before, logger_after) = Logger::new(None);
-    let mut router = Router::new();
-    router.get("/metrics", metrics, "metrics");
-
-    let mut chain = Chain::new(router);
-    chain.link_before(logger_before);
-    chain.link_after(logger_after);
-
-    let mut metrics_server = Iron::new(chain).http(metrics_address).unwrap();
-    info!("start metrics service on {}:{}", host, metrics_port);
+    let mut metrics_server = MetricsServer::new(metrics_address.as_str());
+    info!("start metrics service on {}", metrics_address.as_str());
 
     // Wait for signals for termination (SIGINT, SIGTERM).
     let sigterm_receiver = sigterm_channel().unwrap();
@@ -266,24 +255,33 @@ fn main() -> Result<(), std::io::Error> {
         }
     }
 
-    match metrics_server.close() {
+    match metrics_server.shutdown() {
         Ok(_) => {
             info!("stop metrics service on {}:{}", host, metrics_port);
         }
-        Err(e) => error!("{}", e),
+        Err(e) => error!(
+            "failed to stop metrics service on {}:{}: error={}",
+            host, metrics_port, e
+        ),
     }
 
     match index_server.shutdown().wait() {
         Ok(_) => {
             info!("stop index service on {}:{}", host, index_port);
         }
-        Err(e) => error!("{}", e),
+        Err(e) => error!(
+            "failed to stop index service on {}:{}: error={}",
+            host, index_port, e
+        ),
     }
     match raft_server.shutdown().wait() {
         Ok(_) => {
             info!("stop raft service on {}:{}", host, raft_port);
         }
-        Err(e) => error!("{}", e),
+        Err(e) => error!(
+            "failed to stop raft service on {}:{}: error={}",
+            host, raft_port, e
+        ),
     }
 
     return Ok(());

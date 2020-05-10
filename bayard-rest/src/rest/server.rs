@@ -1,18 +1,18 @@
 use std::io::{Error, ErrorKind};
 
 use iron::{Chain, Iron, Listening};
-use log::*;
 use logger::Logger;
 use persistent::Write;
 use router::Router;
 
 use bayard_client::index::client::IndexClient;
 
+use crate::rest::handler::{
+    bulk_delete, bulk_set, commit, delete, get, merge, rollback, schema, search, set, status,
+};
 use crate::rest::Client;
-use crate::rest::handler::{bulk_delete, bulk_set, commit, delete, get, merge, rollback, schema, search, set, status};
 
 pub struct RestServer {
-    address: String,
     listening: Listening,
 }
 
@@ -40,27 +40,14 @@ impl RestServer {
         chain.link_after(logger_after);
 
         let listening = Iron::new(chain).http(address).unwrap();
-        info!("start rest service on {}", address);
 
-        RestServer {
-            address: address.to_string(),
-            listening,
-        }
+        RestServer { listening }
     }
 
     pub fn shutdown(&mut self) -> Result<(), std::io::Error> {
         match self.listening.close() {
-            Ok(_) => {
-                info!("stop rest service on {}", self.address);
-                Ok(())
-            }
-            Err(e) => {
-                error!(
-                    "failed stop rest service on {}: error={:?}",
-                    self.address, e
-                );
-                Err(Error::new(ErrorKind::Other, e))
-            }
+            Ok(_) => Ok(()),
+            Err(e) => Err(Error::new(ErrorKind::Other, e)),
         }
     }
 }
