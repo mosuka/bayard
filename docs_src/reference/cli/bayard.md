@@ -38,11 +38,14 @@ bayard [OPTIONS] [ID]
 - `-T`, `--tokenizer-file` `<TOKENIZER_FILE>`  
 &nbsp;&nbsp;&nbsp;&nbsp; Tokenizer file. Must specify An existing file name. [default: ./etc/tokenizer.json]
 
-- `-t`, `--indexer-threads` `<INDEXER_THREADS>`
-&nbsp;&nbsp;&nbsp;&nbsp; Number of indexer threads. [default: 7]
+- `-t`, `--indexer-threads` `<INDEXER_THREADS>`  
+&nbsp;&nbsp;&nbsp;&nbsp; Number of indexer threads. By default indexer uses number of available logical cpu as threads count. [default: 8]
 
 - `-m`, `--indexer-memory-size` `<INDEXER_MEMORY_SIZE>`  
 &nbsp;&nbsp;&nbsp;&nbsp; Total memory size (in bytes) used by the indexer. [default: 1000000000]
+
+- `-w`, `--http-worker-threads` `<HTTP_WORKER_THREADS>`  
+&nbsp;&nbsp;&nbsp;&nbsp; Number of HTTP worker threads. By default http server uses number of available logical cpu as threads count. [default: 8]
 
 ## ARGS
 - `<ID>`  

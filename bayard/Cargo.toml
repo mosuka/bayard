@@ -17,6 +17,7 @@ name = "bayard"
 path = "src/main.rs"
 
 [dependencies]
+actix-rt = "1.1.1"
 clap = "2.33.0"
 crossbeam-channel = "0.4.2"
 futures = "0.1.29"

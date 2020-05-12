@@ -1,34 +1,32 @@
-use std::io::{Error, ErrorKind};
+use std::io;
 
-use iron::{Chain, Iron, Listening};
-use logger::Logger;
-use router::Router;
+use actix_server::Server;
+use actix_web::{middleware, App, HttpServer};
 
 use crate::metric::handler::metrics;
 
 pub struct MetricsServer {
-    listening: Listening,
+    server: Server,
 }
 
 impl MetricsServer {
-    pub fn new(address: &str) -> MetricsServer {
-        let (logger_before, logger_after) = Logger::new(None);
-        let mut router = Router::new();
-        router.get("/metrics", metrics, "metrics");
+    pub fn new(address: &str, worker_num: usize) -> MetricsServer {
+        let server = HttpServer::new(move || {
+            App::new()
+                .wrap(middleware::DefaultHeaders::new().header("X-Version", "0.2"))
+                .wrap(middleware::Compress::default())
+                .wrap(middleware::Logger::default())
+                .service(metrics)
+        })
+        .bind(address)
+        .unwrap()
+        .workers(worker_num)
+        .run();
 
-        let mut chain = Chain::new(router);
-        chain.link_before(logger_before);
-        chain.link_after(logger_after);
-
-        let listening = Iron::new(chain).http(address).unwrap();
-
-        MetricsServer { listening }
+        MetricsServer { server }
     }
 
-    pub fn shutdown(&mut self) -> Result<(), std::io::Error> {
-        match self.listening.close() {
-            Ok(_) => Ok(()),
-            Err(e) => Err(Error::new(ErrorKind::Other, e)),
-        }
+    pub async fn shutdown(&mut self) -> io::Result<()> {
+        Ok(self.server.stop(true).await)
     }
 }

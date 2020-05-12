@@ -23,6 +23,9 @@ bayard-rest [OPTIONS]
 - `-s`, `--server` `<IP:PORT>`  
 &nbsp;&nbsp;&nbsp;&nbsp; Index service address. [default: 127.0.0.1:5000]
 
+- `-w`, `--http-worker-threads` `<HTTP_WORKER_THREADS>`  
+&nbsp;&nbsp;&nbsp;&nbsp; Number of HTTP worker threads. By default http server uses number of available logical cpu as threads count. [default: 8]
+
 ## EXAMPLES
 
 To start a server with default options:
