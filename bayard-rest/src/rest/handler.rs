@@ -1,233 +1,229 @@
-use std::io::Read;
-
-use iron::headers::ContentType;
-use iron::prelude::*;
-use iron::{status, IronError, IronResult, Request, Response};
-use persistent::Write;
-use router::Router;
+use actix_web::{delete, get, post, put, web, Error, HttpRequest, HttpResponse};
+use serde::Deserialize;
 use serde_json::Value;
-use urlencoded::UrlEncodedQuery;
 
-use crate::rest::Client;
+use crate::rest::server::AppState;
 
-pub fn get(req: &mut Request) -> IronResult<Response> {
-    let id = req
-        .extensions
-        .get::<Router>()
-        .unwrap()
-        .find("id")
-        .unwrap_or("")
-        .to_owned();
-
-    let client = req.get::<Write<Client>>().unwrap();
-    let mut index_client = client.lock().unwrap();
-    match index_client.get(id) {
-        Ok(s) => Ok(Response::with((ContentType::json().0, status::Ok, s))),
-        Err(e) => Err(IronError::new(
-            e,
-            (status::InternalServerError, "failed to get document"),
-        )),
+#[get("/v1/documents/{id}")]
+pub async fn get(state: AppState, id: web::Path<String>) -> Result<HttpResponse, Error> {
+    match state.index_client.lock().unwrap().get(id.into_inner()) {
+        Ok(s) => {
+            let res = HttpResponse::Ok().body(s);
+            Ok(res)
+        }
+        Err(e) => {
+            let res = HttpResponse::InternalServerError().body(format!("{}", e));
+            Ok(res)
+        }
     }
 }
 
-pub fn set(req: &mut Request) -> IronResult<Response> {
-    let id = req
-        .extensions
-        .get::<Router>()
-        .unwrap()
-        .find("id")
-        .unwrap_or("")
-        .to_owned();
-    let mut body = String::new();
-    req.body
-        .read_to_string(&mut body)
-        .expect("Failed to read line");
+#[put("/v1/documents/{id}")]
+pub async fn set(
+    state: AppState,
+    body: web::Bytes,
+    id: web::Path<String>,
+) -> Result<HttpResponse, Error> {
+    let json_str = String::from_utf8(body.to_vec()).unwrap();
+    let mut value: Value = serde_json::from_str(json_str.as_str()).unwrap();
+    value["_id"] = Value::String(id.into_inner());
 
-    let mut doc_json: Value = serde_json::from_str(body.as_str()).unwrap();
-    doc_json["_id"] = Value::String(id);
-    let doc = serde_json::to_string(&doc_json).unwrap();
+    let doc = serde_json::to_string(&value).unwrap();
 
-    let client = req.get::<Write<Client>>().unwrap();
-    let mut index_client = client.lock().unwrap();
-    match index_client.set(doc) {
-        Ok(()) => Ok(Response::with((ContentType::json().0, status::Ok, ""))),
-        Err(e) => Err(IronError::new(
-            e,
-            (status::InternalServerError, "failed to set document"),
-        )),
+    match state.index_client.lock().unwrap().set(doc) {
+        Ok(_) => {
+            let res = HttpResponse::Ok().await.unwrap();
+            Ok(res)
+        }
+        Err(e) => {
+            let res = HttpResponse::InternalServerError().body(format!("{}", e));
+            Ok(res)
+        }
     }
 }
 
-pub fn delete(req: &mut Request) -> IronResult<Response> {
-    let id = req
-        .extensions
-        .get::<Router>()
-        .unwrap()
-        .find("id")
-        .unwrap_or("")
-        .to_owned();
-
-    let client = req.get::<Write<Client>>().unwrap();
-    let mut index_client = client.lock().unwrap();
-    match index_client.delete(id) {
-        Ok(()) => Ok(Response::with((ContentType::json().0, status::Ok, ""))),
-        Err(e) => Err(IronError::new(
-            e,
-            (status::InternalServerError, "failed to delete document"),
-        )),
+#[delete("/v1/documents/{id}")]
+pub async fn delete(state: AppState, id: web::Path<String>) -> Result<HttpResponse, Error> {
+    match state.index_client.lock().unwrap().delete(id.into_inner()) {
+        Ok(_) => {
+            let res = HttpResponse::Ok().await.unwrap();
+            Ok(res)
+        }
+        Err(e) => {
+            let res = HttpResponse::InternalServerError().body(format!("{}", e));
+            Ok(res)
+        }
     }
 }
 
-pub fn bulk_set(req: &mut Request) -> IronResult<Response> {
-    let mut docs = String::new();
-    req.body
-        .read_to_string(&mut docs)
-        .expect("Failed to read line");
+#[put("/v1/documents")]
+pub async fn bulk_set(state: AppState, body: web::Bytes) -> Result<HttpResponse, Error> {
+    let docs = String::from_utf8(body.to_vec()).unwrap();
 
-    let client = req.get::<Write<Client>>().unwrap();
-    let mut index_client = client.lock().unwrap();
-    match index_client.bulk_set(docs) {
-        Ok(()) => Ok(Response::with((ContentType::json().0, status::Ok, ""))),
-        Err(e) => Err(IronError::new(
-            e,
-            (
-                status::InternalServerError,
-                "failed to set documents in bulk",
-            ),
-        )),
+    match state.index_client.lock().unwrap().bulk_set(docs) {
+        Ok(_) => {
+            let res = HttpResponse::Ok().await.unwrap();
+            Ok(res)
+        }
+        Err(e) => {
+            let res = HttpResponse::InternalServerError().body(format!("{}", e));
+            Ok(res)
+        }
     }
 }
 
-pub fn bulk_delete(req: &mut Request) -> IronResult<Response> {
-    let mut docs = String::new();
-    req.body
-        .read_to_string(&mut docs)
-        .expect("Failed to read line");
+#[delete("/v1/documents")]
+pub async fn bulk_delete(state: AppState, body: web::Bytes) -> Result<HttpResponse, Error> {
+    let docs = String::from_utf8(body.to_vec()).unwrap();
 
-    let client = req.get::<Write<Client>>().unwrap();
-    let mut index_client = client.lock().unwrap();
-    match index_client.bulk_delete(docs) {
-        Ok(()) => Ok(Response::with((ContentType::json().0, status::Ok, ""))),
-        Err(e) => Err(IronError::new(
-            e,
-            (
-                status::InternalServerError,
-                "failed to delete documents in bulk",
-            ),
-        )),
+    match state.index_client.lock().unwrap().bulk_delete(docs) {
+        Ok(_) => {
+            let res = HttpResponse::Ok().await.unwrap();
+            Ok(res)
+        }
+        Err(e) => {
+            let res = HttpResponse::InternalServerError().body(format!("{}", e));
+            Ok(res)
+        }
     }
 }
 
-pub fn commit(req: &mut Request) -> IronResult<Response> {
-    let client = req.get::<Write<Client>>().unwrap();
-    let mut index_client = client.lock().unwrap();
-    match index_client.commit() {
-        Ok(()) => Ok(Response::with((ContentType::plaintext().0, status::Ok, ""))),
-        Err(e) => Err(IronError::new(
-            e,
-            (status::InternalServerError, "failed to commit index"),
-        )),
+#[get("/v1/commit")]
+pub async fn commit(state: AppState) -> Result<HttpResponse, Error> {
+    match state.index_client.lock().unwrap().commit() {
+        Ok(_) => {
+            let res = HttpResponse::Ok().await.unwrap();
+            Ok(res)
+        }
+        Err(e) => {
+            let res = HttpResponse::InternalServerError().body(format!("{}", e));
+            Ok(res)
+        }
     }
 }
 
-pub fn rollback(req: &mut Request) -> IronResult<Response> {
-    let client = req.get::<Write<Client>>().unwrap();
-    let mut index_client = client.lock().unwrap();
-    match index_client.rollback() {
-        Ok(()) => Ok(Response::with((ContentType::plaintext().0, status::Ok, ""))),
-        Err(e) => Err(IronError::new(
-            e,
-            (status::InternalServerError, "failed to rollback index"),
-        )),
+#[get("/v1/rollback")]
+pub async fn rollback(state: AppState) -> Result<HttpResponse, Error> {
+    match state.index_client.lock().unwrap().rollback() {
+        Ok(_) => {
+            let res = HttpResponse::Ok().await.unwrap();
+            Ok(res)
+        }
+        Err(e) => {
+            let res = HttpResponse::InternalServerError().body(format!("{}", e));
+            Ok(res)
+        }
     }
 }
 
-pub fn merge(req: &mut Request) -> IronResult<Response> {
-    let client = req.get::<Write<Client>>().unwrap();
-    let mut index_client = client.lock().unwrap();
-    match index_client.merge() {
-        Ok(()) => Ok(Response::with((ContentType::plaintext().0, status::Ok, ""))),
-        Err(e) => Err(IronError::new(
-            e,
-            (status::InternalServerError, "failed to merge index"),
-        )),
+#[get("/v1/merge")]
+pub async fn merge(state: AppState) -> Result<HttpResponse, Error> {
+    match state.index_client.lock().unwrap().merge() {
+        Ok(_) => {
+            let res = HttpResponse::Ok().await.unwrap();
+            Ok(res)
+        }
+        Err(e) => {
+            let res = HttpResponse::InternalServerError().body(format!("{}", e));
+            Ok(res)
+        }
     }
 }
 
-pub fn schema(req: &mut Request) -> IronResult<Response> {
-    let client = req.get::<Write<Client>>().unwrap();
-    let mut index_client = client.lock().unwrap();
-    match index_client.schema() {
-        Ok(s) => Ok(Response::with((ContentType::json().0, status::Ok, s))),
-        Err(e) => Err(IronError::new(
-            e,
-            (status::InternalServerError, "failed to get schema"),
-        )),
+#[get("/v1/schema")]
+pub async fn schema(state: AppState) -> Result<HttpResponse, Error> {
+    match state.index_client.lock().unwrap().schema() {
+        Ok(_) => {
+            let res = HttpResponse::Ok().await.unwrap();
+            Ok(res)
+        }
+        Err(e) => {
+            let res = HttpResponse::InternalServerError().body(format!("{}", e));
+            Ok(res)
+        }
     }
 }
 
-pub fn search(req: &mut Request) -> IronResult<Response> {
-    let map = req.get_ref::<UrlEncodedQuery>().unwrap().to_owned();
-    let query = map.get("query").unwrap().get(0).unwrap();
+#[derive(Deserialize)]
+pub struct SearchQueryParams {
+    from: Option<u64>,
+    limit: Option<u64>,
+    exclude_count: Option<bool>,
+    exclude_docs: Option<bool>,
+    facet_field: Option<String>,
+    facet_prefix: Option<Vec<String>>,
+}
+
+#[post("/v1/search")]
+pub async fn search(
+    state: AppState,
+    req: HttpRequest,
+    body: web::Bytes,
+) -> Result<HttpResponse, Error> {
+    let params = serde_qs::from_str::<SearchQueryParams>(&req.query_string()).unwrap();
 
     let mut from = 0;
-    if map.contains_key("from") {
-        from = map
-            .get("from")
-            .unwrap()
-            .get(0)
-            .unwrap_or(&String::from("0"))
-            .parse::<u64>()
-            .unwrap();
-    }
-    let mut limit = 10;
-    if map.contains_key("limit") {
-        limit = map
-            .get("limit")
-            .unwrap()
-            .get(0)
-            .unwrap_or(&String::from("10"))
-            .parse::<u64>()
-            .unwrap();
-    }
-    let exclude_count = map.contains_key("exclude_count");
-    let exclude_docs = map.contains_key("exclude_docs");
-    let mut facet_field: &str = "";
-    if map.contains_key("facet_field") {
-        facet_field = map.get("facet_field").unwrap().get(0).unwrap();
-    }
-    let mut facet_prefixes = Vec::new();
-    if map.contains_key("facet_prefix") {
-        facet_prefixes = map.get("facet_prefix").cloned().unwrap();
+    if let Some(_from) = params.from {
+        from = _from;
     }
 
-    let client = req.get::<Write<Client>>().unwrap();
-    let mut index_client = client.lock().unwrap();
-    match index_client.search(
-        query,
+    let mut limit = 10;
+    if let Some(_limit) = params.limit {
+        limit = _limit;
+    }
+
+    let mut exclude_count = false;
+    if let Some(_exclude_count) = params.exclude_count {
+        exclude_count = _exclude_count;
+    }
+
+    let mut exclude_docs = false;
+    if let Some(_exclude_docs) = params.exclude_docs {
+        exclude_docs = _exclude_docs;
+    }
+
+    let mut facet_field = String::from("");
+    if let Some(_facet_field) = params.facet_field {
+        facet_field = _facet_field;
+    }
+
+    let mut facet_prefixes = Vec::new();
+    if let Some(_facet_prefix) = params.facet_prefix {
+        facet_prefixes = _facet_prefix;
+    }
+
+    let query = String::from_utf8(body.to_vec()).unwrap();
+
+    match state.index_client.lock().unwrap().search(
+        query.as_str(),
         from,
         limit,
         exclude_count,
         exclude_docs,
-        facet_field,
+        facet_field.as_str(),
         facet_prefixes,
     ) {
-        Ok(s) => Ok(Response::with((ContentType::json().0, status::Ok, s))),
-        Err(e) => Err(IronError::new(
-            e,
-            (status::InternalServerError, "failed to search index"),
-        )),
+        Ok(s) => {
+            let res = HttpResponse::Ok().body(s);
+            Ok(res)
+        }
+        Err(e) => {
+            let res = HttpResponse::InternalServerError().body(format!("{}", e));
+            Ok(res)
+        }
     }
 }
 
-pub fn status(req: &mut Request) -> IronResult<Response> {
-    let client = req.get::<Write<Client>>().unwrap();
-    let mut index_client = client.lock().unwrap();
-    match index_client.status() {
-        Ok(s) => Ok(Response::with((ContentType::json().0, status::Ok, s))),
-        Err(e) => Err(IronError::new(
-            e,
-            (status::InternalServerError, "failed to get status"),
-        )),
+#[get("/v1/status")]
+pub async fn status(state: AppState) -> Result<HttpResponse, Error> {
+    match state.index_client.lock().unwrap().status() {
+        Ok(s) => {
+            let res = HttpResponse::Ok().body(s);
+            Ok(res)
+        }
+        Err(e) => {
+            let res = HttpResponse::InternalServerError().body(format!("{}", e));
+            Ok(res)
+        }
     }
 }

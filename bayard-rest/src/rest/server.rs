@@ -1,53 +1,59 @@
-use std::io::{Error, ErrorKind};
+use std::io;
+use std::sync::Mutex;
 
-use iron::{Chain, Iron, Listening};
-use logger::Logger;
-use persistent::Write;
-use router::Router;
+use actix_server::Server;
+use actix_web::{middleware, web, App, HttpServer};
 
 use bayard_client::index::client::IndexClient;
 
 use crate::rest::handler::{
     bulk_delete, bulk_set, commit, delete, get, merge, rollback, schema, search, set, status,
 };
-use crate::rest::Client;
+
+pub struct AppData {
+    pub index_client: Mutex<IndexClient>,
+}
+
+pub type AppState = web::Data<AppData>;
 
 pub struct RestServer {
-    listening: Listening,
+    server: Server,
 }
 
 impl RestServer {
-    pub fn new(address: &str, server: &str) -> RestServer {
-        let index_client = IndexClient::new(server);
+    pub fn new(address: &str, index_server_address: &str, worker_num: usize) -> RestServer {
+        let index_client = IndexClient::new(index_server_address);
+        let app_data = web::Data::new(AppData {
+            index_client: Mutex::new(index_client),
+        });
 
-        let (logger_before, logger_after) = Logger::new(None);
-        let mut router = Router::new();
-        router.get("/v1/documents/:id", get, "get");
-        router.put("/v1/documents/:id", set, "set");
-        router.delete("/v1/documents/:id", delete, "delete");
-        router.put("/v1/documents", bulk_set, "bulk_set");
-        router.delete("/v1/documents", bulk_delete, "bulk_delete");
-        router.get("/v1/commit", commit, "commit");
-        router.get("/v1/rollback", rollback, "rollback");
-        router.get("/v1/merge", merge, "merge");
-        router.get("/v1/schema", schema, "schema");
-        router.post("/v1/search", search, "search");
-        router.get("/v1/status", status, "status");
+        let server = HttpServer::new(move || {
+            App::new()
+                .app_data(app_data.clone())
+                .wrap(middleware::DefaultHeaders::new().header("X-Version", "0.2"))
+                .wrap(middleware::Compress::default())
+                .wrap(middleware::Logger::default())
+                .service(get)
+                .service(set)
+                .service(delete)
+                .service(bulk_set)
+                .service(bulk_delete)
+                .service(commit)
+                .service(rollback)
+                .service(merge)
+                .service(schema)
+                .service(search)
+                .service(status)
+        })
+        .bind(address)
+        .unwrap()
+        .workers(worker_num)
+        .run();
 
-        let mut chain = Chain::new(router);
-        chain.link_before(logger_before);
-        chain.link(Write::<Client>::both(index_client));
-        chain.link_after(logger_after);
-
-        let listening = Iron::new(chain).http(address).unwrap();
-
-        RestServer { listening }
+        RestServer { server }
     }
 
-    pub fn shutdown(&mut self) -> Result<(), std::io::Error> {
-        match self.listening.close() {
-            Ok(_) => Ok(()),
-            Err(e) => Err(Error::new(ErrorKind::Other, e)),
-        }
+    pub async fn shutdown(&mut self) -> io::Result<()> {
+        Ok(self.server.stop(true).await)
     }
 }

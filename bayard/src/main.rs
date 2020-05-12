@@ -20,16 +20,11 @@ use bayard_server::index::server::IndexServer;
 use bayard_server::metric::server::MetricsServer;
 use bayard_server::raft::config::NodeAddress;
 
-fn main() -> Result<(), std::io::Error> {
+#[actix_rt::main]
+async fn main() -> std::io::Result<()> {
     set_logger();
 
-    let cpus = num_cpus::get().to_owned();
-    let threads;
-    if cpus > 1 {
-        threads = format!("{}", cpus - 1);
-    } else {
-        threads = format!("{}", cpus);
-    }
+    let threads = format!("{}", num_cpus::get().to_owned());
 
     let app = App::new(crate_name!())
         .setting(AppSettings::DeriveDisplayOrder)
@@ -118,7 +113,7 @@ fn main() -> Result<(), std::io::Error> {
         )
         .arg(
             Arg::with_name("INDEXER_THREADS")
-                .help("Number of indexer threads.")
+                .help("Number of indexer threads. By default indexer uses number of available logical cpu as threads count.")
                 .short("t")
                 .long("indexer-threads")
                 .value_name("INDEXER_THREADS")
@@ -132,6 +127,15 @@ fn main() -> Result<(), std::io::Error> {
                 .long("indexer-memory-size")
                 .value_name("INDEXER_MEMORY_SIZE")
                 .default_value("1000000000")
+                .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("HTTP_WORKER_THREADS")
+                .help("Number of HTTP worker threads. By default http server uses number of available logical cpu as threads count.")
+                .short("w")
+                .long("http-worker-threads")
+                .value_name("HTTP_WORKER_THREADS")
+                .default_value(&threads)
                 .takes_value(true),
         );
 
@@ -171,6 +175,11 @@ fn main() -> Result<(), std::io::Error> {
         .unwrap()
         .parse::<usize>()
         .unwrap();
+    let http_worker_threads = matches
+        .value_of("HTTP_WORKER_THREADS")
+        .unwrap()
+        .parse::<usize>()
+        .unwrap();
 
     let raft_address = format!("{}:{}", host, raft_port);
     let index_address = format!("{}:{}", host, index_port);
@@ -188,7 +197,6 @@ fn main() -> Result<(), std::io::Error> {
         let mut client = RaftClient::new(peer_address);
         match client.join(id, node_address.clone()) {
             Ok(_addresses) => addresses = _addresses,
-            // Err(e) => return Err(Box::try_from(e).unwrap()),
             Err(e) => return Err(e),
         };
     }
@@ -241,7 +249,7 @@ fn main() -> Result<(), std::io::Error> {
     }
 
     // metrics service
-    let mut metrics_server = MetricsServer::new(metrics_address.as_str());
+    let mut metrics_server = MetricsServer::new(metrics_address.as_str(), http_worker_threads);
     info!("start metrics service on {}", metrics_address.as_str());
 
     // Wait for signals for termination (SIGINT, SIGTERM).
@@ -255,7 +263,7 @@ fn main() -> Result<(), std::io::Error> {
         }
     }
 
-    match metrics_server.shutdown() {
+    match metrics_server.shutdown().await {
         Ok(_) => {
             info!("stop metrics service on {}:{}", host, metrics_port);
         }
