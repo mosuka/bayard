@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
+- Support CORS on REST server #90 @mosuka
 - Merge CLI code #88 @mosuka
 - Migrate to Actix web from Iron #87 @mosuka
 - Refactor metrics server #86 @mosuka
