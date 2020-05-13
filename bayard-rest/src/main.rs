@@ -125,8 +125,18 @@ async fn main() -> std::io::Result<()> {
     if cors_origin == "" {
         rest_server = RestServer::new(rest_address.as_str(), server, http_worker_threads);
     } else {
-        info!("enable CORS: origin={:?}, methods={:?}, headers={:?}", cors_origin, cors_methods, cors_headers);
-        rest_server = RestServer::new_cors(rest_address.as_str(), server, http_worker_threads, cors_origin, cors_methods, cors_headers);
+        info!(
+            "enable CORS: origin={:?}, methods={:?}, headers={:?}",
+            cors_origin, cors_methods, cors_headers
+        );
+        rest_server = RestServer::new_cors(
+            rest_address.as_str(),
+            server,
+            http_worker_threads,
+            cors_origin,
+            cors_methods,
+            cors_headers,
+        );
     }
     info!("start rest service on {}", rest_address.as_str());
 

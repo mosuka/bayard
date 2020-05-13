@@ -4,7 +4,7 @@ use std::sync::Mutex;
 
 use actix_cors::Cors;
 use actix_server::Server;
-use actix_web::{App, HttpServer, middleware, web};
+use actix_web::{middleware, web, App, HttpServer};
 
 use bayard_client::index::client::IndexClient;
 
@@ -47,15 +47,22 @@ impl RestServer {
                 .service(search)
                 .service(status)
         })
-            .bind(address)
-            .unwrap()
-            .workers(worker_num)
-            .run();
+        .bind(address)
+        .unwrap()
+        .workers(worker_num)
+        .run();
 
         RestServer { server }
     }
 
-    pub fn new_cors(address: &str, index_server_address: &str, worker_num: usize, cors_origin: String, cors_methods: Vec<String>, cors_headers: Vec<String>) -> RestServer {
+    pub fn new_cors(
+        address: &str,
+        index_server_address: &str,
+        worker_num: usize,
+        cors_origin: String,
+        cors_methods: Vec<String>,
+        cors_headers: Vec<String>,
+    ) -> RestServer {
         let index_client = IndexClient::new(index_server_address);
         let app_data = web::Data::new(AppData {
             index_client: Mutex::new(index_client),
@@ -67,11 +74,12 @@ impl RestServer {
                 .wrap(middleware::DefaultHeaders::new().header("X-Version", "0.2"))
                 .wrap(middleware::Compress::default())
                 .wrap(middleware::Logger::default())
-                .wrap(Cors::new()
-                    .allowed_origin(cors_origin.as_ref())
-                    .allowed_methods(Vec::from_iter(cors_methods.iter().map(String::as_str)))
-                    .allowed_headers(Vec::from_iter(cors_headers.iter().map(String::as_str)))
-                    .finish()
+                .wrap(
+                    Cors::new()
+                        .allowed_origin(cors_origin.as_ref())
+                        .allowed_methods(Vec::from_iter(cors_methods.iter().map(String::as_str)))
+                        .allowed_headers(Vec::from_iter(cors_headers.iter().map(String::as_str)))
+                        .finish(),
                 )
                 .service(get)
                 .service(set)
@@ -85,10 +93,10 @@ impl RestServer {
                 .service(search)
                 .service(status)
         })
-            .bind(address)
-            .unwrap()
-            .workers(worker_num)
-            .run();
+        .bind(address)
+        .unwrap()
+        .workers(worker_num)
+        .run();
 
         RestServer { server }
     }
