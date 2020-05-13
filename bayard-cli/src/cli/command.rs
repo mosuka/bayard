@@ -1,19 +1,10 @@
 use clap::{App, AppSettings, Arg, SubCommand};
 
-use crate::cli::bulk_delete::run_bulk_delete_cli;
-use crate::cli::bulk_set::run_bulk_set_cli;
-use crate::cli::commit::run_commit_cli;
-use crate::cli::delete::run_delete_cli;
-use crate::cli::get::run_get_cli;
-use crate::cli::leave::run_leave_cli;
-use crate::cli::merge::run_merge_cli;
-use crate::cli::rollback::run_rollback_cli;
-use crate::cli::schema::run_schema_cli;
-use crate::cli::search::run_search_cli;
-use crate::cli::set::run_set_cli;
-use crate::cli::status::run_status_cli;
+use crate::cli::subcommand::{
+    bulk_delete, bulk_set, commit, delete, get, leave, merge, rollback, schema, search, set, status,
+};
 
-pub fn run_root_cli() -> Result<(), std::io::Error> {
+pub fn root() -> Result<(), std::io::Error> {
     let app = App::new(crate_name!())
         .setting(AppSettings::DeriveDisplayOrder)
         .setting(AppSettings::SubcommandRequiredElseHelp)
@@ -366,18 +357,18 @@ pub fn run_root_cli() -> Result<(), std::io::Error> {
     let (subcommand, some_options) = app.subcommand();
     let options = some_options.unwrap();
     let run_cli = match subcommand {
-        "leave" => run_leave_cli,
-        "search" => run_search_cli,
-        "get" => run_get_cli,
-        "set" => run_set_cli,
-        "delete" => run_delete_cli,
-        "bulk-set" => run_bulk_set_cli,
-        "bulk-delete" => run_bulk_delete_cli,
-        "commit" => run_commit_cli,
-        "rollback" => run_rollback_cli,
-        "merge" => run_merge_cli,
-        "schema" => run_schema_cli,
-        "status" => run_status_cli,
+        "leave" => leave,
+        "search" => search,
+        "get" => get,
+        "set" => set,
+        "delete" => delete,
+        "bulk-set" => bulk_set,
+        "bulk-delete" => bulk_delete,
+        "commit" => commit,
+        "rollback" => rollback,
+        "merge" => merge,
+        "schema" => schema,
+        "status" => status,
         _ => panic!("Subcommand {} is unknown", subcommand),
     };
 

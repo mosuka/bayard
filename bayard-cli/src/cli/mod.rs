@@ -1,13 +1,2 @@
-pub mod bulk_delete;
-pub mod bulk_set;
-pub mod commit;
-pub mod delete;
-pub mod get;
-pub mod leave;
-pub mod merge;
-pub mod rollback;
-pub mod root;
-pub mod schema;
-pub mod search;
-pub mod set;
-pub mod status;
+pub mod command;
+pub mod subcommand;
