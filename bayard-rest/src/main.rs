@@ -90,6 +90,22 @@ async fn main() -> std::io::Result<()> {
                 .use_delimiter(true)
                 .require_delimiter(true)
                 .value_delimiter(","),
+        )
+        .arg(
+            Arg::with_name("CERT_FILE")
+                .help("Path to the TLS certificate file.")
+                .short("c")
+                .long("cert-file")
+                .value_name("PATH")
+                .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("KEY_FILE")
+                .help("Path to the TLS key file.")
+                .short("k")
+                .long("key-file")
+                .value_name("PATH")
+                .takes_value(true),
         );
 
     let matches = app.get_matches();
@@ -118,26 +134,49 @@ async fn main() -> std::io::Result<()> {
             .map(|s| cors_headers.push(s.to_string()))
             .count();
     }
+    let mut cert_file = "";
+    if let Some(_cert_file) = matches.value_of("CERT_FILE") {
+        cert_file = _cert_file;
+    }
+    let mut key_file = "";
+    if let Some(_key_file) = matches.value_of("KEY_FILE") {
+        key_file = _key_file;
+    }
 
     let rest_address = format!("{}:{}", host, port);
 
-    let mut rest_server;
-    if cors_origin == "" {
-        rest_server = RestServer::new(rest_address.as_str(), server, http_worker_threads);
-    } else {
-        info!(
-            "enable CORS: origin={:?}, methods={:?}, headers={:?}",
-            cors_origin, cors_methods, cors_headers
-        );
-        rest_server = RestServer::new_cors(
+    let enable_cors =
+        !cors_origin.is_empty() && !cors_methods.is_empty() && !cors_headers.is_empty();
+    let enable_tls = !cert_file.is_empty() && !key_file.is_empty();
+
+    let mut rest_server = match (enable_tls, enable_cors) {
+        (false, false) => RestServer::new(rest_address.as_str(), server, http_worker_threads),
+        (false, true) => RestServer::new_cors(
             rest_address.as_str(),
             server,
             http_worker_threads,
             cors_origin,
             cors_methods,
             cors_headers,
-        );
-    }
+        ),
+        (true, false) => RestServer::new_tls(
+            rest_address.as_str(),
+            server,
+            http_worker_threads,
+            cert_file,
+            key_file,
+        ),
+        (true, true) => RestServer::new_cors_tls(
+            rest_address.as_str(),
+            server,
+            http_worker_threads,
+            cors_origin,
+            cors_methods,
+            cors_headers,
+            cert_file,
+            key_file,
+        ),
+    };
     info!("start rest service on {}", rest_address.as_str());
 
     // Wait for signals for termination (SIGINT, SIGTERM).
