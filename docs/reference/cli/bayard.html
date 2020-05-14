@@ -199,12 +199,16 @@
      Tokenizer file. Must specify An existing file name. [default: ./etc/tokenizer.json]</p>
 </li>
 <li>
-<p><code>-t</code>, <code>--indexer-threads</code> <code>&lt;INDEXER_THREADS&gt;</code>
-     Number of indexer threads. [default: 7]</p>
+<p><code>-t</code>, <code>--indexer-threads</code> <code>&lt;INDEXER_THREADS&gt;</code><br />
+     Number of indexer threads. By default indexer uses number of available logical cpu as threads count. [default: 8]</p>
 </li>
 <li>
 <p><code>-m</code>, <code>--indexer-memory-size</code> <code>&lt;INDEXER_MEMORY_SIZE&gt;</code><br />
      Total memory size (in bytes) used by the indexer. [default: 1000000000]</p>
+</li>
+<li>
+<p><code>-w</code>, <code>--http-worker-threads</code> <code>&lt;HTTP_WORKER_THREADS&gt;</code><br />
+     Number of HTTP worker threads. By default http server uses number of available logical cpu as threads count. [default: 8]</p>
 </li>
 </ul>
 <h2><a class="header" href="#args" id="args">ARGS</a></h2>

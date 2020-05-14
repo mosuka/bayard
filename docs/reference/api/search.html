@@ -186,38 +186,38 @@ Hierarchical facet field value prefix.</p>
 </ul>
 <h2><a class="header" href="#example" id="example">Example</a></h2>
 <p>To search documents from the index:</p>
-<pre><code class="language-text">$ curl -X POST 'http://localhost:8000/v1/search?query=search&amp;from=0&amp;limit=10&amp;facet_field=category&amp;facet_prefix=/language&amp;facet_prefix=/category/search'
+<pre><code class="language-text">$ curl -X POST 'http://localhost:8000/v1/search?from=0&amp;limit=10&amp;facet_field=category&amp;facet_prefix[]=/language&amp;facet_prefix[]=/category/search' --data-binary 'description:rust' | jq .
 </code></pre>
 <p>You'll see the result in JSON format. The result of the above command is:</p>
 <pre><code class="language-json">{
-  &quot;count&quot;: 9,
+  &quot;count&quot;: 2,
   &quot;docs&quot;: [
     {
       &quot;fields&quot;: {
         &quot;_id&quot;: [
-          &quot;3&quot;
+          &quot;8&quot;
         ],
         &quot;category&quot;: [
-          &quot;/category/search/server&quot;,
-          &quot;/language/java&quot;
+          &quot;/category/search/library&quot;,
+          &quot;/language/rust&quot;
         ],
         &quot;description&quot;: [
-          &quot;Elasticsearch is a distributed, open source search and analytics engine for all types of data, including textual, numerical, geospatial, structured, and unstructured.&quot;
+          &quot;Tantivy is a full-text search engine library inspired by Apache Lucene and written in Rust.&quot;
         ],
         &quot;name&quot;: [
-          &quot;Elasticsearch&quot;
+          &quot;Tantivy&quot;
         ],
         &quot;popularity&quot;: [
-          46054
+          3142
         ],
         &quot;timestamp&quot;: [
-          &quot;2019-12-18T23:19:00+00:00&quot;
+          &quot;2019-12-19T01:07:00+00:00&quot;
         ],
         &quot;url&quot;: [
-          &quot;https://www.elastic.co/products/elasticsearch&quot;
+          &quot;https://github.com/tantivy-search/tantivy&quot;
         ]
       },
-      &quot;score&quot;: 10.516742
+      &quot;score&quot;: 1.5945008
     },
     {
       &quot;fields&quot;: {
@@ -244,206 +244,14 @@ Hierarchical facet field value prefix.</p>
           &quot;https://github.com/bayard-search/bayard&quot;
         ]
       },
-      &quot;score&quot;: 1.4125781
-    },
-    {
-      &quot;fields&quot;: {
-        &quot;_id&quot;: [
-          &quot;8&quot;
-        ],
-        &quot;category&quot;: [
-          &quot;/category/search/library&quot;,
-          &quot;/language/rust&quot;
-        ],
-        &quot;description&quot;: [
-          &quot;Tantivy is a full-text search engine library inspired by Apache Lucene and written in Rust.&quot;
-        ],
-        &quot;name&quot;: [
-          &quot;Tantivy&quot;
-        ],
-        &quot;popularity&quot;: [
-          3142
-        ],
-        &quot;timestamp&quot;: [
-          &quot;2019-12-19T01:07:00+00:00&quot;
-        ],
-        &quot;url&quot;: [
-          &quot;https://github.com/tantivy-search/tantivy&quot;
-        ]
-      },
-      &quot;score&quot;: 1.4125781
-    },
-    {
-      &quot;fields&quot;: {
-        &quot;_id&quot;: [
-          &quot;6&quot;
-        ],
-        &quot;category&quot;: [
-          &quot;/category/search/server&quot;,
-          &quot;/language/rust&quot;
-        ],
-        &quot;description&quot;: [
-          &quot;Toshi is meant to be a full-text search engine similar to Elasticsearch. Toshi strives to be to Elasticsearch what Tantivy is to Lucene.&quot;
-        ],
-        &quot;name&quot;: [
-          &quot;Toshi&quot;
-        ],
-        &quot;popularity&quot;: [
-          2448
-        ],
-        &quot;timestamp&quot;: [
-          &quot;2019-12-01T19:00:00+00:00&quot;
-        ],
-        &quot;url&quot;: [
-          &quot;https://github.com/toshi-search/Toshi&quot;
-        ]
-      },
-      &quot;score&quot;: 1.389255
-    },
-    {
-      &quot;fields&quot;: {
-        &quot;_id&quot;: [
-          &quot;11&quot;
-        ],
-        &quot;category&quot;: [
-          &quot;/category/search/library&quot;,
-          &quot;/language/python&quot;
-        ],
-        &quot;description&quot;: [
-          &quot;Whoosh is a fast, pure Python search engine library.&quot;
-        ],
-        &quot;name&quot;: [
-          &quot;Whoosh&quot;
-        ],
-        &quot;popularity&quot;: [
-          0
-        ],
-        &quot;timestamp&quot;: [
-          &quot;2019-10-07T20:30:26+00:00&quot;
-        ],
-        &quot;url&quot;: [
-          &quot;https://bitbucket.org/mchaput/whoosh/wiki/Home&quot;
-        ]
-      },
-      &quot;score&quot;: 0.2778122
-    },
-    {
-      &quot;fields&quot;: {
-        &quot;_id&quot;: [
-          &quot;7&quot;
-        ],
-        &quot;category&quot;: [
-          &quot;/category/search/server&quot;,
-          &quot;/language/rust&quot;
-        ],
-        &quot;description&quot;: [
-          &quot;Sonic is a fast, lightweight and schema-less search backend.&quot;
-        ],
-        &quot;name&quot;: [
-          &quot;Sonic&quot;
-        ],
-        &quot;popularity&quot;: [
-          7895
-        ],
-        &quot;timestamp&quot;: [
-          &quot;2019-12-10T14:13:00+00:00&quot;
-        ],
-        &quot;url&quot;: [
-          &quot;https://github.com/valeriansaliou/sonic&quot;
-        ]
-      },
-      &quot;score&quot;: 0.2778122
-    },
-    {
-      &quot;fields&quot;: {
-        &quot;_id&quot;: [
-          &quot;4&quot;
-        ],
-        &quot;category&quot;: [
-          &quot;/category/search/server&quot;,
-          &quot;/language/go&quot;
-        ],
-        &quot;description&quot;: [
-          &quot;Blast is a full text search and indexing server, written in Go, built on top of Bleve.&quot;
-        ],
-        &quot;name&quot;: [
-          &quot;Blast&quot;
-        ],
-        &quot;popularity&quot;: [
-          654
-        ],
-        &quot;timestamp&quot;: [
-          &quot;2019-10-18T10:50:00+00:00&quot;
-        ],
-        &quot;url&quot;: [
-          &quot;https://github.com/mosuka/blast&quot;
-        ]
-      },
-      &quot;score&quot;: 0.23746987
-    },
-    {
-      &quot;fields&quot;: {
-        &quot;_id&quot;: [
-          &quot;5&quot;
-        ],
-        &quot;category&quot;: [
-          &quot;/category/search/server&quot;,
-          &quot;/language/go&quot;
-        ],
-        &quot;description&quot;: [
-          &quot;Riot is Go Open Source, Distributed, Simple and efficient full text search engine.&quot;
-        ],
-        &quot;name&quot;: [
-          &quot;Riot&quot;
-        ],
-        &quot;popularity&quot;: [
-          4948
-        ],
-        &quot;timestamp&quot;: [
-          &quot;2019-12-15T22:12:00+00:00&quot;
-        ],
-        &quot;url&quot;: [
-          &quot;https://github.com/go-ego/riot&quot;
-        ]
-      },
-      &quot;score&quot;: 0.23746987
-    },
-    {
-      &quot;fields&quot;: {
-        &quot;_id&quot;: [
-          &quot;9&quot;
-        ],
-        &quot;category&quot;: [
-          &quot;/category/search/library&quot;,
-          &quot;/language/java&quot;
-        ],
-        &quot;description&quot;: [
-          &quot;Apache Lucene is a high-performance, full-featured text search engine library written entirely in Java.&quot;
-        ],
-        &quot;name&quot;: [
-          &quot;Lucene&quot;
-        ],
-        &quot;popularity&quot;: [
-          3135
-        ],
-        &quot;timestamp&quot;: [
-          &quot;2019-12-19T05:08:00+00:00&quot;
-        ],
-        &quot;url&quot;: [
-          &quot;https://lucene.apache.org/&quot;
-        ]
-      },
-      &quot;score&quot;: 0.22139496
+      &quot;score&quot;: 1.5945008
     }
   ],
   &quot;facet&quot;: {
     &quot;category&quot;: {
-      &quot;/language/java&quot;: 2,
-      &quot;/language/python&quot;: 1,
-      &quot;/category/search/library&quot;: 3,
-      &quot;/language/rust&quot;: 4,
-      &quot;/category/search/server&quot;: 6,
-      &quot;/language/go&quot;: 2
+      &quot;/category/search/server&quot;: 1,
+      &quot;/language/rust&quot;: 2,
+      &quot;/category/search/library&quot;: 1
     }
   }
 }
