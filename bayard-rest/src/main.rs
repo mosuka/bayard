@@ -112,7 +112,7 @@ async fn main() -> std::io::Result<()> {
 
     let host = matches.value_of("HOST").unwrap();
     let port = matches.value_of("PORT").unwrap().parse::<u16>().unwrap();
-    let server = matches.value_of("SERVER").unwrap();
+    let index_server = matches.value_of("INDEX_SERVER").unwrap();
     let http_worker_threads = matches
         .value_of("HTTP_WORKER_THREADS")
         .unwrap()
@@ -150,10 +150,10 @@ async fn main() -> std::io::Result<()> {
     let enable_tls = !cert_file.is_empty() && !key_file.is_empty();
 
     let mut rest_server = match (enable_tls, enable_cors) {
-        (false, false) => RestServer::new(rest_address.as_str(), server, http_worker_threads),
+        (false, false) => RestServer::new(rest_address.as_str(), index_server, http_worker_threads),
         (false, true) => RestServer::new_cors(
             rest_address.as_str(),
-            server,
+            index_server,
             http_worker_threads,
             cors_origin,
             cors_methods,
@@ -161,14 +161,14 @@ async fn main() -> std::io::Result<()> {
         ),
         (true, false) => RestServer::new_tls(
             rest_address.as_str(),
-            server,
+            index_server,
             http_worker_threads,
             cert_file,
             key_file,
         ),
         (true, true) => RestServer::new_cors_tls(
             rest_address.as_str(),
-            server,
+            index_server,
             http_worker_threads,
             cors_origin,
             cors_methods,
