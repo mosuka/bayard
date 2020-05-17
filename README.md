@@ -1,5 +1,6 @@
 # Bayard
 
+[![GitHub Actions](https://github.com/bayard-search/bayard/workflows/CI/badge.svg)](https://github.com/bayard-search/bayard/actions?query=workflow%3ACI)
 [![Join the chat at https://gitter.im/bayard-search/bayard](https://badges.gitter.im/bayard-search/bayard.svg)](https://gitter.im/bayard-search/bayard?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
