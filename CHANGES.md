@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
+- Update jieba-rs to 0.5.0 #93 @messense
 - Fix typo in CLI flag #92 @mosuka
 - Support TLS on REST server #91 @mosuka
 - Support CORS on REST server #90 @mosuka
