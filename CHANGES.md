@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
+- Add example self-signed certificate #95 @mosuka
 - Add GitHub Actions Integration #94 @messense
 - Update jieba-rs to 0.5.0 #93 @messense
 - Fix typo in CLI flag #92 @mosuka
