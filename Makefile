@@ -98,6 +98,3 @@ endif
 docs:
 	rm -rf $(DOCS_DIR)
 	mdbook build
-
-cert:
-	openssl req -x509 -nodes -newkey rsa:4096 -keyout ./etc/bayard-rest_key.pem -out ./etc/bayard-rest_cert.pem -days 365 -subj '/CN=localhost'
