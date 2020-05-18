@@ -119,10 +119,10 @@ impl RestServer {
 
         // load ssl keys
         let mut config = ServerConfig::new(NoClientAuth::new());
-        let cert = &mut BufReader::new(File::open(cert_file).unwrap());
-        let key = &mut BufReader::new(File::open(key_file).unwrap());
-        let cert_chain = certs(cert).unwrap();
-        let mut keys = rsa_private_keys(key).unwrap();
+        let cert_reader = &mut BufReader::new(File::open(cert_file).unwrap());
+        let key_reader = &mut BufReader::new(File::open(key_file).unwrap());
+        let cert_chain = certs(cert_reader).unwrap();
+        let mut keys = rsa_private_keys(key_reader).unwrap();
         config.set_single_cert(cert_chain, keys.remove(0)).unwrap();
 
         let server = HttpServer::new(move || {
