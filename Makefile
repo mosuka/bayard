@@ -56,29 +56,29 @@ ifeq ($(shell cargo show --json bayard | jq -r '.versions[].num' | grep $(BAYARD
 endif
 
 docker-build:
-ifeq ($(shell curl 'https://registry.hub.docker.com/v2/repositories/bayardsearch/bayard/tags' | jq -r '."results"[]["name"]' | grep $(BAYARD_VERSION)),)
+ifeq ($(shell curl -s 'https://registry.hub.docker.com/v2/repositories/bayardsearch/bayard/tags' | jq -r '."results"[]["name"]' | grep $(BAYARD_VERSION)),)
 	docker build --tag=bayardsearch/bayard:latest --file=bayard.dockerfile --build-arg="BAYARD_VERSION=$(BAYARD_VERSION)" .
 	docker tag bayardsearch/bayard:latest bayardsearch/bayard:$(BAYARD_VERSION)
 endif
-ifeq ($(shell curl 'https://registry.hub.docker.com/v2/repositories/bayardsearch/bayard-rest/tags' | jq -r '."results"[]["name"]' | grep $(BAYARD_REST_VERSION)),)
+ifeq ($(shell curl -s 'https://registry.hub.docker.com/v2/repositories/bayardsearch/bayard-rest/tags' | jq -r '."results"[]["name"]' | grep $(BAYARD_REST_VERSION)),)
 	docker build --tag=bayardsearch/bayard-rest:latest --file=bayard-rest.dockerfile --build-arg="BAYARD_REST_VERSION=$(BAYARD_REST_VERSION)" .
 	docker tag bayardsearch/bayard-rest:latest bayardsearch/bayard-rest:$(BAYARD_REST_VERSION)
 endif
-ifeq ($(shell curl 'https://registry.hub.docker.com/v2/repositories/bayardsearch/bayard-cli/tags' | jq -r '."results"[]["name"]' | grep $(BAYARD_CLI_VERSION)),)
+ifeq ($(shell curl -s 'https://registry.hub.docker.com/v2/repositories/bayardsearch/bayard-cli/tags' | jq -r '."results"[]["name"]' | grep $(BAYARD_CLI_VERSION)),)
 	docker build --tag=bayardsearch/bayard-cli:latest --file=bayard-cli.dockerfile --build-arg="BAYARD_CLI_VERSION=$(BAYARD_CLI_VERSION)" .
 	docker tag bayardsearch/bayard-cli:latest bayardsearch/bayard-cli:$(BAYARD_CLI_VERSION)
 endif
 
 docker-push:
-ifeq ($(shell curl 'https://registry.hub.docker.com/v2/repositories/bayardsearch/bayard/tags' | jq -r '."results"[]["name"]' | grep $(BAYARD_VERSION)),)
+ifeq ($(shell curl -s 'https://registry.hub.docker.com/v2/repositories/bayardsearch/bayard/tags' | jq -r '."results"[]["name"]' | grep $(BAYARD_VERSION)),)
 	docker push bayardsearch/bayard:latest
 	docker push bayardsearch/bayard:$(BAYARD_VERSION)
 endif
-ifeq ($(shell curl 'https://registry.hub.docker.com/v2/repositories/bayardsearch/bayard-rest/tags' | jq -r '."results"[]["name"]' | grep $(BAYARD_REST_VERSION)),)
+ifeq ($(shell curl -s 'https://registry.hub.docker.com/v2/repositories/bayardsearch/bayard-rest/tags' | jq -r '."results"[]["name"]' | grep $(BAYARD_REST_VERSION)),)
 	docker push bayardsearch/bayard-rest:latest
 	docker push bayardsearch/bayard-rest:$(BAYARD_REST_VERSION)
 endif
-ifeq ($(shell curl 'https://registry.hub.docker.com/v2/repositories/bayardsearch/bayard-cli/tags' | jq -r '."results"[]["name"]' | grep $(BAYARD_CLI_VERSION)),)
+ifeq ($(shell curl -s 'https://registry.hub.docker.com/v2/repositories/bayardsearch/bayard-cli/tags' | jq -r '."results"[]["name"]' | grep $(BAYARD_CLI_VERSION)),)
 	docker push bayardsearch/bayard-cli:latest
 	docker push bayardsearch/bayard-cli:$(BAYARD_CLI_VERSION)
 endif
