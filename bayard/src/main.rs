@@ -2,26 +2,30 @@
 extern crate clap;
 
 use std::collections::HashMap;
+use std::convert::TryFrom;
+use std::io;
+use std::net::SocketAddr;
 use std::path::Path;
 use std::sync::Arc;
 
 use bayard_proto::proto::{indexpb_grpc, raftpb_grpc};
 use clap::{App, AppSettings, Arg};
-use crossbeam_channel::select;
 use futures::Future;
 use grpcio::{Environment, ServerBuilder};
+use hyper::service::{make_service_fn, service_fn};
+use hyper::Server;
 use log::*;
 use raft::storage::MemStorage;
 
 use bayard_client::raft::client::RaftClient;
 use bayard_common::log::set_logger;
-use bayard_common::signal::sigterm_channel;
+use bayard_common::signal::shutdown_signal;
 use bayard_server::index::server::IndexServer;
-use bayard_server::metric::server::MetricsServer;
+use bayard_server::metric::handler::handle;
 use bayard_server::raft::config::NodeAddress;
 
-#[actix_rt::main]
-async fn main() -> std::io::Result<()> {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     set_logger();
 
     let threads = format!("{}", num_cpus::get().to_owned());
@@ -128,15 +132,6 @@ async fn main() -> std::io::Result<()> {
                 .value_name("INDEXER_MEMORY_SIZE")
                 .default_value("1000000000")
                 .takes_value(true),
-        )
-        .arg(
-            Arg::with_name("HTTP_WORKER_THREADS")
-                .help("Number of HTTP worker threads. By default http server uses number of available logical cpu as threads count.")
-                .short("w")
-                .long("http-worker-threads")
-                .value_name("HTTP_WORKER_THREADS")
-                .default_value(&threads)
-                .takes_value(true),
         );
 
     let matches = app.get_matches();
@@ -175,15 +170,9 @@ async fn main() -> std::io::Result<()> {
         .unwrap()
         .parse::<usize>()
         .unwrap();
-    let http_worker_threads = matches
-        .value_of("HTTP_WORKER_THREADS")
-        .unwrap()
-        .parse::<usize>()
-        .unwrap();
 
     let raft_address = format!("{}:{}", host, raft_port);
     let index_address = format!("{}:{}", host, index_port);
-    let metrics_address = format!("{}:{}", host, metrics_port);
 
     let node_address = NodeAddress {
         index_address,
@@ -197,7 +186,7 @@ async fn main() -> std::io::Result<()> {
         let mut client = RaftClient::new(peer_address);
         match client.join(id, node_address.clone()) {
             Ok(_addresses) => addresses = _addresses,
-            Err(e) => return Err(e),
+            Err(e) => return Err(Box::try_from(e).unwrap()),
         };
     }
 
@@ -249,21 +238,13 @@ async fn main() -> std::io::Result<()> {
     }
 
     // metrics service
-    let mut metrics_server = MetricsServer::new(metrics_address.as_str(), http_worker_threads);
-    info!("start metrics service on {}", metrics_address.as_str());
+    let metrics_address: SocketAddr = format!("{}:{}", host, metrics_port).parse().unwrap();
+    let metrics_service = make_service_fn(|_| async { Ok::<_, io::Error>(service_fn(handle)) });
+    let metrics_server = Server::bind(&metrics_address).serve(metrics_service);
+    let metrics_server_graceful = metrics_server.with_graceful_shutdown(shutdown_signal());
+    info!("start metrics service on {}:{}", host, metrics_port);
 
-    // Wait for signals for termination (SIGINT, SIGTERM).
-    let sigterm_receiver = sigterm_channel().unwrap();
-    loop {
-        select! {
-            recv(sigterm_receiver) -> _ => {
-                info!("receive signal");
-                break;
-            }
-        }
-    }
-
-    match metrics_server.shutdown().await {
+    match metrics_server_graceful.await {
         Ok(_) => {
             info!("stop metrics service on {}:{}", host, metrics_port);
         }
