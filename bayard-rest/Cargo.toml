@@ -1,6 +1,6 @@
 [package]
 name = "bayard-rest"
-version = "0.8.0"
+version = "0.8.1"
 authors = ["Minoru Osuka <minoru.osuka@gmail.com>"]
 edition = "2018"
 description = "REST API server for Bayard."
@@ -32,5 +32,5 @@ serde_qs = "0.5.2"
 tokio = { version = "0.2.21", features = ["full"] }
 tokio-rustls = "0.13.0"
 
-bayard-client = { version = "0.8.0", path = "../bayard-client" }
-bayard-common = { version = "0.8.0", path = "../bayard-common" }
+bayard-client = { version = "0.8.1", path = "../bayard-client" }
+bayard-common = { version = "0.8.1", path = "../bayard-common" }

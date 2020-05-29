@@ -1,6 +1,6 @@
 [package]
 name = "bayard-client"
-version = "0.8.0"
+version = "0.8.1"
 authors = ["Minoru Osuka <minoru.osuka@gmail.com>"]
 edition = "2018"
 description = "Client library for Bayard."
@@ -23,4 +23,4 @@ serde_json = "1.0.51"
 
 bayard-proto = "0.8.0"
 
-bayard-server = { version = "0.8.0", path = "../bayard-server" }
+bayard-server = { version = "0.8.1", path = "../bayard-server" }
