@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
+- Change web framework to Hyper #98 @mosuka
 - Change the web framework of Metrics Server to Hyper #97 @mosuka
 - Add example self-signed certificate #95 @mosuka
 - Add GitHub Actions Integration #94 @messense
