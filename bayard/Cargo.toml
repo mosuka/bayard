@@ -1,6 +1,6 @@
 [package]
 name = "bayard"
-version = "0.8.0"
+version = "0.8.1"
 authors = ["Minoru Osuka <minoru.osuka@gmail.com>"]
 edition = "2018"
 description = "A distributed search server."
@@ -29,6 +29,6 @@ tokio = { version = "0.2.21", features = ["macros"] }
 
 bayard-proto = "0.8.0"
 
-bayard-client = { version = "0.8.0", path = "../bayard-client" }
-bayard-common = { version = "0.8.0", path = "../bayard-common" }
-bayard-server = { version = "0.8.0", path = "../bayard-server" }
+bayard-client = { version = "0.8.1", path = "../bayard-client" }
+bayard-common = { version = "0.8.1", path = "../bayard-common" }
+bayard-server = { version = "0.8.1", path = "../bayard-server" }
