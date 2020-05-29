@@ -31,27 +31,27 @@ tag:
 	git push origin v$(BAYARD_VERSION)
 
 publish:
-ifeq ($(shell cargo show --json bayard-common | jq -r '.versions[].num' | grep $(BAYARD_COMMON_VERSION)),)
+ifeq ($(shell curl -s -XGET https://crates.io/api/v1/crates/bayard-common | jq -r '.versions[].num' | grep $(BAYARD_COMMON_VERSION)),)
 	(cd bayard-common && cargo package && cargo publish)
 	sleep 10
 endif
-ifeq ($(shell cargo show --json bayard-server | jq -r '.versions[].num' | grep $(BAYARD_SERVER_VERSION)),)
+ifeq ($(shell curl -s -XGET https://crates.io/api/v1/crates/bayard-server | jq -r '.versions[].num' | grep $(BAYARD_SERVER_VERSION)),)
 	(cd bayard-server && cargo package && cargo publish)
 	sleep 10
 endif
-ifeq ($(shell cargo show --json bayard-client | jq -r '.versions[].num' | grep $(BAYARD_CLIENT_VERSION)),)
+ifeq ($(shell curl -s -XGET https://crates.io/api/v1/crates/bayard-client | jq -r '.versions[].num' | grep $(BAYARD_CLIENT_VERSION)),)
 	(cd bayard-client && cargo package && cargo publish)
 	sleep 10
 endif
-ifeq ($(shell cargo show --json bayard-cli | jq -r '.versions[].num' | grep $(BAYARD_CLI_VERSION)),)
+ifeq ($(shell curl -s -XGET https://crates.io/api/v1/crates/bayard-cli | jq -r '.versions[].num' | grep $(BAYARD_CLI_VERSION)),)
 	(cd bayard-cli && cargo package && cargo publish)
 	sleep 10
 endif
-ifeq ($(shell cargo show --json bayard-rest | jq -r '.versions[].num' | grep $(BAYARD_REST_VERSION)),)
+ifeq ($(shell curl -s -XGET https://crates.io/api/v1/crates/bayard-rest | jq -r '.versions[].num' | grep $(BAYARD_REST_VERSION)),)
 	(cd bayard-rest && cargo package && cargo publish)
 	sleep 10
 endif
-ifeq ($(shell cargo show --json bayard | jq -r '.versions[].num' | grep $(BAYARD_VERSION)),)
+ifeq ($(shell curl -s -XGET https://crates.io/api/v1/crates/bayard | jq -r '.versions[].num' | grep $(BAYARD_VERSION)),)
 	(cd bayard && cargo package && cargo publish)
 endif
 
@@ -93,6 +93,10 @@ endif
 ifneq ($(docker volume ls -f 'dangling=true' -q),)
 	docker volume rm $(docker volume ls -f 'dangling=true' -q)
 endif
+
+.PHONY: cert
+cert:
+	openssl req -x509 -nodes -newkey rsa:4096 -keyout ./examples/key2.pem -out ./examples/cert2.pem -days 365 -subj '/CN=localhost'
 
 .PHONY: docs
 docs:

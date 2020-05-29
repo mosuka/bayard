@@ -3,7 +3,7 @@ name = "bayard"
 version = "0.8.0"
 authors = ["Minoru Osuka <minoru.osuka@gmail.com>"]
 edition = "2018"
-description = "Bayard is a distributed search server."
+description = "A distributed search server."
 documentation = "https://bayard-search.github.io/bayard/"
 homepage = "https://github.com/bayard-search"
 repository = "https://github.com/bayard-search/bayard/bayard"
@@ -18,7 +18,6 @@ path = "src/main.rs"
 
 [dependencies]
 clap = "2.33.0"
-crossbeam-channel = "0.4.2"
 futures = "0.1.29"
 grpcio = { version = "0.4.7", features = ["secure"] }
 hyper = "0.13.5"

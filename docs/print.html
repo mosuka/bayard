@@ -151,7 +151,8 @@
                 <div id="content" class="content">
                     <main>
                         <h1><a class="header" href="#bayard" id="bayard">Bayard</a></h1>
-<p><a href="https://gitter.im/bayard-search/bayard?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge"><img src="https://badges.gitter.im/bayard-search/bayard.svg" alt="Join the chat at https://gitter.im/bayard-search/bayard" /></a>
+<p><a href="https://github.com/bayard-search/bayard/actions?query=workflow%3ACI"><img src="https://github.com/bayard-search/bayard/workflows/CI/badge.svg" alt="GitHub Actions" /></a>
+<a href="https://gitter.im/bayard-search/bayard?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge"><img src="https://badges.gitter.im/bayard-search/bayard.svg" alt="Join the chat at https://gitter.im/bayard-search/bayard" /></a>
 <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" /></a></p>
 <p>Bayard is a full-text search and indexing server written in <a href="https://www.rust-lang.org/">Rust</a> built on top of <a href="https://github.com/tantivy-search/tantivy">Tantivy</a> that implements <a href="https://raft.github.io/">Raft Consensus Algorithm</a> and <a href="https://grpc.io/">gRPC</a>.<br />
 Achieves consensus across all the nodes, ensures every change made to the system is made to a quorum of nodes.<br />
@@ -1739,31 +1740,15 @@ See the following list:</p>
 <ul>
 <li>
 <p><code>-H</code>, <code>--host</code> <code>&lt;HOST&gt;</code><br />
-     Node address. [default: 0.0.0.0]</p>
+     Hostname or IP address. [default: 0.0.0.0]</p>
 </li>
 <li>
 <p><code>-p</code>, <code>--port</code> <code>&lt;PORT&gt;</code><br />
      HTTP service port number. [default: 8000]</p>
 </li>
 <li>
-<p><code>-i</code>, <code>--index-server</code> <code>&lt;ADDRESS&gt;</code><br />
+<p><code>-i</code>, <code>--index-address</code> <code>&lt;ADDRESS&gt;</code><br />
      Index service address. [default: 0.0.0.0:5000]</p>
-</li>
-<li>
-<p><code>-w</code>, <code>--worker-threads</code> <code>&lt;THREADS&gt;</code><br />
-     Number of HTTP worker threads. By default http server uses number of available logical cpu as threads count. [default: 8]</p>
-</li>
-<li>
-<p><code>-o</code>, <code>--cors-origin</code> <code>&lt;ORIGIN&gt;</code><br />
-     Path to the TLS certificate file</p>
-</li>
-<li>
-<p><code>-m</code>, <code>--cors-methods</code> <code>&lt;METHODS&gt;...</code><br />
-     Set a list of methods which the allowed origins are allowed to access for requests.</p>
-</li>
-<li>
-<p><code>-l</code>, <code>--cors-headers</code> <code>&lt;METHODS&gt;...</code><br />
-     Set a list of header field names which can be used when this resource is accessed by allowed origins.</p>
 </li>
 <li>
 <p><code>-c</code>, <code>--cert-file</code> <code>&lt;PATH&gt;</code><br />
@@ -1778,7 +1763,7 @@ See the following list:</p>
 <p>To start a server with default options:</p>
 <pre><code class="language-shellscript">$ bayard --host=192.168.1.22 \
          --port=8001 \
-         --index-server=192.168.1.12:5001
+         --index-address=192.168.1.12:5001
 </code></pre>
 <h1><a class="header" href="#rest-api-1" id="rest-api-1">REST API</a></h1>
 <p>The REST API can be used by starting the gateway with the <a href="reference/cli/bayard-rest.html">bayard-rest</a> CLI.<br />
@@ -2161,7 +2146,7 @@ Hierarchical facet field value prefix.</p>
 </code></pre>
 <h2><a class="header" href="#examples-20" id="examples-20">Examples</a></h2>
 <p>To show peers of the cluster:</p>
-<pre><code class="language-shellscript">$ curl -X GET 'http://localhost:8000/v1/status'
+<pre><code class="language-shellscript">$ curl -X GET 'http://localhost:8000/v1/status' | jq .
 </code></pre>
 <p>You'll see the result in JSON format. The result of the above command is:</p>
 <pre><code class="language-json">{
