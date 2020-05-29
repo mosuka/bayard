@@ -13,7 +13,7 @@ GET /v1/status
 To show peers of the cluster:
 
 ```shell script
-$ curl -X GET 'http://localhost:8000/v1/status'
+$ curl -X GET 'http://localhost:8000/v1/status' | jq .
 ```
 
 You'll see the result in JSON format. The result of the above command is:

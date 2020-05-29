@@ -1,148 +1,24 @@
-use actix_web::{delete, get, post, put, web, Error, HttpRequest, HttpResponse};
+use hyper::{header, Body, Method, Request, Response, StatusCode};
+use regex::Regex;
 use serde::Deserialize;
 use serde_json::Value;
 
-use crate::rest::server::AppState;
+use bayard_client::index::client::IndexClient;
+use lazy_static::lazy_static;
 
-#[get("/v1/documents/{id}")]
-pub async fn get(state: AppState, id: web::Path<String>) -> Result<HttpResponse, Error> {
-    match state.index_client.lock().unwrap().get(id.into_inner()) {
-        Ok(s) => {
-            let res = HttpResponse::Ok().body(s);
-            Ok(res)
-        }
-        Err(e) => {
-            let res = HttpResponse::InternalServerError().body(format!("{}", e));
-            Ok(res)
-        }
-    }
+lazy_static! {
+    static ref RE_DOCUMENTS: Regex = Regex::new(r"^/v1/documents/(?P<id>.+)$").unwrap();
+    static ref RE_DOCUMENTS_BULK: Regex = Regex::new(r"^/v1/documents$").unwrap();
+    static ref RE_COMMIT: Regex = Regex::new(r"^/v1/commit$").unwrap();
+    static ref RE_ROLLBACK: Regex = Regex::new(r"^/v1/rollback$").unwrap();
+    static ref RE_MERGE: Regex = Regex::new(r"^/v1/merge$").unwrap();
+    static ref RE_SCHEMA: Regex = Regex::new(r"^/v1/schema$").unwrap();
+    static ref RE_SEARCH: Regex = Regex::new(r"^/v1/search$").unwrap();
+    static ref RE_STATUS: Regex = Regex::new(r"^/v1/status$").unwrap();
 }
 
-#[put("/v1/documents/{id}")]
-pub async fn set(
-    state: AppState,
-    body: web::Bytes,
-    id: web::Path<String>,
-) -> Result<HttpResponse, Error> {
-    let json_str = String::from_utf8(body.to_vec()).unwrap();
-    let mut value: Value = serde_json::from_str(json_str.as_str()).unwrap();
-    value["_id"] = Value::String(id.into_inner());
-
-    let doc = serde_json::to_string(&value).unwrap();
-
-    match state.index_client.lock().unwrap().set(doc) {
-        Ok(_) => {
-            let res = HttpResponse::Ok().await.unwrap();
-            Ok(res)
-        }
-        Err(e) => {
-            let res = HttpResponse::InternalServerError().body(format!("{}", e));
-            Ok(res)
-        }
-    }
-}
-
-#[delete("/v1/documents/{id}")]
-pub async fn delete(state: AppState, id: web::Path<String>) -> Result<HttpResponse, Error> {
-    match state.index_client.lock().unwrap().delete(id.into_inner()) {
-        Ok(_) => {
-            let res = HttpResponse::Ok().await.unwrap();
-            Ok(res)
-        }
-        Err(e) => {
-            let res = HttpResponse::InternalServerError().body(format!("{}", e));
-            Ok(res)
-        }
-    }
-}
-
-#[put("/v1/documents")]
-pub async fn bulk_set(state: AppState, body: web::Bytes) -> Result<HttpResponse, Error> {
-    let docs = String::from_utf8(body.to_vec()).unwrap();
-
-    match state.index_client.lock().unwrap().bulk_set(docs) {
-        Ok(_) => {
-            let res = HttpResponse::Ok().await.unwrap();
-            Ok(res)
-        }
-        Err(e) => {
-            let res = HttpResponse::InternalServerError().body(format!("{}", e));
-            Ok(res)
-        }
-    }
-}
-
-#[delete("/v1/documents")]
-pub async fn bulk_delete(state: AppState, body: web::Bytes) -> Result<HttpResponse, Error> {
-    let docs = String::from_utf8(body.to_vec()).unwrap();
-
-    match state.index_client.lock().unwrap().bulk_delete(docs) {
-        Ok(_) => {
-            let res = HttpResponse::Ok().await.unwrap();
-            Ok(res)
-        }
-        Err(e) => {
-            let res = HttpResponse::InternalServerError().body(format!("{}", e));
-            Ok(res)
-        }
-    }
-}
-
-#[get("/v1/commit")]
-pub async fn commit(state: AppState) -> Result<HttpResponse, Error> {
-    match state.index_client.lock().unwrap().commit() {
-        Ok(_) => {
-            let res = HttpResponse::Ok().await.unwrap();
-            Ok(res)
-        }
-        Err(e) => {
-            let res = HttpResponse::InternalServerError().body(format!("{}", e));
-            Ok(res)
-        }
-    }
-}
-
-#[get("/v1/rollback")]
-pub async fn rollback(state: AppState) -> Result<HttpResponse, Error> {
-    match state.index_client.lock().unwrap().rollback() {
-        Ok(_) => {
-            let res = HttpResponse::Ok().await.unwrap();
-            Ok(res)
-        }
-        Err(e) => {
-            let res = HttpResponse::InternalServerError().body(format!("{}", e));
-            Ok(res)
-        }
-    }
-}
-
-#[get("/v1/merge")]
-pub async fn merge(state: AppState) -> Result<HttpResponse, Error> {
-    match state.index_client.lock().unwrap().merge() {
-        Ok(_) => {
-            let res = HttpResponse::Ok().await.unwrap();
-            Ok(res)
-        }
-        Err(e) => {
-            let res = HttpResponse::InternalServerError().body(format!("{}", e));
-            Ok(res)
-        }
-    }
-}
-
-#[get("/v1/schema")]
-pub async fn schema(state: AppState) -> Result<HttpResponse, Error> {
-    match state.index_client.lock().unwrap().schema() {
-        Ok(_) => {
-            let res = HttpResponse::Ok().await.unwrap();
-            Ok(res)
-        }
-        Err(e) => {
-            let res = HttpResponse::InternalServerError().body(format!("{}", e));
-            Ok(res)
-        }
-    }
-}
+pub type GenericError = Box<dyn std::error::Error + Send + Sync>;
+pub type Result<T> = std::result::Result<T, GenericError>;
 
 #[derive(Deserialize)]
 pub struct SearchQueryParams {
@@ -154,76 +30,256 @@ pub struct SearchQueryParams {
     facet_prefix: Option<Vec<String>>,
 }
 
-#[post("/v1/search")]
-pub async fn search(
-    state: AppState,
-    req: HttpRequest,
-    body: web::Bytes,
-) -> Result<HttpResponse, Error> {
-    let params = serde_qs::from_str::<SearchQueryParams>(&req.query_string()).unwrap();
+pub async fn route(req: Request<Body>, mut index_client: IndexClient) -> Result<Response<Body>> {
+    match req.uri().path() {
+        path => {
+            if RE_DOCUMENTS.is_match(path) {
+                let caps = RE_DOCUMENTS.captures(path).unwrap();
+                let id: &str = &caps["id"];
+                let id = String::from(id);
+                match req.method() {
+                    &Method::GET => match index_client.get(id) {
+                        Ok(s) => Ok(Response::builder()
+                            .status(StatusCode::OK)
+                            .header(header::CONTENT_TYPE, "application/json")
+                            .body(Body::from(s))
+                            .unwrap()),
+                        Err(e) => Ok(Response::builder()
+                            .status(StatusCode::INTERNAL_SERVER_ERROR)
+                            .body(Body::from(e.to_string()))
+                            .unwrap()),
+                    },
+                    &Method::PUT => {
+                        let bytes = hyper::body::to_bytes(req.into_body()).await.unwrap();
+                        let json_str = String::from_utf8(bytes.to_vec()).unwrap();
+                        let mut value: Value = serde_json::from_str(json_str.as_str()).unwrap();
+                        value["_id"] = Value::String(id);
+                        let doc = serde_json::to_string(&value).unwrap();
 
-    let mut from = 0;
-    if let Some(_from) = params.from {
-        from = _from;
-    }
+                        match index_client.set(doc) {
+                            Ok(_) => Ok(Response::builder()
+                                .status(StatusCode::OK)
+                                .body(Body::empty())
+                                .unwrap()),
+                            Err(e) => Ok(Response::builder()
+                                .status(StatusCode::INTERNAL_SERVER_ERROR)
+                                .body(Body::from(e.to_string()))
+                                .unwrap()),
+                        }
+                    }
+                    &Method::DELETE => match index_client.delete(id) {
+                        Ok(_) => Ok(Response::builder()
+                            .status(StatusCode::OK)
+                            .body(Body::empty())
+                            .unwrap()),
+                        Err(e) => Ok(Response::builder()
+                            .status(StatusCode::INTERNAL_SERVER_ERROR)
+                            .body(Body::from(e.to_string()))
+                            .unwrap()),
+                    },
+                    _ => Ok(Response::builder()
+                        .status(StatusCode::METHOD_NOT_ALLOWED)
+                        .body(Body::empty())
+                        .unwrap()),
+                }
+            } else if RE_DOCUMENTS_BULK.is_match(path) {
+                match req.method() {
+                    &Method::PUT => {
+                        let bytes = hyper::body::to_bytes(req.into_body()).await.unwrap();
+                        let json_str = String::from_utf8(bytes.to_vec()).unwrap();
+                        let value: Value = serde_json::from_str(json_str.as_str()).unwrap();
+                        let docs = serde_json::to_string(&value).unwrap();
 
-    let mut limit = 10;
-    if let Some(_limit) = params.limit {
-        limit = _limit;
-    }
+                        match index_client.bulk_set(docs) {
+                            Ok(_) => Ok(Response::builder()
+                                .status(StatusCode::OK)
+                                .body(Body::empty())
+                                .unwrap()),
+                            Err(e) => Ok(Response::builder()
+                                .status(StatusCode::INTERNAL_SERVER_ERROR)
+                                .body(Body::from(e.to_string()))
+                                .unwrap()),
+                        }
+                    }
+                    &Method::DELETE => {
+                        let bytes = hyper::body::to_bytes(req.into_body()).await.unwrap();
+                        let json_str = String::from_utf8(bytes.to_vec()).unwrap();
+                        let value: Value = serde_json::from_str(json_str.as_str()).unwrap();
+                        let docs = serde_json::to_string(&value).unwrap();
 
-    let mut exclude_count = false;
-    if let Some(_exclude_count) = params.exclude_count {
-        exclude_count = _exclude_count;
-    }
+                        match index_client.bulk_delete(docs) {
+                            Ok(_) => Ok(Response::builder()
+                                .status(StatusCode::OK)
+                                .body(Body::empty())
+                                .unwrap()),
+                            Err(e) => Ok(Response::builder()
+                                .status(StatusCode::INTERNAL_SERVER_ERROR)
+                                .body(Body::from(e.to_string()))
+                                .unwrap()),
+                        }
+                    }
+                    _ => Ok(Response::builder()
+                        .status(StatusCode::METHOD_NOT_ALLOWED)
+                        .body(Body::empty())
+                        .unwrap()),
+                }
+            } else if RE_COMMIT.is_match(path) {
+                match req.method() {
+                    &Method::GET => match index_client.commit() {
+                        Ok(_) => Ok(Response::builder()
+                            .status(StatusCode::OK)
+                            .body(Body::empty())
+                            .unwrap()),
+                        Err(e) => Ok(Response::builder()
+                            .status(StatusCode::INTERNAL_SERVER_ERROR)
+                            .body(Body::from(e.to_string()))
+                            .unwrap()),
+                    },
+                    _ => Ok(Response::builder()
+                        .status(StatusCode::METHOD_NOT_ALLOWED)
+                        .body(Body::empty())
+                        .unwrap()),
+                }
+            } else if RE_ROLLBACK.is_match(path) {
+                match req.method() {
+                    &Method::GET => match index_client.rollback() {
+                        Ok(_) => Ok(Response::builder()
+                            .status(StatusCode::OK)
+                            .body(Body::empty())
+                            .unwrap()),
+                        Err(e) => Ok(Response::builder()
+                            .status(StatusCode::INTERNAL_SERVER_ERROR)
+                            .body(Body::from(e.to_string()))
+                            .unwrap()),
+                    },
+                    _ => Ok(Response::builder()
+                        .status(StatusCode::METHOD_NOT_ALLOWED)
+                        .body(Body::empty())
+                        .unwrap()),
+                }
+            } else if RE_MERGE.is_match(path) {
+                match req.method() {
+                    &Method::GET => match index_client.merge() {
+                        Ok(_) => Ok(Response::builder()
+                            .status(StatusCode::OK)
+                            .body(Body::empty())
+                            .unwrap()),
+                        Err(e) => Ok(Response::builder()
+                            .status(StatusCode::INTERNAL_SERVER_ERROR)
+                            .body(Body::from(e.to_string()))
+                            .unwrap()),
+                    },
+                    _ => Ok(Response::builder()
+                        .status(StatusCode::METHOD_NOT_ALLOWED)
+                        .body(Body::empty())
+                        .unwrap()),
+                }
+            } else if RE_SCHEMA.is_match(path) {
+                match req.method() {
+                    &Method::GET => match index_client.schema() {
+                        Ok(s) => Ok(Response::builder()
+                            .status(StatusCode::OK)
+                            .header(header::CONTENT_TYPE, "application/json")
+                            .body(Body::from(s))
+                            .unwrap()),
+                        Err(e) => Ok(Response::builder()
+                            .status(StatusCode::INTERNAL_SERVER_ERROR)
+                            .body(Body::from(e.to_string()))
+                            .unwrap()),
+                    },
+                    _ => Ok(Response::builder()
+                        .status(StatusCode::METHOD_NOT_ALLOWED)
+                        .body(Body::empty())
+                        .unwrap()),
+                }
+            } else if RE_SEARCH.is_match(path) {
+                match req.method() {
+                    &Method::POST => {
+                        let params =
+                            serde_qs::from_str::<SearchQueryParams>(req.uri().query().unwrap())
+                                .unwrap();
+                        let mut from = 0;
+                        if let Some(_from) = params.from {
+                            from = _from;
+                        }
 
-    let mut exclude_docs = false;
-    if let Some(_exclude_docs) = params.exclude_docs {
-        exclude_docs = _exclude_docs;
-    }
+                        let mut limit = 10;
+                        if let Some(_limit) = params.limit {
+                            limit = _limit;
+                        }
 
-    let mut facet_field = String::from("");
-    if let Some(_facet_field) = params.facet_field {
-        facet_field = _facet_field;
-    }
+                        let mut exclude_count = false;
+                        if let Some(_exclude_count) = params.exclude_count {
+                            exclude_count = _exclude_count;
+                        }
 
-    let mut facet_prefixes = Vec::new();
-    if let Some(_facet_prefix) = params.facet_prefix {
-        facet_prefixes = _facet_prefix;
-    }
+                        let mut exclude_docs = false;
+                        if let Some(_exclude_docs) = params.exclude_docs {
+                            exclude_docs = _exclude_docs;
+                        }
 
-    let query = String::from_utf8(body.to_vec()).unwrap();
+                        let mut facet_field = String::from("");
+                        if let Some(_facet_field) = params.facet_field {
+                            facet_field = _facet_field;
+                        }
 
-    match state.index_client.lock().unwrap().search(
-        query.as_str(),
-        from,
-        limit,
-        exclude_count,
-        exclude_docs,
-        facet_field.as_str(),
-        facet_prefixes,
-    ) {
-        Ok(s) => {
-            let res = HttpResponse::Ok().body(s);
-            Ok(res)
-        }
-        Err(e) => {
-            let res = HttpResponse::InternalServerError().body(format!("{}", e));
-            Ok(res)
-        }
-    }
-}
+                        let mut facet_prefixes = Vec::new();
+                        if let Some(_facet_prefix) = params.facet_prefix {
+                            facet_prefixes = _facet_prefix;
+                        }
 
-#[get("/v1/status")]
-pub async fn status(state: AppState) -> Result<HttpResponse, Error> {
-    match state.index_client.lock().unwrap().status() {
-        Ok(s) => {
-            let res = HttpResponse::Ok().body(s);
-            Ok(res)
-        }
-        Err(e) => {
-            let res = HttpResponse::InternalServerError().body(format!("{}", e));
-            Ok(res)
+                        let bytes = hyper::body::to_bytes(req.into_body()).await.unwrap();
+                        let query = String::from_utf8(bytes.to_vec()).unwrap();
+
+                        match index_client.search(
+                            query.as_str(),
+                            from,
+                            limit,
+                            exclude_count,
+                            exclude_docs,
+                            facet_field.as_str(),
+                            facet_prefixes,
+                        ) {
+                            Ok(s) => Ok(Response::builder()
+                                .status(StatusCode::OK)
+                                .header(header::CONTENT_TYPE, "application/json")
+                                .body(Body::from(s))
+                                .unwrap()),
+                            Err(e) => Ok(Response::builder()
+                                .status(StatusCode::INTERNAL_SERVER_ERROR)
+                                .body(Body::from(e.to_string()))
+                                .unwrap()),
+                        }
+                    }
+                    _ => Ok(Response::builder()
+                        .status(StatusCode::METHOD_NOT_ALLOWED)
+                        .body(Body::empty())
+                        .unwrap()),
+                }
+            } else if RE_STATUS.is_match(path) {
+                match req.method() {
+                    &Method::GET => match index_client.status() {
+                        Ok(s) => Ok(Response::builder()
+                            .status(StatusCode::OK)
+                            .header(header::CONTENT_TYPE, "application/json")
+                            .body(Body::from(s))
+                            .unwrap()),
+                        Err(e) => Ok(Response::builder()
+                            .status(StatusCode::INTERNAL_SERVER_ERROR)
+                            .body(Body::from(e.to_string()))
+                            .unwrap()),
+                    },
+                    _ => Ok(Response::builder()
+                        .status(StatusCode::METHOD_NOT_ALLOWED)
+                        .body(Body::empty())
+                        .unwrap()),
+                }
+            } else {
+                Ok(Response::builder()
+                    .status(StatusCode::NOT_FOUND)
+                    .body(Body::empty())
+                    .unwrap())
+            }
         }
     }
 }
