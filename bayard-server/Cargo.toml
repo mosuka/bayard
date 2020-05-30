@@ -21,7 +21,7 @@ grpcio = { version = "0.4.7", features = [ "secure" ] }
 hyper = "0.13.5"
 jieba-rs = "0.5.0"
 lazy_static = "1.4.0"
-lindera-tantivy = "0.1.1"
+lindera-tantivy = "0.1.3"
 log = "0.4.8"
 prometheus = "0.8.0"
 protobuf = "2.14.0"
