@@ -23,6 +23,18 @@ bayard-rest [OPTIONS]
 - `-i`, `--index-address` `<ADDRESS>`  
 &nbsp;&nbsp;&nbsp;&nbsp; Index service address. [default: 0.0.0.0:5000]
 
+- `-w`, `--worker-threads` `<THREADS>`  
+&nbsp;&nbsp;&nbsp;&nbsp; Number of HTTP worker threads. By default http server uses number of available logical cpu as threads count. [default: 8]
+
+- `-o`, `--cors-origin` `<ORIGIN>`  
+&nbsp;&nbsp;&nbsp;&nbsp; Add an origin that are allowed to make requests.
+
+- `-m`, `--cors-methods` `<METHODS>`  
+&nbsp;&nbsp;&nbsp;&nbsp; Set a list of methods which the allowed origins are allowed to access for requests.
+
+- `-l`, `--cors-headers` `<HEADERS>`  
+&nbsp;&nbsp;&nbsp;&nbsp;  Set a list of header field names which can be used when this resource is accessed by allowed origins.
+
 - `-c`, `--cert-file` `<PATH>`  
 &nbsp;&nbsp;&nbsp;&nbsp; Path to the TLS certificate file.
 

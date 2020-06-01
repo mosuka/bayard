@@ -71,7 +71,7 @@ async fn main() -> std::io::Result<()> {
             Arg::with_name("CORS_METHODS")
                 .help("Set a list of methods which the allowed origins are allowed to access for requests.")
                 .short("m")
-                .long("cors-method")
+                .long("cors-methods")
                 .value_name("METHODS")
                 .takes_value(true)
                 .multiple(true)
