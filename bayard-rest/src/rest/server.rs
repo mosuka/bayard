@@ -6,9 +6,9 @@ use std::sync::Mutex;
 
 use actix_cors::Cors;
 use actix_server::Server;
-use actix_web::{App, HttpServer, middleware, web};
-use rustls::{NoClientAuth, ServerConfig};
+use actix_web::{middleware, web, App, HttpServer};
 use rustls::internal::pemfile::{certs, rsa_private_keys};
+use rustls::{NoClientAuth, ServerConfig};
 
 use bayard_client::index::client::IndexClient;
 
@@ -51,10 +51,10 @@ impl RestServer {
                 .service(search)
                 .service(status)
         })
-            .bind(address)
-            .unwrap()
-            .workers(worker_num)
-            .run();
+        .bind(address)
+        .unwrap()
+        .workers(worker_num)
+        .run();
 
         RestServer { server }
     }
@@ -97,10 +97,10 @@ impl RestServer {
                 .service(search)
                 .service(status)
         })
-            .bind(address)
-            .unwrap()
-            .workers(worker_num)
-            .run();
+        .bind(address)
+        .unwrap()
+        .workers(worker_num)
+        .run();
 
         RestServer { server }
     }
@@ -143,10 +143,10 @@ impl RestServer {
                 .service(search)
                 .service(status)
         })
-            .bind_rustls(address, config)
-            .unwrap()
-            .workers(worker_num)
-            .run();
+        .bind_rustls(address, config)
+        .unwrap()
+        .workers(worker_num)
+        .run();
 
         RestServer { server }
     }
@@ -199,10 +199,10 @@ impl RestServer {
                 .service(search)
                 .service(status)
         })
-            .bind_rustls(address, config)
-            .unwrap()
-            .workers(worker_num)
-            .run();
+        .bind_rustls(address, config)
+        .unwrap()
+        .workers(worker_num)
+        .run();
 
         RestServer { server }
     }

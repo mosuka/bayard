@@ -150,7 +150,9 @@ async fn main() -> std::io::Result<()> {
     let enable_tls = !cert_file.is_empty() && !key_file.is_empty();
 
     let mut rest_server = match (enable_tls, enable_cors) {
-        (false, false) => RestServer::new(rest_address.as_str(), index_address, http_worker_threads),
+        (false, false) => {
+            RestServer::new(rest_address.as_str(), index_address, http_worker_threads)
+        }
         (false, true) => RestServer::new_cors(
             rest_address.as_str(),
             index_address,
