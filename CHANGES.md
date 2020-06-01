@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+- Migrate to Actix web #100 @mosuka
+
 ## 0.8.1 (2020-05-29)
 - Bump up version #99 @mosuka
 - Change web framework to Hyper #98 @mosuka
