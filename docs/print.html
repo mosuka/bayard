@@ -1751,6 +1751,22 @@ See the following list:</p>
      Index service address. [default: 0.0.0.0:5000]</p>
 </li>
 <li>
+<p><code>-w</code>, <code>--worker-threads</code> <code>&lt;THREADS&gt;</code><br />
+     Number of HTTP worker threads. By default http server uses number of available logical cpu as threads count. [default: 8]</p>
+</li>
+<li>
+<p><code>-o</code>, <code>--cors-origin</code> <code>&lt;ORIGIN&gt;</code><br />
+     Add an origin that are allowed to make requests.</p>
+</li>
+<li>
+<p><code>-m</code>, <code>--cors-methods</code> <code>&lt;METHODS&gt;</code><br />
+     Set a list of methods which the allowed origins are allowed to access for requests.</p>
+</li>
+<li>
+<p><code>-l</code>, <code>--cors-headers</code> <code>&lt;HEADERS&gt;</code><br />
+      Set a list of header field names which can be used when this resource is accessed by allowed origins.</p>
+</li>
+<li>
 <p><code>-c</code>, <code>--cert-file</code> <code>&lt;PATH&gt;</code><br />
      Path to the TLS certificate file.</p>
 </li>
