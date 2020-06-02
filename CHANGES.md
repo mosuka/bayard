@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
+- Fix docker run example #102 @mosuka
 - Fix typo #101 @mosuka
 - Migrate to Actix web #100 @mosuka
 
