@@ -17,6 +17,10 @@ You can run the Docker container image with the following command:
 
 ```text
 $ docker run --rm --name bayard \
-    -p 5000:5000 -p 7000:7000\
-    bayardsearch/bayard:latest start 1
+    -p 5000:5000 -p 7000:7000 -p 9000:9000 \
+    bayardsearch/bayard:latest \
+    --data-directory=/tmp/bayard \
+    --schema-file /etc/bayard/schema.json \
+    --tokenizer-file /etc/bayard/tokenizer.json \
+    1
 ```
