@@ -973,8 +973,12 @@ The following command deletes the server with <code>id=3</code> from the cluster
 <h2><a class="header" href="#running-docker-container" id="running-docker-container">Running Docker container</a></h2>
 <p>You can run the Docker container image with the following command:</p>
 <pre><code class="language-text">$ docker run --rm --name bayard \
-    -p 5000:5000 -p 7000:7000\
-    bayardsearch/bayard:latest start 1
+    -p 5000:5000 -p 7000:7000 -p 9000:9000 \
+    bayardsearch/bayard:latest \
+    --data-directory=/tmp/bayard \
+    --schema-file /etc/bayard/schema.json \
+    --tokenizer-file /etc/bayard/tokenizer.json \
+    1
 </code></pre>
 <h1><a class="header" href="#reference" id="reference">Reference</a></h1>
 <ul>
