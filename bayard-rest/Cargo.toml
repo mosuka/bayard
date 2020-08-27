@@ -20,17 +20,17 @@ path = "src/main.rs"
 actix = "0.9.0"
 actix-cors = "0.2.0"
 actix-rt = "1.1.1"
-actix-server = "1.0.2"
+actix-server = "1.0.3"
 actix-web = { version = "2.0.0", features = ["rustls"] }
-clap = "2.33.0"
-crossbeam-channel = "0.4.2"
+clap = "2.33.3"
+crossbeam-channel = "0.4.3"
 ctrlc = { version = "3.1.4", features = ["termination"] }
-log = "0.4.8"
+log = "0.4.11"
 num_cpus = "1.13.0"
 rustls = "0.16.0"
-serde = { version = "1.0.106", features = ["derive"] }
-serde_json = "1.0.51"
-serde_qs = "0.5.2"
+serde = { version = "1.0.115", features = ["derive"] }
+serde_json = "1.0.57"
+serde_qs = "0.6.1"
 
 bayard-client = { version = "0.8.1", path = "../bayard-client" }
 bayard-common = { version = "0.8.1", path = "../bayard-common" }
