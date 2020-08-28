@@ -17,8 +17,8 @@ name = "bayard-cli"
 path = "src/main.rs"
 
 [dependencies]
-clap = "2.33.0"
-serde_json = "1.0.51"
+clap = "2.33.3"
+serde_json = "1.0.57"
 
 bayard-client = { version = "0.8.1", path = "../bayard-client" }
 bayard-common = { version = "0.8.1", path = "../bayard-common" }
