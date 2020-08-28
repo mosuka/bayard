@@ -24,11 +24,11 @@ lazy_static = "1.4.0"
 lindera-tantivy = "0.2.0"
 log = "0.4.11"
 prometheus = "0.9.0"
-protobuf = "2.14.0"
+protobuf = "2.17.0"
 raft = "0.4.3"
 serde = { version = "1.0.115", features = ["derive"] }
 serde_json = "1.0.57"
 stringreader = "0.1.1"
 tantivy = "0.13.0"
 
-bayard-proto = "0.8.0"
+bayard-proto = "0.8.1"
