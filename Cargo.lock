@@ -606,9 +606,9 @@ dependencies = [
 
 [[package]]
 name = "bayard-proto"
-version = "0.8.0"
+version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "16776e07b65db0f8eeb773ede6def4b60328ec4195f5add7d2b330d6b10b0c52"
+checksum = "9c4fa10c0707be311c5abcf010b751c8653d1f75fa991abf68e8b16c483a3730"
 dependencies = [
  "futures 0.1.29",
  "grpcio",
@@ -2340,9 +2340,9 @@ dependencies = [
 
 [[package]]
 name = "protobuf"
-version = "2.14.0"
+version = "2.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8e86d370532557ae7573551a1ec8235a0f8d6cb276c7c9e6aa490b511c447485"
+checksum = "cb14183cc7f213ee2410067e1ceeadba2a7478a59432ff0747a335202798b1e2"
 
 [[package]]
 name = "quick-error"
