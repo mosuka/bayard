@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
+- Bump up version #106 @mosuka
 - Upgrade protobuf #105 @mosuka
 - Upgrade dependencies #104 @mosuka
 - Upgrade tantivy #103 @mosuka
