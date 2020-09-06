@@ -1,4 +1,4 @@
-FROM rust:1.42.0-slim-stretch AS builder
+FROM rust:1.44.1-slim-stretch AS builder
 
 ARG BAYARD_VERSION
 
