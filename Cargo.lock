@@ -1695,12 +1695,6 @@ checksum = "b294d6fa9ee409a054354afc4352b0b9ef7ca222c69b8812cbea9e7d2bf3783f"
 
 [[package]]
 name = "levenshtein_automata"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "73a004f877f468548d8d0ac4977456a249d8fabbdb8416c36db163dfc8f2e8ca"
-
-[[package]]
-name = "levenshtein_automata"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f44db4199cdb049b494a92d105acbfa43c25b3925e33803923ba9580b7bc9e1a"
@@ -1713,9 +1707,9 @@ checksum = "755456fae044e6fa1ebbbd1b3e902ae19e73097ed4ed87bb79934a867c007bc3"
 
 [[package]]
 name = "lindera"
-version = "0.5.1"
+version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "129bf8f99ea72bd990eeb25df770e887f3cf6157dd8a2ec2d4ee3dea3981bf6d"
+checksum = "361efd98843cc0ccbdecbbf62feb9794a66d1c29758af8f45af34c140f7d2143"
 dependencies = [
  "bincode",
  "byteorder",
@@ -1730,22 +1724,22 @@ dependencies = [
 
 [[package]]
 name = "lindera-core"
-version = "0.5.1"
+version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b8bb94a9e39aa4697c30c93f2207e09458f3d1c21fc42c89e7dcebd482e52c55"
+checksum = "c22c6a86b9be6871766dcfa1d333eae7d2331fed217df8c3798514496e0ae110"
 dependencies = [
  "bincode",
  "byteorder",
  "encoding",
- "lindera-fst",
  "serde",
+ "yada",
 ]
 
 [[package]]
 name = "lindera-dictionary"
-version = "0.5.1"
+version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "799aed7a38779f274d548e649b5a4d9779da7bed7e46e1ebf4e4a02856f3c97b"
+checksum = "0eabe5730e9d20293e0ed8f295f60ebf656a173f6c129b69f37355a4879e6393"
 dependencies = [
  "bincode",
  "byteorder",
@@ -1753,22 +1747,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "lindera-fst"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a6098a7ca6679296cd2d227efa232f990552c5278394c845bec8a70ab0284ae0"
-dependencies = [
- "byteorder",
- "levenshtein_automata 0.1.1",
- "regex-syntax 0.4.2",
- "utf8-ranges",
-]
-
-[[package]]
 name = "lindera-ipadic"
-version = "0.5.1"
+version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "46e1c58d5b1a882fa45db1fbb7759ab974a028cf97337a3fd6d4e6e403fbda08"
+checksum = "e69130ce218cacb40abad09b101f859bf464e44acb7b653c2118f90d706f404a"
 dependencies = [
  "bincode",
  "byteorder",
@@ -1782,9 +1764,9 @@ dependencies = [
 
 [[package]]
 name = "lindera-ipadic-builder"
-version = "0.5.1"
+version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "86cad5aef691dcb1b5dadd3548d0cb0a61407d52fcd01c96ac2b411244574fea"
+checksum = "1484640839a69c383b9aa56a55a9f1be9f998a0293e9a9a135c13ff1af1f398b"
 dependencies = [
  "bincode",
  "byteorder",
@@ -1792,16 +1774,17 @@ dependencies = [
  "encoding",
  "glob",
  "lindera-core",
- "lindera-fst",
+ "yada",
 ]
 
 [[package]]
 name = "lindera-tantivy"
-version = "0.2.0"
+version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "18eac035164f3799910708c2d8bd17024040ff2299983128315c4d4ce765d55a"
+checksum = "aecc1fc77f5504dd45ee405ea67e4020a69487345779794d4fc537e9e82317e6"
 dependencies = [
  "lindera",
+ "lindera-core",
  "tantivy",
 ]
 
@@ -2869,7 +2852,7 @@ dependencies = [
  "fs2",
  "futures 0.3.5",
  "htmlescape",
- "levenshtein_automata 0.2.0",
+ "levenshtein_automata",
  "log",
  "memmap",
  "murmurhash32",
@@ -3503,3 +3486,9 @@ checksum = "244c3741f4240ef46274860397c7c74e50eb23624996930e484c16679633a54c"
 dependencies = [
  "libc",
 ]
+
+[[package]]
+name = "yada"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2bd411f1634003c5ec3ebd98534a3c8b98b1dc8939cdeb63208ba338f20f2cfb"

@@ -13,14 +13,14 @@ categories = ["database"]
 license = "MIT"
 
 [dependencies]
-bincode = "1.3.1"
-grpcio = { version = "0.4.7", features = [ "secure" ] }
-log = "0.4.11"
-protobuf = "2.17.0"
-raft = "0.4.3"
-rand = "0.7.3"
-serde_json = "1.0.57"
+bincode = "1.3"
+grpcio = { version = "0.4", features = [ "secure" ] }
+log = "0.4"
+protobuf = "2.17"
+raft = "0.4"
+rand = "0.7"
+serde_json = "1.0"
 
-bayard-proto = "0.8.1"
+bayard-proto = "0.8"
 
-bayard-server = { version = "0.8.1", path = "../bayard-server" }
+bayard-server = { version = "0.8", path = "../bayard-server" }

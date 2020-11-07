@@ -4,7 +4,7 @@
 
 The following products are required to build bayard-proto:
 
-- Rust >= 1.39.0
+- Rust >= 1.46.0
 - make >= 3.81
 - protoc >= 3.9.2
 
