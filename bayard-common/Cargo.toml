@@ -1,6 +1,6 @@
 [package]
 name = "bayard-common"
-version = "0.8.2"
+version = "0.8.3"
 authors = ["Minoru Osuka <minoru.osuka@gmail.com>"]
 edition = "2018"
 description = "Common library for Bayard."
