@@ -133,8 +133,8 @@ pub async fn merge(state: AppState) -> Result<HttpResponse, Error> {
 #[get("/v1/schema")]
 pub async fn schema(state: AppState) -> Result<HttpResponse, Error> {
     match state.index_client.lock().unwrap().schema() {
-        Ok(_) => {
-            let res = HttpResponse::Ok().await.unwrap();
+        Ok(s) => {
+            let res = HttpResponse::Ok().body(s);
             Ok(res)
         }
         Err(e) => {
