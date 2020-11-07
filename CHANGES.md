@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+- Update dependencies #109 @mosuka
+- Fixed a bug that did not return schema #108 @mosuka
+- Update Dockerfile #107 @mosuka
+
 ## 0.8.2 (2020-08-31)
 - Bump up version #106 @mosuka
 - Upgrade protobuf #105 @mosuka

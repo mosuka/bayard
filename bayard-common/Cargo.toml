@@ -13,7 +13,7 @@ categories = ["database"]
 license = "MIT"
 
 [dependencies]
-crossbeam-channel = "0.4.3"
-ctrlc = { version = "3.1.6", features = ["termination"] }
-env_logger = "0.7.1"
-tokio = { version = "0.2.22", features = ["signal"] }
+crossbeam-channel = "0.4"
+ctrlc = { version = "3.1", features = ["termination"] }
+env_logger = "0.7"
+tokio = { version = "0.2", features = ["signal"] }

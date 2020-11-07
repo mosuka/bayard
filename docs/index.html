@@ -5,22 +5,36 @@
         <meta charset="UTF-8">
         <title>Overview - Bayard</title>
         
+        
+
+
+        <!-- Custom HTML head -->
+        
+
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
 
+        
+        <link rel="icon" href="favicon.svg">
+        
+        
         <link rel="shortcut icon" href="favicon.png">
+        
         <link rel="stylesheet" href="css/variables.css">
         <link rel="stylesheet" href="css/general.css">
         <link rel="stylesheet" href="css/chrome.css">
+        
         <link rel="stylesheet" href="css/print.css" media="print">
+        
 
         <!-- Fonts -->
         <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
-        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+        
+        <link rel="stylesheet" href="fonts/fonts.css">
+        
 
         <!-- Highlight.js Stylesheets -->
         <link rel="stylesheet" href="highlight.css">
@@ -36,7 +50,7 @@
         <!-- Provide site root to javascript -->
         <script type="text/javascript">
             var path_to_root = "";
-            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "light";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
@@ -80,8 +94,8 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <div id="sidebar-scrollbox" class="sidebar-scrollbox">
-                <ol class="chapter"><li class="expanded affix "><a href="overview.html">Overview</a></li><li class="expanded "><a href="install.html"><strong aria-hidden="true">1.</strong> Install</a></li><li class="expanded "><a href="building_bayard.html"><strong aria-hidden="true">2.</strong> Building Bayard</a></li><li class="expanded "><a href="getting_started.html"><strong aria-hidden="true">3.</strong> Getting started</a></li><li class="expanded "><a href="designing_schema.html"><strong aria-hidden="true">4.</strong> Designing schema</a></li><li class="expanded "><a href="configure_text_analyzers.html"><strong aria-hidden="true">5.</strong> Configure text analyzers</a></li><li class="expanded "><a href="cluster_mode.html"><strong aria-hidden="true">6.</strong> Cluster mode</a></li><li class="expanded "><a href="accessing_over_http.html"><strong aria-hidden="true">7.</strong> Accessing over HTTP</a></li><li class="expanded "><a href="running_on_docker.html"><strong aria-hidden="true">8.</strong> Running on Docker</a></li><li class="expanded "><a href="reference.html"><strong aria-hidden="true">9.</strong> Reference</a></li><li><ol class="section"><li class="expanded "><a href="reference/cli.html"><strong aria-hidden="true">9.1.</strong> CLI</a></li><li><ol class="section"><li class="expanded "><a href="reference/cli/bayard.html"><strong aria-hidden="true">9.1.1.</strong> bayard</a></li><li class="expanded "><a href="reference/cli/bayard-cli.html"><strong aria-hidden="true">9.1.2.</strong> bayard-cli</a></li><li><ol class="section"><li class="expanded "><a href="reference/cli/bayard-cli/leave.html"><strong aria-hidden="true">9.1.2.1.</strong> leave</a></li><li class="expanded "><a href="reference/cli/bayard-cli/get.html"><strong aria-hidden="true">9.1.2.2.</strong> get</a></li><li class="expanded "><a href="reference/cli/bayard-cli/set.html"><strong aria-hidden="true">9.1.2.3.</strong> set</a></li><li class="expanded "><a href="reference/cli/bayard-cli/delete.html"><strong aria-hidden="true">9.1.2.4.</strong> delete</a></li><li class="expanded "><a href="reference/cli/bayard-cli/bulk-set.html"><strong aria-hidden="true">9.1.2.5.</strong> bulk-set</a></li><li class="expanded "><a href="reference/cli/bayard-cli/bulk-delete.html"><strong aria-hidden="true">9.1.2.6.</strong> bulk-delete</a></li><li class="expanded "><a href="reference/cli/bayard-cli/commit.html"><strong aria-hidden="true">9.1.2.7.</strong> commit</a></li><li class="expanded "><a href="reference/cli/bayard-cli/rollback.html"><strong aria-hidden="true">9.1.2.8.</strong> rollback</a></li><li class="expanded "><a href="reference/cli/bayard-cli/merge.html"><strong aria-hidden="true">9.1.2.9.</strong> merge</a></li><li class="expanded "><a href="reference/cli/bayard-cli/schema.html"><strong aria-hidden="true">9.1.2.10.</strong> schema</a></li><li class="expanded "><a href="reference/cli/bayard-cli/search.html"><strong aria-hidden="true">9.1.2.11.</strong> search</a></li><li class="expanded "><a href="reference/cli/bayard-cli/status.html"><strong aria-hidden="true">9.1.2.12.</strong> status</a></li></ol></li><li class="expanded "><a href="reference/cli/bayard-rest.html"><strong aria-hidden="true">9.1.3.</strong> bayard-rest</a></li></ol></li><li class="expanded "><a href="reference/api.html"><strong aria-hidden="true">9.2.</strong> API</a></li><li><ol class="section"><li class="expanded "><a href="reference/api/get.html"><strong aria-hidden="true">9.2.1.</strong> Get document API</a></li><li class="expanded "><a href="reference/api/set.html"><strong aria-hidden="true">9.2.2.</strong> Set document API</a></li><li class="expanded "><a href="reference/api/delete.html"><strong aria-hidden="true">9.2.3.</strong> Delete document API</a></li><li class="expanded "><a href="reference/api/bulk-set.html"><strong aria-hidden="true">9.2.4.</strong> Bulk set documents API</a></li><li class="expanded "><a href="reference/api/bulk-delete.html"><strong aria-hidden="true">9.2.5.</strong> Bulk delete document API</a></li><li class="expanded "><a href="reference/api/commit.html"><strong aria-hidden="true">9.2.6.</strong> Commit API</a></li><li class="expanded "><a href="reference/api/rollback.html"><strong aria-hidden="true">9.2.7.</strong> Rollback API</a></li><li class="expanded "><a href="reference/api/merge.html"><strong aria-hidden="true">9.2.8.</strong> Merge API</a></li><li class="expanded "><a href="reference/api/schema.html"><strong aria-hidden="true">9.2.9.</strong> Schema API</a></li><li class="expanded "><a href="reference/api/search.html"><strong aria-hidden="true">9.2.10.</strong> Search API</a></li><li class="expanded "><a href="reference/api/status.html"><strong aria-hidden="true">9.2.11.</strong> Status API</a></li></ol></li></ol></li></ol>
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="overview.html">Overview</a></li><li class="chapter-item expanded "><a href="install.html"><strong aria-hidden="true">1.</strong> Install</a></li><li class="chapter-item expanded "><a href="building_bayard.html"><strong aria-hidden="true">2.</strong> Building Bayard</a></li><li class="chapter-item expanded "><a href="getting_started.html"><strong aria-hidden="true">3.</strong> Getting started</a></li><li class="chapter-item expanded "><a href="designing_schema.html"><strong aria-hidden="true">4.</strong> Designing schema</a></li><li class="chapter-item expanded "><a href="configure_text_analyzers.html"><strong aria-hidden="true">5.</strong> Configure text analyzers</a></li><li class="chapter-item expanded "><a href="cluster_mode.html"><strong aria-hidden="true">6.</strong> Cluster mode</a></li><li class="chapter-item expanded "><a href="accessing_over_http.html"><strong aria-hidden="true">7.</strong> Accessing over HTTP</a></li><li class="chapter-item expanded "><a href="running_on_docker.html"><strong aria-hidden="true">8.</strong> Running on Docker</a></li><li class="chapter-item expanded "><a href="reference.html"><strong aria-hidden="true">9.</strong> Reference</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="reference/cli.html"><strong aria-hidden="true">9.1.</strong> CLI</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="reference/cli/bayard.html"><strong aria-hidden="true">9.1.1.</strong> bayard</a></li><li class="chapter-item expanded "><a href="reference/cli/bayard-cli.html"><strong aria-hidden="true">9.1.2.</strong> bayard-cli</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="reference/cli/bayard-cli/leave.html"><strong aria-hidden="true">9.1.2.1.</strong> leave</a></li><li class="chapter-item expanded "><a href="reference/cli/bayard-cli/get.html"><strong aria-hidden="true">9.1.2.2.</strong> get</a></li><li class="chapter-item expanded "><a href="reference/cli/bayard-cli/set.html"><strong aria-hidden="true">9.1.2.3.</strong> set</a></li><li class="chapter-item expanded "><a href="reference/cli/bayard-cli/delete.html"><strong aria-hidden="true">9.1.2.4.</strong> delete</a></li><li class="chapter-item expanded "><a href="reference/cli/bayard-cli/bulk-set.html"><strong aria-hidden="true">9.1.2.5.</strong> bulk-set</a></li><li class="chapter-item expanded "><a href="reference/cli/bayard-cli/bulk-delete.html"><strong aria-hidden="true">9.1.2.6.</strong> bulk-delete</a></li><li class="chapter-item expanded "><a href="reference/cli/bayard-cli/commit.html"><strong aria-hidden="true">9.1.2.7.</strong> commit</a></li><li class="chapter-item expanded "><a href="reference/cli/bayard-cli/rollback.html"><strong aria-hidden="true">9.1.2.8.</strong> rollback</a></li><li class="chapter-item expanded "><a href="reference/cli/bayard-cli/merge.html"><strong aria-hidden="true">9.1.2.9.</strong> merge</a></li><li class="chapter-item expanded "><a href="reference/cli/bayard-cli/schema.html"><strong aria-hidden="true">9.1.2.10.</strong> schema</a></li><li class="chapter-item expanded "><a href="reference/cli/bayard-cli/search.html"><strong aria-hidden="true">9.1.2.11.</strong> search</a></li><li class="chapter-item expanded "><a href="reference/cli/bayard-cli/status.html"><strong aria-hidden="true">9.1.2.12.</strong> status</a></li></ol></li><li class="chapter-item expanded "><a href="reference/cli/bayard-rest.html"><strong aria-hidden="true">9.1.3.</strong> bayard-rest</a></li></ol></li><li class="chapter-item expanded "><a href="reference/api.html"><strong aria-hidden="true">9.2.</strong> API</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="reference/api/get.html"><strong aria-hidden="true">9.2.1.</strong> Get document API</a></li><li class="chapter-item expanded "><a href="reference/api/set.html"><strong aria-hidden="true">9.2.2.</strong> Set document API</a></li><li class="chapter-item expanded "><a href="reference/api/delete.html"><strong aria-hidden="true">9.2.3.</strong> Delete document API</a></li><li class="chapter-item expanded "><a href="reference/api/bulk-set.html"><strong aria-hidden="true">9.2.4.</strong> Bulk set documents API</a></li><li class="chapter-item expanded "><a href="reference/api/bulk-delete.html"><strong aria-hidden="true">9.2.5.</strong> Bulk delete document API</a></li><li class="chapter-item expanded "><a href="reference/api/commit.html"><strong aria-hidden="true">9.2.6.</strong> Commit API</a></li><li class="chapter-item expanded "><a href="reference/api/rollback.html"><strong aria-hidden="true">9.2.7.</strong> Rollback API</a></li><li class="chapter-item expanded "><a href="reference/api/merge.html"><strong aria-hidden="true">9.2.8.</strong> Merge API</a></li><li class="chapter-item expanded "><a href="reference/api/schema.html"><strong aria-hidden="true">9.2.9.</strong> Schema API</a></li><li class="chapter-item expanded "><a href="reference/api/search.html"><strong aria-hidden="true">9.2.10.</strong> Search API</a></li><li class="chapter-item expanded "><a href="reference/api/status.html"><strong aria-hidden="true">9.2.11.</strong> Status API</a></li></ol></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -90,37 +104,38 @@
 
             <div class="page">
                 
-                <div id="menu-bar" class="menu-bar">
-                    <div id="menu-bar-sticky-container">
-                        <div class="left-buttons">
-                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
-                                <i class="fa fa-bars"></i>
-                            </button>
-                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
-                                <i class="fa fa-paint-brush"></i>
-                            </button>
-                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
-                            </ul>
-                            
-                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
-                                <i class="fa fa-search"></i>
-                            </button>
-                            
-                        </div>
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
 
-                        <h1 class="menu-title">Bayard</h1>
+                    <h1 class="menu-title">Bayard</h1>
 
-                        <div class="right-buttons">
-                            <a href="print.html" title="Print this book" aria-label="Print this book">
-                                <i id="print-button" class="fa fa-print"></i>
-                            </a>
-                            
-                        </div>
+                    <div class="right-buttons">
+                        
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                        
                     </div>
                 </div>
 
@@ -196,7 +211,7 @@ Bayard makes easy for programmers to develop search applications with advanced f
                 
 
                 
-                    <a href="install.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="install.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
                 
@@ -209,10 +224,10 @@ Bayard makes easy for programmers to develop search applications with advanced f
         
 
         
-        
+
         
         <script type="text/javascript">
-            window.playpen_copyable = true;
+            window.playground_copyable = true;
         </script>
         
 
