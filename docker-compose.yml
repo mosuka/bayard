@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  bayard:
+    container_name: bayard
+    image: bayardsearch/bayard:latest
+    entrypoint: bayard
+    command:
+      - '--host=bayard'
+      - '--raft-port=7000'
+      - '--index-port=5000'
+      - '--metrics-port=9000'
+      - '--data-directory=/tmp/bayard'
+      - '--schema-file=/etc/bayard/schema.json'
+      - '--tokenizer-file=/etc/bayard/tokenizer.json'
+      - '1'
+    ports:
+      - "5000:5000"
+      - "7000:7000"
+      - "9000:9000"
+
+  bayard-rest:
+    container_name: bayard-rest
+    image: bayardsearch/bayard-rest:latest
+    entrypoint: bayard-rest
+    ports:
+      - "8000:8000"
+    command:
+      - '--index-address=bayard:5000'
+    depends_on:
+      - bayard
