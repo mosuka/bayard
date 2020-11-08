@@ -191,8 +191,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         .to_string();
 
     let node_address = NodeAddress {
-        index_address,
-        raft_address,
+        index_address: index_address.clone(),
+        raft_address: raft_address.clone(),
     };
 
     let mut addresses = HashMap::new();
@@ -233,12 +233,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     let mut index_server = ServerBuilder::new(env_index)
         .register_service(index_service)
-        .bind(host, index_port)
+        .bind(index_address.split(":").next().unwrap(), index_port)
         .build()
         .unwrap();
     let mut raft_server = ServerBuilder::new(env_raft)
         .register_service(raft_service)
-        .bind(host, raft_port)
+        .bind(raft_address.split(":").next().unwrap(), raft_port)
         .build()
         .unwrap();
 
