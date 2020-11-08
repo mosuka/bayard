@@ -1,3 +1,5 @@
+use std::net::ToSocketAddrs;
+
 use clap::ArgMatches;
 use serde_json::Value;
 
@@ -8,7 +10,14 @@ pub fn leave(matches: &ArgMatches) -> Result<(), std::io::Error> {
     let server = matches.value_of("SERVER").unwrap();
     let id = matches.value_of("ID").unwrap().parse::<u64>().unwrap();
 
-    let mut raft_client = RaftClient::new(server);
+    let server = server
+        .to_socket_addrs()
+        .unwrap()
+        .next()
+        .unwrap()
+        .to_string();
+
+    let mut raft_client = RaftClient::new(server.as_str());
 
     match raft_client.leave(id) {
         Ok(v) => {
@@ -25,7 +34,14 @@ pub fn leave(matches: &ArgMatches) -> Result<(), std::io::Error> {
 pub fn status(matches: &ArgMatches) -> Result<(), std::io::Error> {
     let server = matches.value_of("SERVER").unwrap();
 
-    let mut index_client = IndexClient::new(server);
+    let server = server
+        .to_socket_addrs()
+        .unwrap()
+        .next()
+        .unwrap()
+        .to_string();
+
+    let mut index_client = IndexClient::new(server.as_str());
 
     match index_client.status() {
         Ok(v) => {
@@ -42,7 +58,14 @@ pub fn status(matches: &ArgMatches) -> Result<(), std::io::Error> {
 pub fn schema(matches: &ArgMatches) -> Result<(), std::io::Error> {
     let server = matches.value_of("SERVER").unwrap();
 
-    let mut index_client = IndexClient::new(server);
+    let server = server
+        .to_socket_addrs()
+        .unwrap()
+        .next()
+        .unwrap()
+        .to_string();
+
+    let mut index_client = IndexClient::new(server.as_str());
 
     match index_client.schema() {
         Ok(v) => {
@@ -60,7 +83,14 @@ pub fn get(matches: &ArgMatches) -> Result<(), std::io::Error> {
     let server = matches.value_of("SERVER").unwrap();
     let id = matches.value_of("ID").unwrap();
 
-    let mut index_client = IndexClient::new(server);
+    let server = server
+        .to_socket_addrs()
+        .unwrap()
+        .next()
+        .unwrap()
+        .to_string();
+
+    let mut index_client = IndexClient::new(server.as_str());
 
     match index_client.get(id.to_string()) {
         Ok(v) => {
@@ -89,7 +119,14 @@ pub fn search(matches: &ArgMatches) -> Result<(), std::io::Error> {
     }
     let query = matches.value_of("QUERY").unwrap();
 
-    let mut index_client = IndexClient::new(server);
+    let server = server
+        .to_socket_addrs()
+        .unwrap()
+        .next()
+        .unwrap()
+        .to_string();
+
+    let mut index_client = IndexClient::new(server.as_str());
 
     match index_client.search(
         query,
@@ -120,7 +157,14 @@ pub fn set(matches: &ArgMatches) -> Result<(), std::io::Error> {
     doc_json["_id"] = Value::String(id.to_string());
     let doc = serde_json::to_string(&doc_json).unwrap();
 
-    let mut index_client = IndexClient::new(server);
+    let server = server
+        .to_socket_addrs()
+        .unwrap()
+        .next()
+        .unwrap()
+        .to_string();
+
+    let mut index_client = IndexClient::new(server.as_str());
 
     index_client.set(doc)
 }
@@ -129,7 +173,14 @@ pub fn delete(matches: &ArgMatches) -> Result<(), std::io::Error> {
     let server = matches.value_of("SERVER").unwrap();
     let id = matches.value_of("ID").unwrap();
 
-    let mut index_client = IndexClient::new(server);
+    let server = server
+        .to_socket_addrs()
+        .unwrap()
+        .next()
+        .unwrap()
+        .to_string();
+
+    let mut index_client = IndexClient::new(server.as_str());
 
     index_client.delete(id.to_string())
 }
@@ -138,7 +189,14 @@ pub fn bulk_set(matches: &ArgMatches) -> Result<(), std::io::Error> {
     let server = matches.value_of("SERVER").unwrap();
     let docs = matches.value_of("DOCS").unwrap();
 
-    let mut index_client = IndexClient::new(server);
+    let server = server
+        .to_socket_addrs()
+        .unwrap()
+        .next()
+        .unwrap()
+        .to_string();
+
+    let mut index_client = IndexClient::new(server.as_str());
 
     index_client.bulk_set(docs.to_string())
 }
@@ -147,7 +205,14 @@ pub fn bulk_delete(matches: &ArgMatches) -> Result<(), std::io::Error> {
     let server = matches.value_of("SERVER").unwrap();
     let docs = matches.value_of("DOCS").unwrap();
 
-    let mut index_client = IndexClient::new(server);
+    let server = server
+        .to_socket_addrs()
+        .unwrap()
+        .next()
+        .unwrap()
+        .to_string();
+
+    let mut index_client = IndexClient::new(server.as_str());
 
     index_client.bulk_delete(docs.to_string())
 }
@@ -155,7 +220,14 @@ pub fn bulk_delete(matches: &ArgMatches) -> Result<(), std::io::Error> {
 pub fn commit(matches: &ArgMatches) -> Result<(), std::io::Error> {
     let server = matches.value_of("SERVER").unwrap();
 
-    let mut index_client = IndexClient::new(server);
+    let server = server
+        .to_socket_addrs()
+        .unwrap()
+        .next()
+        .unwrap()
+        .to_string();
+
+    let mut index_client = IndexClient::new(server.as_str());
 
     index_client.commit()
 }
@@ -163,7 +235,14 @@ pub fn commit(matches: &ArgMatches) -> Result<(), std::io::Error> {
 pub fn rollback(matches: &ArgMatches) -> Result<(), std::io::Error> {
     let server = matches.value_of("SERVER").unwrap();
 
-    let mut index_client = IndexClient::new(server);
+    let server = server
+        .to_socket_addrs()
+        .unwrap()
+        .next()
+        .unwrap()
+        .to_string();
+
+    let mut index_client = IndexClient::new(server.as_str());
 
     index_client.rollback()
 }
@@ -171,7 +250,14 @@ pub fn rollback(matches: &ArgMatches) -> Result<(), std::io::Error> {
 pub fn merge(matches: &ArgMatches) -> Result<(), std::io::Error> {
     let server = matches.value_of("SERVER").unwrap();
 
-    let mut index_client = IndexClient::new(server);
+    let server = server
+        .to_socket_addrs()
+        .unwrap()
+        .next()
+        .unwrap()
+        .to_string();
+
+    let mut index_client = IndexClient::new(server.as_str());
 
     index_client.merge()
 }

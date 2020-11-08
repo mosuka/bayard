@@ -1,6 +1,8 @@
 #[macro_use]
 extern crate clap;
 
+use std::net::ToSocketAddrs;
+
 use clap::{App, AppSettings, Arg};
 use crossbeam_channel::select;
 use log::*;
@@ -143,19 +145,32 @@ async fn main() -> std::io::Result<()> {
         key_file = _key_file;
     }
 
-    let rest_address = format!("{}:{}", host, port);
+    let rest_address = format!("{}:{}", host, port)
+        .to_socket_addrs()
+        .unwrap()
+        .next()
+        .unwrap()
+        .to_string();
+    let index_address = index_address
+        .to_socket_addrs()
+        .unwrap()
+        .next()
+        .unwrap()
+        .to_string();
 
     let enable_cors =
         !cors_origin.is_empty() && !cors_methods.is_empty() && !cors_headers.is_empty();
     let enable_tls = !cert_file.is_empty() && !key_file.is_empty();
 
     let mut rest_server = match (enable_tls, enable_cors) {
-        (false, false) => {
-            RestServer::new(rest_address.as_str(), index_address, http_worker_threads)
-        }
+        (false, false) => RestServer::new(
+            rest_address.as_str(),
+            index_address.as_str(),
+            http_worker_threads,
+        ),
         (false, true) => RestServer::new_cors(
             rest_address.as_str(),
-            index_address,
+            index_address.as_str(),
             http_worker_threads,
             cors_origin,
             cors_methods,
@@ -163,14 +178,14 @@ async fn main() -> std::io::Result<()> {
         ),
         (true, false) => RestServer::new_tls(
             rest_address.as_str(),
-            index_address,
+            index_address.as_str(),
             http_worker_threads,
             cert_file,
             key_file,
         ),
         (true, true) => RestServer::new_cors_tls(
             rest_address.as_str(),
-            index_address,
+            index_address.as_str(),
             http_worker_threads,
             cors_origin,
             cors_methods,

@@ -1,4 +1,4 @@
-FROM rust:1.46.0-slim-stretch AS builder
+FROM rust:1.46.0-slim-buster AS builder
 
 ARG BAYARD_VERSION
 
@@ -20,7 +20,7 @@ COPY ./etc ./etc
 RUN cargo install bayard --root=./ --vers=${BAYARD_VERSION}
 
 
-FROM debian:stretch-slim
+FROM debian:buster-slim
 
 WORKDIR /
 
