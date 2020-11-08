@@ -552,7 +552,7 @@ checksum = "53d1ccbaf7d9ec9537465a97bf19edc1a4e158ecb49fc16178202238c569cc42"
 
 [[package]]
 name = "bayard"
-version = "0.8.3"
+version = "0.8.4"
 dependencies = [
  "bayard-client",
  "bayard-common",
@@ -571,7 +571,7 @@ dependencies = [
 
 [[package]]
 name = "bayard-cli"
-version = "0.8.3"
+version = "0.8.4"
 dependencies = [
  "bayard-client",
  "bayard-common",
@@ -581,7 +581,7 @@ dependencies = [
 
 [[package]]
 name = "bayard-client"
-version = "0.8.3"
+version = "0.8.4"
 dependencies = [
  "bayard-proto",
  "bayard-server",
@@ -596,7 +596,7 @@ dependencies = [
 
 [[package]]
 name = "bayard-common"
-version = "0.8.3"
+version = "0.8.4"
 dependencies = [
  "crossbeam-channel",
  "ctrlc",
@@ -618,7 +618,7 @@ dependencies = [
 
 [[package]]
 name = "bayard-rest"
-version = "0.8.3"
+version = "0.8.4"
 dependencies = [
  "actix",
  "actix-cors",
@@ -640,7 +640,7 @@ dependencies = [
 
 [[package]]
 name = "bayard-server"
-version = "0.8.3"
+version = "0.8.4"
 dependencies = [
  "async-std",
  "bayard-proto",
