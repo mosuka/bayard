@@ -20,7 +20,7 @@ COPY ./etc ./etc
 RUN cargo install bayard --root=./ --vers=${BAYARD_VERSION}
 
 
-FROM debian:stretch-slim
+FROM debian:buster-slim
 
 WORKDIR /
 

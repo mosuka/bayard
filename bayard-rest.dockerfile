@@ -19,7 +19,7 @@ RUN set -ex \
 RUN cargo install bayard-rest --root=./ --vers=${BAYARD_REST_VERSION}
 
 
-FROM debian:stretch-slim
+FROM debian:buster-slim
 
 WORKDIR /
 
