@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+- Resolve hostname #111 @mosuka 
+
 ## 0.8.3 (2020-11-07)
 - Bump up version to 0.8.3 #110 @mosuka
 - Update dependencies #109 @mosuka

@@ -4,7 +4,7 @@ extern crate clap;
 use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::io;
-use std::net::SocketAddr;
+use std::net::ToSocketAddrs;
 use std::path::Path;
 use std::sync::Arc;
 
@@ -138,6 +138,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     let id = matches.value_of("ID").unwrap().parse::<u64>().unwrap();
     let host = matches.value_of("HOST").unwrap();
+
     let raft_port = matches
         .value_of("RAFT_PORT")
         .unwrap()
@@ -153,9 +154,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         .unwrap()
         .parse::<u16>()
         .unwrap();
-    let mut peer_address = "";
+    let mut peer_address = "".to_string();
     if let Some(_peer_address) = matches.value_of("PEER_RAFT_ADDRESS") {
-        peer_address = _peer_address;
+        peer_address = _peer_address
+            .to_socket_addrs()
+            .unwrap()
+            .next()
+            .unwrap()
+            .to_string();
     }
     let data_directory = matches.value_of("DATA_DIRECTORY").unwrap();
     let schema_file = matches.value_of("SCHEMA_FILE").unwrap();
@@ -171,8 +177,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         .parse::<usize>()
         .unwrap();
 
-    let raft_address = format!("{}:{}", host, raft_port);
-    let index_address = format!("{}:{}", host, index_port);
+    let raft_address = format!("{}:{}", host, raft_port)
+        .to_socket_addrs()
+        .unwrap()
+        .next()
+        .unwrap()
+        .to_string();
+    let index_address = format!("{}:{}", host, index_port)
+        .to_socket_addrs()
+        .unwrap()
+        .next()
+        .unwrap()
+        .to_string();
 
     let node_address = NodeAddress {
         index_address,
@@ -182,8 +198,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let mut addresses = HashMap::new();
 
     // change config
-    if peer_address != "" {
-        let mut client = RaftClient::new(peer_address);
+    if !peer_address.is_empty() {
+        let mut client = RaftClient::new(&peer_address);
         match client.join(id, node_address.clone()) {
             Ok(_addresses) => addresses = _addresses,
             Err(e) => return Err(Box::try_from(e).unwrap()),
@@ -238,7 +254,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     }
 
     // metrics service
-    let metrics_address: SocketAddr = format!("{}:{}", host, metrics_port).parse().unwrap();
+    let metrics_address = format!("{}:{}", host, metrics_port)
+        .to_socket_addrs()
+        .unwrap()
+        .next()
+        .unwrap();
     let metrics_service = make_service_fn(|_| async { Ok::<_, io::Error>(service_fn(handle)) });
     let metrics_server = Server::bind(&metrics_address).serve(metrics_service);
     let metrics_server_graceful = metrics_server.with_graceful_shutdown(shutdown_signal());
