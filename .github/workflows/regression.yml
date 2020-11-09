@@ -58,12 +58,15 @@ jobs:
           profile: minimal
           toolchain: ${{ matrix.toolchain }}
           override: true
+      - uses: jwlawson/actions-setup-cmake@v1.4
+        with:
+          cmake-version: '3.16.x'
       - uses: actions-rs/cargo@v1
         with:
           command: test
 
   test-windows-latest:
-    name: Test macOS-latest
+    name: Test windows-latest
     strategy:
       matrix:
         os: [windows-latest]
