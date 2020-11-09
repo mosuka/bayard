@@ -1,0 +1,250 @@
+name: Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  build:
+    name: Build
+    strategy:
+      matrix:
+        target:
+          - x86_64-unknown-linux-musl
+#          - x86_64-pc-windows-msvc
+#          - x86_64-apple-darwin
+        include:
+          - target: x86_64-unknown-linux-musl
+            os: ubuntu-latest
+#          - target: x86_64-pc-windows-msvc
+#            os: windows-latest
+#          - target: x86_64-apple-darwin
+#            os: macos-latest
+        toolchain: [stable]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/cache@v1
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+      - uses: actions/cache@v1
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+      - uses: actions/cache@v1
+        with:
+          path: target
+          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.toolchain }}
+          override: true
+      - uses: actions-rs/cargo@v1.0.1
+        with:
+          command: build
+          args: --release --target=${{ matrix.target }}
+          use-cross: true
+      - name: Build for Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          zip --junk-paths bayard-${{ matrix.target }}.zip target/${{ matrix.target }}/release/bayard target/${{ matrix.target }}/release/bayard-rest target/${{ matrix.target }}/release/bayard-cli
+#      - name: Build for Windows
+#        if: matrix.os == 'windows-latest'
+#        run: |
+#          7z a lindera-cli-${{ matrix.target }}.zip target/${{ matrix.target }}/release/lindera.exe
+#      - name: Build for OSX
+#        if: matrix.os == 'macos-latest'
+#        run: |
+#          zip --junk-paths lindera-cli-${{ matrix.target }}.zip target/${{ matrix.target }}/release/lindera
+      - uses: actions/upload-artifact@v1
+        with:
+          name: build-${{ matrix.target }}
+          path: bayard-${{ matrix.target }}.zip
+
+  create-release:
+    name: Create Release
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - id: create-release
+        uses: actions/create-release@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+      - run: |
+          echo '${{ steps.create-release.outputs.upload_url }}' > release_upload_url.txt
+      - uses: actions/upload-artifact@v1
+        with:
+          name: create-release
+          path: release_upload_url.txt
+
+  upload-release:
+    strategy:
+      matrix:
+        target:
+          - x86_64-unknown-linux-musl
+#          - x86_64-pc-windows-msvc
+#          - x86_64-apple-darwin
+    name: Upload Release
+    needs: [create-release]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v1
+        with:
+          name: create-release
+      - id: upload-url
+        run: |
+          echo "::set-output name=url::$(cat create-release/release_upload_url.txt)"
+      - uses: actions/download-artifact@v1
+        with:
+          name: build-${{ matrix.target }}
+      - uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.upload-url.outputs.url }}
+          asset_path: ./build-${{ matrix.target }}/bayard-${{ matrix.target }}.zip
+          asset_name: bayard-${{ matrix.target }}.zip
+          asset_content_type: application/zip
+
+  publish-crates:
+    name: Publish crate
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        toolchain: [stable]
+    needs: [upload-release]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.toolchain }}
+          override: true
+      - run: |
+          BAYARD_COMMON_VERSION=$(cargo metadata --no-deps --format-version=1 | jq -r '.packages[] | select(.name=="bayard-common") | .version')
+          BAYARD_COMMON_VERSIONS=$(curl -s -XGET https://crates.io/api/v1/crates/bayard-common | jq -r '.versions[].num')
+          if echo ${BAYARD_COMMON_VERSIONS} | grep ${BAYARD_COMMON_VERSION} >/dev/null; then
+            echo "bayard-common ${BAYARD_COMMON_VERSION} has already published"
+          else
+            pushd bayard-common
+            cargo publish --token ${{ secrets.CRATES_TOKEN }}
+            popd
+          fi
+          sleep 20
+          BAYARD_SERVER_VERSION=$(cargo metadata --no-deps --format-version=1 | jq -r '.packages[] | select(.name=="bayard-server") | .version')
+          BAYARD_SERVER_VERSIONS=$(curl -s -XGET https://crates.io/api/v1/crates/bayard-server | jq -r '.versions[].num')
+          if echo ${BAYARD_SERVER_VERSIONS} | grep ${BAYARD_SERVER_VERSION} >/dev/null; then
+            echo "bayard-server ${BAYARD_SERVER_VERSION} has already published"
+          else
+            pushd bayard-server
+            cargo publish --token ${{ secrets.CRATES_TOKEN }}
+            popd
+          fi
+          sleep 20
+          BAYARD_CLIENT_VERSION=$(cargo metadata --no-deps --format-version=1 | jq -r '.packages[] | select(.name=="bayard-client") | .version')
+          BAYARD_CLIENT_VERSIONS=$(curl -s -XGET https://crates.io/api/v1/crates/bayard-client | jq -r '.versions[].num')
+          if echo ${BAYARD_CLIENT_VERSIONS} | grep ${BAYARD_CLIENT_VERSION} >/dev/null; then
+            echo "bayard-client ${BAYARD_CLIENT_VERSION} has already published"
+          else
+            pushd bayard-client
+            cargo publish --token ${{ secrets.CRATES_TOKEN }}
+            popd
+          fi
+          sleep 20
+          BAYARD_CLI_VERSION=$(cargo metadata --no-deps --format-version=1 | jq -r '.packages[] | select(.name=="bayard-cli") | .version')
+          BAYARD_CLI_VERSIONS=$(curl -s -XGET https://crates.io/api/v1/crates/bayard-cli | jq -r '.versions[].num')
+          if echo ${BAYARD_CLI_VERSIONS} | grep ${BAYARD_CLI_VERSION} >/dev/null; then
+            echo "bayard-cli ${BAYARD_CLI_VERSION} has already published"
+          else
+            pushd bayard-cli
+            cargo publish --token ${{ secrets.CRATES_TOKEN }}
+            popd
+          fi
+          sleep 20
+          BAYARD_REST_VERSION=$(cargo metadata --no-deps --format-version=1 | jq -r '.packages[] | select(.name=="bayard-rest") | .version')
+          BAYARD_REST_VERSIONS=$(curl -s -XGET https://crates.io/api/v1/crates/bayard-rest | jq -r '.versions[].num')
+          if echo ${BAYARD_REST_VERSIONS} | grep ${BAYARD_REST_VERSION} >/dev/null; then
+            echo "bayard-rest ${BAYARD_REST_VERSION} has already published"
+          else
+            pushd bayard-rest
+            cargo publish --token ${{ secrets.CRATES_TOKEN }}
+            popd
+          fi
+          sleep 20
+          BAYARD_VERSION=$(cargo metadata --no-deps --format-version=1 | jq -r '.packages[] | select(.name=="bayard") | .version')
+          BAYARD_VERSIONS=$(curl -s -XGET https://crates.io/api/v1/crates/bayard | jq -r '.versions[].num')
+          if echo ${BAYARD_VERSIONS} | grep ${BAYARD_VERSION} >/dev/null; then
+            echo "bayard ${BAYARD_VERSION} has already published"
+          else
+            pushd bayard
+            cargo publish --token ${{ secrets.CRATES_TOKEN }}
+            popd
+          fi
+
+  push-container:
+    name: Push Docker container
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+        toolchain: [stable]
+    needs: [publish-crates]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.toolchain }}
+          override: true
+      - run: |
+          BAYARD_VERSION=$(cargo metadata --no-deps --format-version=1 | jq -r '.packages[] | select(.name=="bayard") | .version')
+          echo "BAYARD_VERSION=${BAYARD_VERSION}" >> $GITHUB_ENV
+          BAYARD_REST_VERSION=$(cargo metadata --no-deps --format-version=1 | jq -r '.packages[] | select(.name=="bayard-rest") | .version')
+          echo "BAYARD_REST_VERSION=${BAYARD_REST_VERSION}" >> $GITHUB_ENV
+          BAYARD_CLI_VERSION=$(cargo metadata --no-deps --format-version=1 | jq -r '.packages[] | select(.name=="bayard-cli") | .version')
+          echo "BAYARD_CLI_VERSION=${BAYARD_CLI_VERSION}" >> $GITHUB_ENV
+      - uses: docker/setup-qemu-action@v1
+      - uses: docker/setup-buildx-action@v1
+      - uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./bayard.dockerfile
+          push: true
+          build-args: |
+            BAYARD_VERSION=${BAYARD_VERSION}
+          tags: |
+            bayardsearch/bayard:latest
+            bayardsearch/bayard:${BAYARD_VERSION}
+      - uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./bayard-rest.dockerfile
+          push: true
+          build-args: |
+            BAYARD_REST_VERSION=${BAYARD_REST_VERSION}
+          tags: |
+            bayardsearch/bayard-rest:latest
+            bayardsearch/bayard-rest:${BAYARD_REST_VERSION}
+      - uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./bayard-cli.dockerfile
+          push: true
+          build-args: |
+            BAYARD_CLI_VERSION=${BAYARD_CLI_VERSION}
+          tags: |
+            bayardsearch/bayard-cli:latest
+            bayardsearch/bayard-cli:${BAYARD_CLI_VERSION}

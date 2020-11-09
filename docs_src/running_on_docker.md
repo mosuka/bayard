@@ -24,3 +24,11 @@ $ docker run --rm --name bayard \
     --tokenizer-file /etc/bayard/tokenizer.json \
     1
 ```
+
+## Running with Docker composer
+
+Using the example `docker-composer.yml`, you can start the index node and the REST server with the following command:
+
+```text
+$ docker-compose up
+```
