@@ -1,6 +1,6 @@
 [package]
 name = "bayard-client"
-version = "0.8.4"
+version = "0.8.5"
 authors = ["Minoru Osuka <minoru.osuka@gmail.com>"]
 edition = "2018"
 description = "Client library for Bayard."
