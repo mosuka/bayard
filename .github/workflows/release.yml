@@ -25,7 +25,7 @@ jobs:
         toolchain: [stable]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - uses: actions/cache@v1
         with:
           path: ~/.cargo/registry
@@ -42,7 +42,7 @@ jobs:
         with:
           toolchain: ${{ matrix.toolchain }}
           override: true
-          target: x86_64-unknown-linux-musl
+          target: ${{ matrix.target }}
       - run: |
           sudo apt-get install -y musl-tools
           sudo mkdir /musl
