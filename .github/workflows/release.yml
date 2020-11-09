@@ -42,7 +42,7 @@ jobs:
         with:
           toolchain: ${{ matrix.toolchain }}
           override: true
-      - uses: actions-rs/cargo@v1.0.1
+      - uses: actions-rs/cargo@v1
         with:
           command: build
           args: --release --target=${{ matrix.target }}
@@ -70,7 +70,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - id: create-release
-        uses: actions/create-release@v1.0.0
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -105,7 +105,7 @@ jobs:
       - uses: actions/download-artifact@v1
         with:
           name: build-${{ matrix.target }}
-      - uses: actions/upload-release-asset@v1.0.1
+      - uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
