@@ -27,6 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - run: |
+          sudo apt-get install -y musl-tools
           mkdir ~/musl
           ln -s /usr/include/x86_64-linux-gnu/asm /usr/include/x86_64-linux-musl/asm && \
           ln -s /usr/include/asm-generic /usr/include/x86_64-linux-musl/asm-generic && \
