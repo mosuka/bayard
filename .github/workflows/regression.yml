@@ -26,50 +26,12 @@ jobs:
         with:
           command: check
 
-  test-ubuntu-latest:
-    name: Test ubuntu-latest
+  test:
+    name: Test
     strategy:
       matrix:
+#        os: [ubuntu-latest, macOS-latest, windows-latest]
         os: [ubuntu-latest]
-        toolchain: [stable]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v1
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: ${{ matrix.toolchain }}
-          override: true
-      - uses: actions-rs/cargo@v1
-        with:
-          command: test
-
-  test-macOS-latest:
-    name: Test macOS-latest
-    strategy:
-      matrix:
-        os: [macOS-latest]
-        toolchain: [stable]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v1
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: ${{ matrix.toolchain }}
-          override: true
-      - uses: jwlawson/actions-setup-cmake@v1.4
-        with:
-          cmake-version: '3.16.x'
-      - uses: actions-rs/cargo@v1
-        with:
-          command: test
-
-  test-windows-latest:
-    name: Test windows-latest
-    strategy:
-      matrix:
-        os: [windows-latest]
         toolchain: [stable]
     runs-on: ${{ matrix.os }}
     steps:
