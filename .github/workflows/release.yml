@@ -44,7 +44,7 @@ jobs:
           override: true
           target: ${{ matrix.target }}
       - run: |
-          sudo apt-get install -y musl-tools
+          sudo apt-get install -y musl-tools build-essential
           sudo mkdir /musl
           sudo ln -s /usr/include/x86_64-linux-gnu/asm /usr/include/x86_64-linux-musl/asm && \
           sudo ln -s /usr/include/asm-generic /usr/include/x86_64-linux-musl/asm-generic && \
