@@ -26,13 +26,47 @@ jobs:
         with:
           command: check
 
-  test:
-    name: Test
+  test-ubuntu-latest:
+    name: Test ubuntu-latest
     strategy:
       matrix:
-#        os: [ubuntu-latest, macOS-latest, windows-latest]
-#        os: [ubuntu-latest]
+        os: [ubuntu-latest]
+        toolchain: [stable]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.toolchain }}
+          override: true
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
+
+  test-macOS-latest:
+    name: Test macOS-latest
+    strategy:
+      matrix:
         os: [macOS-latest]
+        toolchain: [stable]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.toolchain }}
+          override: true
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
+
+  test-windows-latest:
+    name: Test macOS-latest
+    strategy:
+      matrix:
+        os: [windows-latest]
         toolchain: [stable]
     runs-on: ${{ matrix.os }}
     steps:
