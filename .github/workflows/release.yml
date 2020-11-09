@@ -56,11 +56,15 @@ jobs:
           sudo make depend
           sudo make -j$(nproc)
           sudo make install
-      - run: |
-          echo "PKG_CONFIG_ALLOW_CROSS=1" >> $GITHUB_ENV
-          echo "OPENSSL_STATIC=true" >> $GITHUB_ENV
-          echo "OPENSSL_DIR=/musl" >> $GITHUB_ENV
+#      - run: |
+#          echo "PKG_CONFIG_ALLOW_CROSS=1" >> $GITHUB_ENV
+#          echo "OPENSSL_STATIC=true" >> $GITHUB_ENV
+#          echo "OPENSSL_DIR=/musl" >> $GITHUB_ENV
       - uses: actions-rs/cargo@v1
+        env:
+          PKG_CONFIG_ALLOW_CROSS: 1
+          OPENSSL_STATIC: true
+          OPENSSL_DIR: /musl
         with:
           command: build
           args: --release --target=${{ matrix.target }}
