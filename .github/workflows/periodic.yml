@@ -1,0 +1,25 @@
+name: Periodic
+
+on:
+  schedule:
+    - cron: 0 0 * * SUN
+
+jobs:
+  test:
+    name: Test
+    strategy:
+      matrix:
+#        os: [ubuntu-latest, macOS-latest, windows-latest]
+        os: [ubuntu-latest]
+        toolchain: [stable, beta, nightly]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.toolchain }}
+          override: true
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
