@@ -31,7 +31,8 @@ jobs:
     strategy:
       matrix:
 #        os: [ubuntu-latest, macOS-latest, windows-latest]
-        os: [ubuntu-latest]
+#        os: [ubuntu-latest]
+        os: [macOS-latest]
         toolchain: [stable]
     runs-on: ${{ matrix.os }}
     steps:
