@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
-- Rename CI.yml to regression.yml #114 @mosuka
+- Update workflows #114  @mosuka
 
 ## 0.8.4 (2020-11-09)
 - Bump up version to 0.8.4 #113 @mosuka
