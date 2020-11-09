@@ -46,7 +46,7 @@ jobs:
         with:
           command: build
           args: --release --target=${{ matrix.target }}
-          use-cross: false
+          use-cross: true
       - name: Build for Linux
         if: matrix.os == 'ubuntu-latest'
         run: |
