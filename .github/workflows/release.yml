@@ -42,13 +42,15 @@ jobs:
         with:
           toolchain: ${{ matrix.toolchain }}
           override: true
+      - run: |
+          sudo apt-get install -y --no-install-recommends \
+          libssh-dev
       - uses: actions-rs/cargo@v1
         with:
           command: build
           args: --release --target=${{ matrix.target }}
           use-cross: true
-      - name: Build for Linux
-        if: matrix.os == 'ubuntu-latest'
+      - if: matrix.os == 'ubuntu-latest'
         run: |
           zip --junk-paths bayard-${{ matrix.target }}.zip target/${{ matrix.target }}/release/bayard target/${{ matrix.target }}/release/bayard-rest target/${{ matrix.target }}/release/bayard-cli
 #      - name: Build for Windows
