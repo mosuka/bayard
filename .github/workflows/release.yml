@@ -69,7 +69,7 @@ jobs:
           PKG_CONFIG_ALLOW_CROSS: 1
           OPENSSL_STATIC: true
           OPENSSL_DIR: /musl
-          CXX: musl-g++
+          CXX: /usr/bin/g++
         with:
           command: build
           args: --release --target=${{ matrix.target }}
