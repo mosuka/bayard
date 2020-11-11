@@ -231,27 +231,27 @@ jobs:
           file: ./bayard.dockerfile
           push: true
           build-args: |
-            BAYARD_VERSION=${BAYARD_VERSION}
+            BAYARD_VERSION=${{ env.BAYARD_VERSION }}
           tags: |
             bayardsearch/bayard:latest
-            bayardsearch/bayard:${BAYARD_VERSION}
+            bayardsearch/bayard:${{ env.BAYARD_VERSION }}
       - uses: docker/build-push-action@v2
         with:
           context: .
           file: ./bayard-rest.dockerfile
           push: true
           build-args: |
-            BAYARD_REST_VERSION=${BAYARD_REST_VERSION}
+            BAYARD_REST_VERSION=${{ env.BAYARD_REST_VERSION }}
           tags: |
             bayardsearch/bayard-rest:latest
-            bayardsearch/bayard-rest:${BAYARD_REST_VERSION}
+            bayardsearch/bayard-rest:${{ env.BAYARD_REST_VERSION }}
       - uses: docker/build-push-action@v2
         with:
           context: .
           file: ./bayard-cli.dockerfile
           push: true
           build-args: |
-            BAYARD_CLI_VERSION=${BAYARD_CLI_VERSION}
+            BAYARD_CLI_VERSION=${ env.BAYARD_CLI_VERSION }}
           tags: |
             bayardsearch/bayard-cli:latest
-            bayardsearch/bayard-cli:${BAYARD_CLI_VERSION}
+            bayardsearch/bayard-cli:${{ BAYARD_CLI_VERSION }}
