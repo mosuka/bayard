@@ -254,4 +254,4 @@ jobs:
             BAYARD_CLI_VERSION=${ env.BAYARD_CLI_VERSION }}
           tags: |
             bayardsearch/bayard-cli:latest
-            bayardsearch/bayard-cli:${{ BAYARD_CLI_VERSION }}
+            bayardsearch/bayard-cli:${{ env.BAYARD_CLI_VERSION }}
