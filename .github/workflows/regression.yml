@@ -30,7 +30,6 @@ jobs:
     name: Test
     strategy:
       matrix:
-#        os: [ubuntu-latest, macOS-latest, windows-latest]
         os: [ubuntu-latest]
         toolchain: [stable]
     runs-on: ${{ matrix.os }}

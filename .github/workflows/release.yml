@@ -7,93 +7,74 @@ on:
       - "v*.*.*"
 
 jobs:
-  build:
-    name: Build
-    strategy:
-      matrix:
-        target:
-          - x86_64-unknown-linux-musl
-#          - x86_64-pc-windows-msvc
-#          - x86_64-apple-darwin
-        include:
-          - target: x86_64-unknown-linux-musl
-            os: ubuntu-latest
-#          - target: x86_64-pc-windows-msvc
-#            os: windows-latest
-#          - target: x86_64-apple-darwin
-#            os: macos-latest
-        toolchain: [stable]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/cache@v1
-        with:
-          path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-      - uses: actions/cache@v1
-        with:
-          path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
-      - uses: actions/cache@v1
-        with:
-          path: target
-          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: ${{ matrix.toolchain }}
-          override: true
-          target: ${{ matrix.target }}
-      - run: |
-          sudo apt-get install -y musl-tools build-essential
-          sudo mkdir /musl
-          sudo ln -s /usr/include/x86_64-linux-gnu/asm /usr/include/x86_64-linux-musl/asm && \
-          sudo ln -s /usr/include/asm-generic /usr/include/x86_64-linux-musl/asm-generic && \
-          sudo ln -s /usr/include/linux /usr/include/x86_64-linux-musl/linux
-          wget https://github.com/openssl/openssl/archive/OpenSSL_1_1_1g.tar.gz
-          tar zxvf OpenSSL_1_1_1g.tar.gz
-          cd openssl-OpenSSL_1_1_1g/
-          sudo CC="musl-gcc -fPIE -pie" ./Configure no-shared no-async --prefix=/musl --openssldir=/musl/ssl linux-x86_64
-          sudo make depend
-          sudo make -j$(nproc)
-          sudo make install
-      - run: |
-          echo "PKG_CONFIG_ALLOW_CROSS=1" >> $GITHUB_ENV
-          echo "OPENSSL_STATIC=true" >> $GITHUB_ENV
-          echo "OPENSSL_DIR=/musl" >> $GITHUB_ENV
-          echo "CMAKE_CXX_COMPILER=musl-g++" >> $GITHUB_ENV
-      - uses: actions-rs/install@v0.1
-        with:
-          crate: cross
-          version: 0.1.16
-      - uses: actions-rs/cargo@v1
-#        env:
-#          PKG_CONFIG_ALLOW_CROSS: 1
-#          OPENSSL_STATIC: true
-#          OPENSSL_DIR: /musl
-#          CXX: /usr/bin/g++
-        with:
-          command: build
-          args: --release --target=${{ matrix.target }}
-          use-cross: true
-      - if: matrix.os == 'ubuntu-latest'
-        run: |
-          zip --junk-paths bayard-${{ matrix.target }}.zip target/${{ matrix.target }}/release/bayard target/${{ matrix.target }}/release/bayard-rest target/${{ matrix.target }}/release/bayard-cli
-#      - name: Build for Windows
-#        if: matrix.os == 'windows-latest'
+#  build:
+#    name: Build
+#    strategy:
+#      matrix:
+#        target:
+#          - x86_64-unknown-linux-musl
+#        include:
+#          - target: x86_64-unknown-linux-musl
+#            os: ubuntu-latest
+#        toolchain: [stable]
+#    runs-on: ${{ matrix.os }}
+#    steps:
+#      - uses: actions/checkout@v2
+#      - uses: actions/cache@v1
+#        with:
+#          path: ~/.cargo/registry
+#          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+#      - uses: actions/cache@v1
+#        with:
+#          path: ~/.cargo/git
+#          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+#      - uses: actions/cache@v1
+#        with:
+#          path: target
+#          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+#      - uses: actions-rs/toolchain@v1
+#        with:
+#          toolchain: ${{ matrix.toolchain }}
+#          override: true
+#          target: ${{ matrix.target }}
+#      - run: |
+#          sudo apt-get install -y musl-tools build-essential
+#          sudo mkdir /musl
+#          sudo ln -s /usr/include/x86_64-linux-gnu/asm /usr/include/x86_64-linux-musl/asm && \
+#          sudo ln -s /usr/include/asm-generic /usr/include/x86_64-linux-musl/asm-generic && \
+#          sudo ln -s /usr/include/linux /usr/include/x86_64-linux-musl/linux
+#          wget https://github.com/openssl/openssl/archive/OpenSSL_1_1_1g.tar.gz
+#          tar zxvf OpenSSL_1_1_1g.tar.gz
+#          cd openssl-OpenSSL_1_1_1g/
+#          sudo CC="musl-gcc -fPIE -pie" ./Configure no-shared no-async --prefix=/musl --openssldir=/musl/ssl linux-x86_64
+#          sudo make depend
+#          sudo make -j$(nproc)
+#          sudo make install
+#      - run: |
+#          echo "PKG_CONFIG_ALLOW_CROSS=1" >> $GITHUB_ENV
+#          echo "OPENSSL_STATIC=true" >> $GITHUB_ENV
+#          echo "OPENSSL_DIR=/musl" >> $GITHUB_ENV
+#          echo "CMAKE_CXX_COMPILER=musl-g++" >> $GITHUB_ENV
+#      - uses: actions-rs/install@v0.1
+#        with:
+#          crate: cross
+#          version: 0.1.16
+#      - uses: actions-rs/cargo@v1
+#        with:
+#          command: build
+#          args: --release --target=${{ matrix.target }}
+#          use-cross: true
+#      - if: matrix.os == 'ubuntu-latest'
 #        run: |
-#          7z a lindera-cli-${{ matrix.target }}.zip target/${{ matrix.target }}/release/lindera.exe
-#      - name: Build for OSX
-#        if: matrix.os == 'macos-latest'
-#        run: |
-#          zip --junk-paths lindera-cli-${{ matrix.target }}.zip target/${{ matrix.target }}/release/lindera
-      - uses: actions/upload-artifact@v1
-        with:
-          name: build-${{ matrix.target }}
-          path: bayard-${{ matrix.target }}.zip
+#          zip --junk-paths bayard-${{ matrix.target }}.zip target/${{ matrix.target }}/release/bayard target/${{ matrix.target }}/release/bayard-rest target/${{ matrix.target }}/release/bayard-cli
+#      - uses: actions/upload-artifact@v1
+#        with:
+#          name: build-${{ matrix.target }}
+#          path: bayard-${{ matrix.target }}.zip
 
   create-release:
     name: Create Release
-    needs: [build]
+#    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - id: create-release
@@ -112,34 +93,32 @@ jobs:
           name: create-release
           path: release_upload_url.txt
 
-  upload-release:
-    strategy:
-      matrix:
-        target:
-          - x86_64-unknown-linux-musl
-#          - x86_64-pc-windows-msvc
-#          - x86_64-apple-darwin
-    name: Upload Release
-    needs: [create-release]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v1
-        with:
-          name: create-release
-      - id: upload-url
-        run: |
-          echo "::set-output name=url::$(cat create-release/release_upload_url.txt)"
-      - uses: actions/download-artifact@v1
-        with:
-          name: build-${{ matrix.target }}
-      - uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.upload-url.outputs.url }}
-          asset_path: ./build-${{ matrix.target }}/bayard-${{ matrix.target }}.zip
-          asset_name: bayard-${{ matrix.target }}.zip
-          asset_content_type: application/zip
+#  upload-release:
+#    strategy:
+#      matrix:
+#        target:
+#          - x86_64-unknown-linux-musl
+#    name: Upload Release
+#    needs: [create-release]
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/download-artifact@v1
+#        with:
+#          name: create-release
+#      - id: upload-url
+#        run: |
+#          echo "::set-output name=url::$(cat create-release/release_upload_url.txt)"
+#      - uses: actions/download-artifact@v1
+#        with:
+#          name: build-${{ matrix.target }}
+#      - uses: actions/upload-release-asset@v1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        with:
+#          upload_url: ${{ steps.upload-url.outputs.url }}
+#          asset_path: ./build-${{ matrix.target }}/bayard-${{ matrix.target }}.zip
+#          asset_name: bayard-${{ matrix.target }}.zip
+#          asset_content_type: application/zip
 
   publish-crates:
     name: Publish crate
@@ -147,7 +126,8 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         toolchain: [stable]
-    needs: [upload-release]
+#    needs: [upload-release]
+    needs: [create-release]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v1
