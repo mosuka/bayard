@@ -13,7 +13,7 @@ GET /v1/schema
 To show the index schema:
 
 ```shell script
-$ curl -X POST 'http://localhost:8000/v1/schema' | jq .
+$ curl -X GET 'http://localhost:8000/v1/schema' | jq .
 ```
 
 You'll see the result in JSON format. The result of the above command is:
