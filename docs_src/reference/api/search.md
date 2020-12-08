@@ -5,7 +5,7 @@ Search API searches documents from the index.
 ## Request
 
 ```text
-GET /v1/search
+POST /v1/search
 ```
 
 ## Query parameters
