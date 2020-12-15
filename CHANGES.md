@@ -6,6 +6,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Update docs #122 @mosuka
 - added error messages #121 @barrotsteindev
 - fix: REST API methods in documents #118 @hhatto
+
+## 0.8.5 (2020-11-09)
+- Bump up version to 0.8.5 #115 @mosuka
 - Update workflows #114  @mosuka
 
 ## 0.8.4 (2020-11-09)
