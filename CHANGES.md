@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
+- Update docs #122 @mosuka
+- added error messages #121 @barrotsteindev
+- fix: REST API methods in documents #118 @hhatto
 - Update workflows #114  @mosuka
 
 ## 0.8.4 (2020-11-09)
