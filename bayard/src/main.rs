@@ -136,7 +136,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     let matches = app.get_matches();
 
-    let id = matches.value_of("ID").expect("ID was not set").parse::<u64>().expect("ID must be an integer");
+    let id = matches
+        .value_of("ID")
+        .expect("ID was not set")
+        .parse::<u64>()
+        .expect("ID must be an integer");
     let host = matches.value_of("HOST").expect("HOST was not set");
 
     let raft_port = matches
@@ -163,9 +167,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
             .unwrap()
             .to_string();
     }
-    let data_directory = matches.value_of("DATA_DIRECTORY").expect("DATA_DIRECTORY was not set");
-    let schema_file = matches.value_of("SCHEMA_FILE").expect("SCHEMA_FILE was not set");
-    let tokenizer_file = matches.value_of("TOKENIZER_FILE").expect("TOKENIZER_FILE was not set");
+    let data_directory = matches
+        .value_of("DATA_DIRECTORY")
+        .expect("DATA_DIRECTORY was not set");
+    let schema_file = matches
+        .value_of("SCHEMA_FILE")
+        .expect("SCHEMA_FILE was not set");
+    let tokenizer_file = matches
+        .value_of("TOKENIZER_FILE")
+        .expect("TOKENIZER_FILE was not set");
     let indexer_threads = matches
         .value_of("INDEXER_THREADS")
         .expect("INDEXER_THREADS was not set")
