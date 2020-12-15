@@ -136,8 +136,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     let matches = app.get_matches();
 
-    let id = matches.value_of("ID").unwrap().parse::<u64>().unwrap();
-    let host = matches.value_of("HOST").unwrap();
+    let id = matches.value_of("ID").expect("ID was not set").parse::<u64>().expect("ID must be an integer");
+    let host = matches.value_of("HOST").expect("HOST was not set");
 
     let raft_port = matches
         .value_of("RAFT_PORT")
@@ -163,19 +163,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
             .unwrap()
             .to_string();
     }
-    let data_directory = matches.value_of("DATA_DIRECTORY").unwrap();
-    let schema_file = matches.value_of("SCHEMA_FILE").unwrap();
-    let tokenizer_file = matches.value_of("TOKENIZER_FILE").unwrap();
+    let data_directory = matches.value_of("DATA_DIRECTORY").expect("DATA_DIRECTORY was not set");
+    let schema_file = matches.value_of("SCHEMA_FILE").expect("SCHEMA_FILE was not set");
+    let tokenizer_file = matches.value_of("TOKENIZER_FILE").expect("TOKENIZER_FILE was not set");
     let indexer_threads = matches
         .value_of("INDEXER_THREADS")
-        .unwrap()
+        .expect("INDEXER_THREADS was not set")
         .parse::<usize>()
-        .unwrap();
+        .expect("INDEXER_THREADS must be an integer");
     let indexer_memory_size = matches
         .value_of("INDEXER_MEMORY_SIZE")
-        .unwrap()
+        .expect("INDEXER_MEMORY_SIZE was not set")
         .parse::<usize>()
-        .unwrap();
+        .expect("INDEXER_MEMORY_SIZE must be an integer");
 
     let raft_address = format!("{}:{}", host, raft_port)
         .to_socket_addrs()
