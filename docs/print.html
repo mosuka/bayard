@@ -195,7 +195,7 @@ Bayard makes easy for programmers to develop search applications with advanced f
 <h2><a class="header" href="#requirements" id="requirements">Requirements</a></h2>
 <p>The following products are required to build bayard-proto:</p>
 <ul>
-<li>Rust &gt;= 1.39.0</li>
+<li>Rust &gt;= 1.46.0</li>
 </ul>
 <h2><a class="header" href="#install" id="install">Install</a></h2>
 <p>Install Bayard with the following command:</p>
@@ -1998,7 +1998,7 @@ See the following list:</p>
 </code></pre>
 <h2><a class="header" href="#examples-19" id="examples-19">Examples</a></h2>
 <p>To show the index schema:</p>
-<pre><code class="language-shellscript">$ curl -X POST 'http://localhost:8000/v1/schema' | jq .
+<pre><code class="language-shellscript">$ curl -X GET 'http://localhost:8000/v1/schema' | jq .
 </code></pre>
 <p>You'll see the result in JSON format. The result of the above command is:</p>
 <pre><code class="language-json">[
@@ -2073,7 +2073,7 @@ See the following list:</p>
 <h1><a class="header" href="#search-api" id="search-api">Search API</a></h1>
 <p>Search API searches documents from the index.</p>
 <h2><a class="header" href="#request-9" id="request-9">Request</a></h2>
-<pre><code class="language-text">GET /v1/search
+<pre><code class="language-text">POST /v1/search
 </code></pre>
 <h2><a class="header" href="#query-parameters" id="query-parameters">Query parameters</a></h2>
 <ul>
