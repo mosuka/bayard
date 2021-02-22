@@ -15,13 +15,13 @@ license = "MIT"
 [dependencies]
 async-std = "1.6"
 bincode = "1.3"
-cang-jie = "0.10"
+cang-jie = "0.11"
 futures = "0.1"
 grpcio = { version = "0.4", features = [ "secure" ] }
 hyper = "0.13"
 jieba-rs = "0.6"
 lazy_static = "1.4"
-lindera-tantivy = "0.7"
+lindera-tantivy = "0.7.2"
 log = "0.4"
 prometheus = "0.9"
 protobuf = "2.17"
@@ -29,6 +29,6 @@ raft = "0.4"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 stringreader = "0.1"
-tantivy = "0.13"
+tantivy = "0.14"
 
 bayard-proto = "0.8"
