@@ -79,38 +79,38 @@ mod tests {
         {
             let token = stream.next().unwrap();
             assert_eq!(token.text, "我们");
-            assert_eq!(token.offset_from, 6);
-            assert_eq!(token.offset_to, 12);
+            assert_eq!(token.offset_from, 0);
+            assert_eq!(token.offset_to, 6);
         }
         {
             let token = stream.next().unwrap();
             assert_eq!(token.text, "中");
+            assert_eq!(token.offset_from, 6);
+            assert_eq!(token.offset_to, 9);
+        }
+        {
+            let token = stream.next().unwrap();
+            assert_eq!(token.text, "出");
             assert_eq!(token.offset_from, 9);
             assert_eq!(token.offset_to, 12);
         }
         {
             let token = stream.next().unwrap();
-            assert_eq!(token.text, "出");
+            assert_eq!(token.text, "了");
             assert_eq!(token.offset_from, 12);
             assert_eq!(token.offset_to, 15);
         }
         {
             let token = stream.next().unwrap();
-            assert_eq!(token.text, "了");
-            assert_eq!(token.offset_from, 15);
-            assert_eq!(token.offset_to, 18);
-        }
-        {
-            let token = stream.next().unwrap();
             assert_eq!(token.text, "一个");
-            assert_eq!(token.offset_from, 21);
-            assert_eq!(token.offset_to, 27);
+            assert_eq!(token.offset_from, 15);
+            assert_eq!(token.offset_to, 21);
         }
         {
             let token = stream.next().unwrap();
             assert_eq!(token.text, "叛徒");
-            assert_eq!(token.offset_from, 27);
-            assert_eq!(token.offset_to, 33);
+            assert_eq!(token.offset_from, 21);
+            assert_eq!(token.offset_to, 27);
         }
         assert!(stream.next().is_none());
     }
