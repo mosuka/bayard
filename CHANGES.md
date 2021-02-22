@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## 0.8.7 (2021-02-22)
+- Bump up version to 0.8.7 #128 @mosuka
 - Fix a bug that detect a wrong node ID #127 @mosuka
 
 ## 0.8.6 (2021-02-22)
