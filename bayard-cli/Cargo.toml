@@ -1,6 +1,6 @@
 [package]
 name = "bayard-cli"
-version = "0.8.5"
+version = "0.8.6"
 authors = ["Minoru Osuka <minoru.osuka@gmail.com>"]
 edition = "2018"
 description = "Command line interface for Bayard."
@@ -20,5 +20,5 @@ path = "src/main.rs"
 clap = "2.33"
 serde_json = "1.0"
 
-bayard-client = { version = "0.8", path = "../bayard-client" }
-bayard-common = { version = "0.8", path = "../bayard-common" }
+bayard-client = { version = "0.8.6", path = "../bayard-client" }
+bayard-common = { version = "0.8.6", path = "../bayard-common" }

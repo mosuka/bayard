@@ -2,7 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## 0.8.6 (2021-02-22)
+- Bump up version to 0.8.6 #125 @mosuka
+- Update dependencies #124 @mosuka
 - Update docs #122 @mosuka
 - added error messages #121 @barrotsteindev
 - fix: REST API methods in documents #118 @hhatto
