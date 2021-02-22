@@ -26,6 +26,8 @@ services:
     ports:
       - "8000:8000"
     command:
+      - '--host=bayard-rest'
+      - '--port=8000'
       - '--index-address=bayard:5000'
     depends_on:
       - bayard

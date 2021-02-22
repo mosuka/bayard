@@ -272,7 +272,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let metrics_service = make_service_fn(|_| async { Ok::<_, io::Error>(service_fn(handle)) });
     let metrics_server = Server::bind(&metrics_address).serve(metrics_service);
     let metrics_server_graceful = metrics_server.with_graceful_shutdown(shutdown_signal());
-    info!("start metrics service on {}:{}", host, metrics_port);
+    info!("start metrics service on {}", metrics_address);
 
     match metrics_server_graceful.await {
         Ok(_) => {
