@@ -65,6 +65,15 @@ impl IndexClient {
         let max_retry = 10;
         let mut cnt_retry = 0;
 
+        // set node_id
+        for (i, a) in &self.addresses {
+            if a == &self.address {
+                self.node_id = *i;
+                debug!("set node: id={}, address={}", i, a);
+                break;
+            }
+        }
+
         loop {
             if max_retry < cnt_retry {
                 return Err(Error::new(
@@ -186,6 +195,15 @@ impl IndexClient {
 
         let max_retry = 10;
         let mut cnt_retry = 0;
+
+        // set node_id
+        for (i, a) in &self.addresses {
+            if a == &self.address {
+                self.node_id = *i;
+                debug!("set node: id={}, address={}", i, a);
+                break;
+            }
+        }
 
         loop {
             if max_retry < cnt_retry {
@@ -994,6 +1012,15 @@ impl IndexClient {
         let max_retry = 10;
         let mut cnt_retry = 0;
 
+        // set node_id
+        for (i, a) in &self.addresses {
+            if a == &self.address {
+                self.node_id = *i;
+                debug!("set node: id={}, address={}", i, a);
+                break;
+            }
+        }
+
         loop {
             if max_retry < cnt_retry {
                 return Err(Error::new(
@@ -1068,14 +1095,6 @@ impl IndexClient {
                 debug!("addresses={:?}", self.addresses);
             }
 
-            // continue to use the same node.
-            for (id, address) in &self.addresses.clone() {
-                if address == self.address.as_str() {
-                    self.node_id = *id;
-                    break;
-                }
-            }
-
             match reply.get_state() {
                 State::OK => {
                     self.leader_id = reply.get_leader_id();
@@ -1095,6 +1114,15 @@ impl IndexClient {
 
         let max_retry = 10;
         let mut cnt_retry = 0;
+
+        // set node_id
+        for (i, a) in &self.addresses {
+            if a == &self.address {
+                self.node_id = *i;
+                debug!("set node: id={}, address={}", i, a);
+                break;
+            }
+        }
 
         loop {
             if max_retry < cnt_retry {
@@ -1168,14 +1196,6 @@ impl IndexClient {
                 }
 
                 debug!("addresses={:?}", self.addresses);
-            }
-
-            // continue to use the same node.
-            for (id, address) in &self.addresses.clone() {
-                if address == self.address.as_str() {
-                    self.node_id = *id;
-                    break;
-                }
             }
 
             match reply.get_state() {
