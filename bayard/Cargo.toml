@@ -25,7 +25,7 @@ log = "0.4"
 num_cpus = "1.13"
 raft = "0.4"
 serde_json = "1.0"
-tokio = { version = "0.2", features = ["macros"] }
+tokio = { version = "1.8", features = ["macros"] }
 
 bayard-proto = "0.8"
 
