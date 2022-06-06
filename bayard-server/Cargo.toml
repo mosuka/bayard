@@ -18,7 +18,7 @@ bincode = "1.3"
 cang-jie = "0.11"
 futures = "0.1"
 grpcio = { version = "0.4", features = [ "secure" ] }
-hyper = "0.13"
+hyper = "0.14"
 jieba-rs = "0.6"
 lazy_static = "1.4"
 lindera-tantivy = "0.7.2"
