@@ -20,7 +20,7 @@ path = "src/main.rs"
 clap = "2.33"
 futures = "0.1"
 grpcio = { version = "0.4", features = ["secure"] }
-hyper = "0.13"
+hyper = "0.14"
 log = "0.4"
 num_cpus = "1.13"
 raft = "0.4"
