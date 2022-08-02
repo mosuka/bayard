@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package healthcheck;
+
+service HealthCheckService {
+  rpc Liveness(LivenessRequest) returns (LivenessResponse) {}
+  rpc Readiness(ReadinessRequest) returns (ReadinessResponse) {}
+}
+
+message LivenessRequest {}
+message LivenessResponse {
+  enum State {
+    UNKNOWN = 0;
+    ALIVE = 1;
+    DEAD = 2;
+  }
+  State state = 1;
+}
+
+message ReadinessRequest {}
+message ReadinessResponse {
+  enum State {
+    UNKNOWN = 0;
+    READY = 1;
+    NOT_READY = 2;
+  }
+  State state = 1;
+}
+

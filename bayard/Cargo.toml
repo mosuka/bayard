@@ -1,12 +1,12 @@
 [package]
 name = "bayard"
-version = "0.8.7"
+version = "0.9.0"
 authors = ["Minoru Osuka <minoru.osuka@gmail.com>"]
-edition = "2018"
+edition = "2021"
 description = "A distributed search server."
 documentation = "https://bayard-search.github.io/bayard/"
-homepage = "https://github.com/bayard-search"
-repository = "https://github.com/bayard-search/bayard/bayard"
+homepage = "https://github.com/mosuka/bayard"
+repository = "https://github.com/mosuka/bayard/bayard"
 readme = "README.md"
 keywords = ["full-text", "search", "index", "server"]
 categories = ["database"]
@@ -17,18 +17,38 @@ name = "bayard"
 path = "src/main.rs"
 
 [dependencies]
-clap = "2.33"
-futures = "0.1"
-grpcio = { version = "0.4", features = ["secure"] }
-hyper = "0.13"
-log = "0.4"
-num_cpus = "1.13"
-raft = "0.4"
-serde_json = "1.0"
-tokio = { version = "0.2", features = ["macros"] }
+anyhow = "1.0.56"
+axum = "0.5.6"
+bytes = { version = "1.1.0", features = ["serde"] }
+clap = { version = "3.1.6", features = ["derive"] }
+crossbeam = "0.8.1"
+dashmap = { version = "5.2.0", features = ["serde"] }
+exponential-backoff = "1.1.0"
+foca = { version = "0.3.1", features = ["postcard-codec"] }
+futures-util = "0.3.21"
+http = "0.2.8"
+lindera-tantivy = { version = "0.14.0", features = ["ipadic", "ko-dic", "cc-cedict"] }
+notify = "5.0.0-pre.15"
+num = "0.4.0"
+path-slash = "0.1.4"
+prost = { version = "0.10.4", default-features = false, features = ["prost-derive"] }
+rand = "0.8.5"
+regex = "1.5.6"
+serde = { version = "1.0.136", features = ["derive"] }
+serde_json = "1.0.82"
+signal-hook = { version = "0.3.13", features = ["extended-siginfo"] }
+tantivy = "0.18.0"
+thiserror = "1.0.30"
+time = { version = "0.3.9", features = ["std"] }
+tokio = { version = "1.19.2", features = ["full"] }
+tokio-stream = { version = "0.1.9", features = ["sync"] }
+tonic = { version = "0.7.2", features = ["transport"] }
+tracing = "0.1.32"
+tracing-subscriber = "0.3.9"
 
-bayard-proto = "0.8"
+[dev-dependencies]
+tempdir = "0.3.7"
 
-bayard-client = { version = "0.8.7", path = "../bayard-client" }
-bayard-common = { version = "0.8.7", path = "../bayard-common" }
-bayard-server = { version = "0.8.7", path = "../bayard-server" }
+[build-dependencies]
+tonic-build = "0.7.2"
+prost-build = "0.10.4"

@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package cluster;
+
+service ClusterService {
+  rpc GetNodes(GetNodesRequest) returns (GetNodesResponse) {}
+}
+
+message Metadata {
+  string grpc_address = 1;
+  string http_address = 2;
+}
+
+message Node {
+  string address = 1;
+  Metadata metadata = 2;
+}
+
+message GetNodesRequest {}
+message GetNodesResponse {
+  repeated Node nodes = 1;
+}
