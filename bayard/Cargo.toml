@@ -51,4 +51,4 @@ tempdir = "0.3.7"
 
 [build-dependencies]
 tonic-build = "0.7.2"
-prost-build = "0.10.4"
+prost-build = "0.11.1"
