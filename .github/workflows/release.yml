@@ -151,7 +151,7 @@ jobs:
             echo "bayard ${BAYARD_VERSION} has already published"
           else
             pushd bayard
-            cargo publish --token ${{ secrets.CRATES_TOKEN }}
+            cargo publish --no-verify --token ${{ secrets.CRATES_TOKEN }}
             popd
           fi
 

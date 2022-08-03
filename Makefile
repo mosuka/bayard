@@ -20,7 +20,7 @@ tag:
 
 publish:
 ifeq ($(shell curl -s -XGET https://crates.io/api/v1/crates/bayard | jq -r '.versions[].num' | grep $(BAYARD_VERSION)),)
-	(cd bayard && cargo package && cargo publish)
+	(cd bayard && cargo package --no-verify && cargo publish --no-verify)
 	sleep 10
 endif
 
