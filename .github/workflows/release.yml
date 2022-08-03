@@ -13,15 +13,15 @@ jobs:
       matrix:
         target:
           - x86_64-unknown-linux-gnu
-          - x86_64-pc-windows-msvc
           - x86_64-apple-darwin
+          # - x86_64-pc-windows-msvc
         include:
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
-          - target: x86_64-pc-windows-msvc
-            os: windows-latest
           - target: x86_64-apple-darwin
             os: macos-latest
+          # - target: x86_64-pc-windows-msvc
+          #   os: windows-latest
         toolchain: [stable]
     runs-on: ${{ matrix.os }}
     steps:
@@ -58,15 +58,15 @@ jobs:
         run: |
           zip --junk-paths bayard-${{ matrix.target }}.zip \
             target/${{ matrix.target }}/release/bayard
-      - name: Create artifact for Windows
-        if: matrix.os == 'windows-latest'
-        run: |
-          powershell Compress-Archive -DestinationPath bayard-${{ matrix.target }}.zip -Path target/${{ matrix.target }}/release/*.exe
       - name: Create artifact for OSX
         if: matrix.os == 'macos-latest'
         run: |
           zip --junk-paths bayard-${{ matrix.target }}.zip \
             target/${{ matrix.target }}/release/lindera
+      # - name: Create artifact for Windows
+      #   if: matrix.os == 'windows-latest'
+      #   run: |
+      #     powershell Compress-Archive -DestinationPath bayard-${{ matrix.target }}.zip -Path target/${{ matrix.target }}/release/*.exe
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
@@ -102,8 +102,8 @@ jobs:
       matrix:
         target:
           - x86_64-unknown-linux-gnu
-          - x86_64-pc-windows-msvc
           - x86_64-apple-darwin
+          # - x86_64-pc-windows-msvc
     name: Upload Release
     needs: [create-release]
     runs-on: ubuntu-latest
