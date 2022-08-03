@@ -1,0 +1,122 @@
+syntax = "proto3";
+
+package index;
+
+service IndexService {
+    rpc CreateIndex(CreateIndexRequest) returns (CreateIndexResponse) {}
+    rpc DeleteIndex(DeleteIndexRequest) returns (DeleteIndexResponse) {}
+    rpc GetIndex(GetIndexRequest) returns (GetIndexResponse) {}
+    rpc ModifyIndex(ModifyIndexRequest) returns (ModifyIndexResponse) {}
+    rpc PutDocuments(PutDocumentsRequest) returns (PutDocumentsResponse) {}
+    rpc DeleteDocuments(DeleteDocumentsRequest) returns (DeleteDocumentsResponse) {}
+    rpc Commit(CommitRequest) returns (CommitResponse) {}
+    rpc Rollback(RollbackRequest) returns (RollbackResponse) {}
+    rpc Search(SearchRequest) returns (SearchResponse) {}
+}
+
+message CreateIndexRequest {
+    string name = 1;
+    bytes metadata = 2;
+}
+message CreateIndexResponse {}
+
+message DeleteIndexRequest {
+    string name = 1;
+}
+message DeleteIndexResponse {}
+
+message GetIndexRequest {
+    string name = 1;
+}
+message GetIndexResponse {
+    bytes metadata = 1;
+}
+
+message ModifyIndexRequest {
+    string name = 1;
+    bytes metadata = 2;
+}
+message ModifyIndexResponse {}
+
+message PutDocumentsRequest {
+    string name = 1;
+    string shard_id = 2;
+    repeated bytes docs = 3;
+}
+message PutDocumentsResponse {}
+
+message DeleteDocumentsRequest {
+    string name = 1;
+    string shard_id = 2;
+    repeated string doc_ids = 3;
+}
+message DeleteDocumentsResponse {}
+
+message CommitRequest {
+    string name = 1;
+    string shard_id = 2;
+}
+message CommitResponse {}
+
+message RollbackRequest {
+    string name = 1;
+    string shard_id = 2;
+}
+message RollbackResponse {}
+
+enum CollectionKind {
+    UNKNOWN = 0;
+    COUNT_AND_TOP_DOCS = 1;
+    COUNT = 2;
+    TOP_DOCS = 3;
+}
+
+message Query {
+    enum Kind {
+        UNKNOWN = 0;
+        ALL = 1;
+        BOOLEAN = 2;
+        BOOST = 3;
+        FUZZY_TERM = 4;
+        PHRASE = 5;
+        QUERY_STRING = 6;
+        RANGE = 7;
+        REGEX = 8;
+        TERM = 9;
+    }
+    Kind kind = 1;
+    bytes options = 2;
+}
+
+message Sort {
+    enum Order {
+        UNKNOWN = 0;
+        ASC = 1;
+        DESC = 2;
+    }
+    string field = 1;
+    Order order = 2;
+}
+
+message Document {
+    string id = 1;
+    float score = 2;
+    int64 timestamp = 3;
+    double sort_value = 4;
+    bytes fields = 5;
+}
+
+message SearchRequest {
+    string name = 1;
+    string shard_id = 2;
+    Query query = 3;
+    CollectionKind collection_kind = 4;
+    Sort sort = 5;
+    repeated string fields = 6;
+    int32 offset = 7;
+    int32 hits = 8;
+}
+message SearchResponse {
+    int64 total_hits = 1;
+    repeated Document documents = 2;
+}

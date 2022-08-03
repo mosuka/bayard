@@ -1,0 +1,23 @@
+{
+    "query": {
+        "kind": "fuzzy_term",
+        "options": {
+            "field": "description",   
+            "term": "rust",
+            "distance": 2,
+            "transposition_cost_one": true,
+            "prefix": true
+        }
+    },
+    "collection_kind": "count_and_top_docs",
+    "sort": {
+        "field": "popularity",
+        "order": "desc"
+    },
+    "fields": [
+        "name",
+        "popularity"
+    ],
+    "offset": 0,
+    "hits": 10
+}

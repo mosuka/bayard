@@ -1,0 +1,20 @@
+{
+    "query": {
+        "kind": "regex",
+        "options": {
+            "regex": "ru.+t",
+            "field": "description"
+        }
+    },
+    "collection_kind": "count_and_top_docs",
+    "sort": {
+        "field": "popularity",
+        "order": "desc"
+    },
+    "fields": [
+        "name",
+        "popularity"
+    ],
+    "offset": 0,
+    "hits": 10
+}

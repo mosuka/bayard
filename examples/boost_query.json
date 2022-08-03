@@ -1,0 +1,26 @@
+{
+    "query": {
+        "kind": "boost",
+        "options": {
+            "query": {
+                "kind": "term",
+                "options": {
+                    "term": "rust",
+                    "field": "description"
+                }
+            },
+            "boost": 2.0
+        }
+    },
+    "collection_kind": "count_and_top_docs",
+    "sort": {
+        "field": "popularity",
+        "order": "desc"
+    },
+    "fields": [
+        "name",
+        "popularity"
+    ],
+    "offset": 0,
+    "hits": 10
+}

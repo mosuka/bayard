@@ -1,9 +1,4 @@
 [workspace]
 members = [
-    "bayard-common",
-    "bayard-server",
-    "bayard-client",
-    "bayard-cli",
-    "bayard-rest",
     "bayard",
 ]
