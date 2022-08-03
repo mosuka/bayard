@@ -73,38 +73,38 @@
       "locked": false
     },
     {
-      "id": "arFrFuUCdw1dGBaL0sipU",
       "type": "text",
-      "x": 745.4755856461013,
-      "y": 670,
-      "width": 86,
-      "height": 25,
-      "angle": 0,
-      "strokeColor": "#000000",
-      "backgroundColor": "transparent",
+      "version": 45,
+      "versionNonce": 1877296217,
+      "isDeleted": false,
+      "id": "arFrFuUCdw1dGBaL0sipU",
       "fillStyle": "hachure",
       "strokeWidth": 1,
       "strokeStyle": "solid",
       "roughness": 1,
       "opacity": 100,
+      "angle": 0,
+      "x": 745.4755856461013,
+      "y": 670,
+      "strokeColor": "#000000",
+      "backgroundColor": "transparent",
+      "width": 86,
+      "height": 25,
+      "seed": 102944025,
       "groupIds": [
         "V_ivHFpFMzJisi1tA6yJw"
       ],
       "strokeSharpness": "sharp",
-      "seed": 102944025,
-      "version": 45,
-      "versionNonce": 1877296217,
-      "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [],
       "updated": 1659450575817,
       "link": null,
       "locked": false,
-      "text": "Node",
       "fontSize": 20,
       "fontFamily": 1,
+      "text": "Node",
+      "baseline": 18,
       "textAlign": "center",
       "verticalAlign": "middle",
-      "baseline": 18,
       "containerId": "I8BCxwYIEjW4hguD9w221",
       "originalText": "Node"
     },
@@ -513,41 +513,30 @@
       "originalText": "Node"
     },
     {
-      "id": "pNW3Nw89s0NbJSd7v3bbz",
       "type": "arrow",
-      "x": 831.2067804407808,
-      "y": 629.9235464298827,
-      "width": 114.79321955921921,
-      "height": 67.46170631091854,
-      "angle": 0,
-      "strokeColor": "#087f5b",
-      "backgroundColor": "transparent",
+      "version": 78,
+      "versionNonce": 716906935,
+      "isDeleted": false,
+      "id": "pNW3Nw89s0NbJSd7v3bbz",
       "fillStyle": "hachure",
       "strokeWidth": 1,
       "strokeStyle": "solid",
       "roughness": 1,
       "opacity": 100,
+      "angle": 0,
+      "x": 831.2067804407808,
+      "y": 629.9235464298827,
+      "strokeColor": "#087f5b",
+      "backgroundColor": "transparent",
+      "width": 114.79321955921921,
+      "height": 67.46170631091854,
+      "seed": 1261813495,
       "groupIds": [],
       "strokeSharpness": "round",
-      "seed": 1261813495,
-      "version": 78,
-      "versionNonce": 716906935,
-      "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [],
       "updated": 1659451012074,
       "link": null,
       "locked": false,
-      "points": [
-        [
-          0,
-          0
-        ],
-        [
-          114.79321955921921,
-          -67.46170631091854
-        ]
-      ],
-      "lastCommittedPoint": null,
       "startBinding": {
         "elementId": "I8BCxwYIEjW4hguD9w221",
         "focus": -0.37082707279607213,
@@ -558,8 +547,19 @@
         "focus": 0.3245751184210697,
         "gap": 7.975585646101308
       },
+      "lastCommittedPoint": null,
       "startArrowhead": "triangle",
-      "endArrowhead": "triangle"
+      "endArrowhead": "triangle",
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          114.79321955921921,
+          -67.46170631091854
+        ]
+      ]
     },
     {
       "type": "arrow",
@@ -1537,8 +1537,8 @@
     },
     {
       "type": "text",
-      "version": 355,
-      "versionNonce": 1317513433,
+      "version": 357,
+      "versionNonce": 584813754,
       "isDeleted": false,
       "id": "-Pn8eHeX-kZXuAr_5_FDw",
       "fillStyle": "hachure",
@@ -1551,23 +1551,23 @@
       "y": 900.3644779868432,
       "strokeColor": "#000000",
       "backgroundColor": "transparent",
-      "width": 151,
+      "width": 152,
       "height": 25,
       "seed": 760416057,
       "groupIds": [],
       "strokeSharpness": "sharp",
       "boundElements": [],
-      "updated": 1659451364716,
+      "updated": 1659506782530,
       "link": null,
       "locked": false,
       "fontSize": 20,
       "fontFamily": 1,
-      "text": "Gpssip protocol",
+      "text": "Gossip protocol",
       "baseline": 18,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "Gpssip protocol"
+      "originalText": "Gossip protocol"
     }
   ],
   "appState": {
