@@ -50,5 +50,5 @@ tracing-subscriber = "0.3.9"
 tempdir = "0.3.7"
 
 [build-dependencies]
-tonic-build = "0.7.2"
+tonic-build = "0.8.0"
 prost-build = "0.10.4"
