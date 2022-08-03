@@ -244,7 +244,7 @@ mod tests {
     #[test]
     fn test_register() {
         let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("examples")
+            .join("../examples")
             .join("analyzers.json");
 
         let analyzers_bytes = fs::read(&path).unwrap();
@@ -260,7 +260,7 @@ mod tests {
     #[test]
     fn test_analyzers_deserialize() {
         let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("examples")
+            .join("../examples")
             .join("analyzers.json");
 
         let analyzers_bytes = fs::read(&path).unwrap();
@@ -274,7 +274,7 @@ mod tests {
     #[test]
     fn test_analyzers_serialize() {
         let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("examples")
+            .join("../examples")
             .join("analyzers.json");
 
         let analyzers_bytes = fs::read(&path).unwrap();

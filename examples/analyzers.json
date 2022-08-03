@@ -1,0 +1,621 @@
+{
+    "default": {
+        "tokenizer": {
+            "name": "simple"
+        },
+        "filters": [
+            {
+                "name": "remove_long",
+                "args": {
+                    "length_limit": 40
+                }
+            },
+            {
+                "name": "ascii_folding"
+            },
+            {
+                "name": "lower_case"
+            }
+        ]
+    },
+    "raw": {
+        "tokenizer": {
+            "name": "raw"
+        }
+    },
+    "whitespace": {
+        "tokenizer": {
+            "name": "whitespace"
+        }
+    },
+    "bigram": {
+        "tokenizer": {
+            "name": "ngram",
+            "args": {
+                "min_gram": 1,
+                "max_gram": 2,
+                "prefix_only": false
+            }
+        },
+        "filters": [
+            {
+                "name": "ascii_folding"
+            },
+            {
+                "name": "lower_case"
+            }
+        ]
+    },
+    "lang_ar": {
+        "tokenizer": {
+            "name": "simple"
+        },
+        "filters": [
+            {
+                "name": "remove_long",
+                "args": {
+                    "length_limit": 40
+                }
+            },
+            {
+                "name": "ascii_folding"
+            },
+            {
+                "name": "lower_case"
+            },
+            {
+                "name": "stemming",
+                "args": {
+                    "language": "Arabic"
+                }
+            }
+        ]
+    },
+    "lang_da": {
+        "tokenizer": {
+            "name": "simple"
+        },
+        "filters": [
+            {
+                "name": "remove_long",
+                "args": {
+                    "length_limit": 40
+                }
+            },
+            {
+                "name": "ascii_folding"
+            },
+            {
+                "name": "lower_case"
+            },
+            {
+                "name": "stemming",
+                "args": {
+                    "language": "Danish"
+                }
+            }
+        ]
+    },
+    "lang_de": {
+        "tokenizer": {
+            "name": "simple"
+        },
+        "filters": [
+            {
+                "name": "remove_long",
+                "args": {
+                    "length_limit": 40
+                }
+            },
+            {
+                "name": "ascii_folding"
+            },
+            {
+                "name": "lower_case"
+            },
+            {
+                "name": "stemming",
+                "args": {
+                    "language": "German"
+                }
+            }
+        ]
+    },
+    "lang_el": {
+        "tokenizer": {
+            "name": "simple"
+        },
+        "filters": [
+            {
+                "name": "remove_long",
+                "args": {
+                    "length_limit": 40
+                }
+            },
+            {
+                "name": "ascii_folding"
+            },
+            {
+                "name": "lower_case"
+            },
+            {
+                "name": "stemming",
+                "args": {
+                    "language": "Greek"
+                }
+            }
+        ]
+    },
+    "lang_en": {
+        "tokenizer": {
+            "name": "simple"
+        },
+        "filters": [
+            {
+                "name": "remove_long",
+                "args": {
+                    "length_limit": 40
+                }
+            },
+            {
+                "name": "ascii_folding"
+            },
+            {
+                "name": "lower_case"
+            },
+            {
+                "name": "stemming",
+                "args": {
+                    "language": "English"
+                }
+            },
+            {
+                "name": "stop_word",
+                "args": {
+                    "words": [
+                        "a",
+                        "an",
+                        "and",
+                        "are",
+                        "as",
+                        "at",
+                        "be",
+                        "but",
+                        "by",
+                        "for",
+                        "if",
+                        "in",
+                        "into",
+                        "is",
+                        "it",
+                        "no",
+                        "not",
+                        "of",
+                        "on",
+                        "or",
+                        "such",
+                        "that",
+                        "the",
+                        "their",
+                        "then",
+                        "there",
+                        "these",
+                        "they",
+                        "this",
+                        "to",
+                        "was",
+                        "will",
+                        "with"
+                    ]
+                }
+            }
+        ]
+    },
+    "lang_es": {
+        "tokenizer": {
+            "name": "simple"
+        },
+        "filters": [
+            {
+                "name": "remove_long",
+                "args": {
+                    "length_limit": 40
+                }
+            },
+            {
+                "name": "ascii_folding"
+            },
+            {
+                "name": "lower_case"
+            },
+            {
+                "name": "stemming",
+                "args": {
+                    "language": "Spanish"
+                }
+            }
+        ]
+    },
+    "lang_fi": {
+        "tokenizer": {
+            "name": "simple"
+        },
+        "filters": [
+            {
+                "name": "remove_long",
+                "args": {
+                    "length_limit": 40
+                }
+            },
+            {
+                "name": "ascii_folding"
+            },
+            {
+                "name": "lower_case"
+            },
+            {
+                "name": "stemming",
+                "args": {
+                    "language": "Finnish"
+                }
+            }
+        ]
+    },
+    "lang_fr": {
+        "tokenizer": {
+            "name": "simple"
+        },
+        "filters": [
+            {
+                "name": "remove_long",
+                "args": {
+                    "length_limit": 40
+                }
+            },
+            {
+                "name": "ascii_folding"
+            },
+            {
+                "name": "lower_case"
+            },
+            {
+                "name": "stemming",
+                "args": {
+                    "language": "French"
+                }
+            }
+        ]
+    },
+    "lang_hu": {
+        "tokenizer": {
+            "name": "simple"
+        },
+        "filters": [
+            {
+                "name": "remove_long",
+                "args": {
+                    "length_limit": 40
+                }
+            },
+            {
+                "name": "ascii_folding"
+            },
+            {
+                "name": "lower_case"
+            },
+            {
+                "name": "stemming",
+                "args": {
+                    "language": "Hungarian"
+                }
+            }
+        ]
+    },
+    "lang_it": {
+        "tokenizer": {
+            "name": "simple"
+        },
+        "filters": [
+            {
+                "name": "remove_long",
+                "args": {
+                    "length_limit": 40
+                }
+            },
+            {
+                "name": "ascii_folding"
+            },
+            {
+                "name": "lower_case"
+            },
+            {
+                "name": "stemming",
+                "args": {
+                    "language": "Italian"
+                }
+            }
+        ]
+    },
+    "lang_ja": {
+        "tokenizer": {
+            "name": "lindera",
+            "args": {
+                "dictionary": {
+                    "kind": "ipadic"
+                },
+                "mode": {
+                    "decompose": {
+                        "kanji_penalty_length_threshold": 2,
+                        "kanji_penalty_length_penalty": 3000,
+                        "other_penalty_length_threshold": 7,
+                        "other_penalty_length_penalty": 1700
+                    }
+                }
+            }
+        },
+        "filters": [
+            {
+                "name": "remove_long",
+                "args": {
+                    "length_limit": 40
+                }
+            },
+            {
+                "name": "ascii_folding"
+            },
+            {
+                "name": "lower_case"
+            }
+        ]
+    },
+    "lang_ko": {
+        "tokenizer": {
+            "name": "lindera",
+            "args": {
+                "dictionary": {
+                    "kind": "ko-dic"
+                },
+                "mode": "normal"
+            }
+        },
+        "filters": [
+            {
+                "name": "remove_long",
+                "args": {
+                    "length_limit": 40
+                }
+            },
+            {
+                "name": "ascii_folding"
+            },
+            {
+                "name": "lower_case"
+            }
+        ]
+    },
+    "lang_nl": {
+        "tokenizer": {
+            "name": "simple"
+        },
+        "filters": [
+            {
+                "name": "remove_long",
+                "args": {
+                    "length_limit": 40
+                }
+            },
+            {
+                "name": "ascii_folding"
+            },
+            {
+                "name": "lower_case"
+            },
+            {
+                "name": "stemming",
+                "args": {
+                    "language": "Dutch"
+                }
+            }
+        ]
+    },
+    "lang_no": {
+        "tokenizer": {
+            "name": "simple"
+        },
+        "filters": [
+            {
+                "name": "remove_long",
+                "args": {
+                    "length_limit": 40
+                }
+            },
+            {
+                "name": "ascii_folding"
+            },
+            {
+                "name": "lower_case"
+            },
+            {
+                "name": "stemming",
+                "args": {
+                    "language": "Norwegian"
+                }
+            }
+        ]
+    },
+    "lang_pt": {
+        "tokenizer": {
+            "name": "simple"
+        },
+        "filters": [
+            {
+                "name": "remove_long",
+                "args": {
+                    "length_limit": 40
+                }
+            },
+            {
+                "name": "ascii_folding"
+            },
+            {
+                "name": "lower_case"
+            },
+            {
+                "name": "stemming",
+                "args": {
+                    "language": "Portuguese"
+                }
+            }
+        ]
+    },
+    "lang_ro": {
+        "tokenizer": {
+            "name": "simple"
+        },
+        "filters": [
+            {
+                "name": "remove_long",
+                "args": {
+                    "length_limit": 40
+                }
+            },
+            {
+                "name": "ascii_folding"
+            },
+            {
+                "name": "lower_case"
+            },
+            {
+                "name": "stemming",
+                "args": {
+                    "language": "Romanian"
+                }
+            }
+        ]
+    },
+    "lang_ru": {
+        "tokenizer": {
+            "name": "simple"
+        },
+        "filters": [
+            {
+                "name": "remove_long",
+                "args": {
+                    "length_limit": 40
+                }
+            },
+            {
+                "name": "ascii_folding"
+            },
+            {
+                "name": "lower_case"
+            },
+            {
+                "name": "stemming",
+                "args": {
+                    "language": "Russian"
+                }
+            }
+        ]
+    },
+    "lang_sv": {
+        "tokenizer": {
+            "name": "simple"
+        },
+        "filters": [
+            {
+                "name": "remove_long",
+                "args": {
+                    "length_limit": 40
+                }
+            },
+            {
+                "name": "ascii_folding"
+            },
+            {
+                "name": "lower_case"
+            },
+            {
+                "name": "stemming",
+                "args": {
+                    "language": "Swedish"
+                }
+            }
+        ]
+    },
+    "lang_ta": {
+        "tokenizer": {
+            "name": "simple"
+        },
+        "filters": [
+            {
+                "name": "remove_long",
+                "args": {
+                    "length_limit": 40
+                }
+            },
+            {
+                "name": "ascii_folding"
+            },
+            {
+                "name": "lower_case"
+            },
+            {
+                "name": "stemming",
+                "args": {
+                    "language": "Tamil"
+                }
+            }
+        ]
+    },
+    "lang_tr": {
+        "tokenizer": {
+            "name": "simple"
+        },
+        "filters": [
+            {
+                "name": "remove_long",
+                "args": {
+                    "length_limit": 40
+                }
+            },
+            {
+                "name": "ascii_folding"
+            },
+            {
+                "name": "lower_case"
+            },
+            {
+                "name": "stemming",
+                "args": {
+                    "language": "Turkish"
+                }
+            }
+        ]
+    },
+    "lang_zh": {
+        "tokenizer": {
+            "name": "lindera",
+            "args": {
+                "dictionary": {
+                    "kind": "cc-cedict"
+                },
+                "mode": "normal"
+            }
+        },
+        "filters": [
+            {
+                "name": "remove_long",
+                "args": {
+                    "length_limit": 40
+                }
+            },
+            {
+                "name": "ascii_folding"
+            },
+            {
+                "name": "lower_case"
+            }
+        ]
+    }
+}

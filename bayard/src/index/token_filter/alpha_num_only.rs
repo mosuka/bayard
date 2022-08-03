@@ -27,8 +27,8 @@ mod tests {
     #[test]
     fn test_alpha_num_only_filter() {
         assert_eq!(
-            vec!["parabuteo".to_string(), "123".to_string()],
-            helper("parabuteo-123")
+            vec!["bayard".to_string(), "123".to_string()],
+            helper("bayard-123")
         );
     }
 }

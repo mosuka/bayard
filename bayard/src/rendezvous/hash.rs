@@ -6,7 +6,7 @@
 //!
 //! ```
 //! // Constructs a node (a.k.a., server, site, etc) set.
-//! use parabuteo::rendezvous::hash::RendezvousNodes;
+//! use bayard::rendezvous::hash::RendezvousNodes;
 //!
 //! let mut nodes = RendezvousNodes::default();
 //! nodes.insert("foo");
@@ -33,8 +33,8 @@
 //!
 //! ```
 //! use std::collections::HashMap;
-//! use parabuteo::rendezvous::hash::RendezvousNodes;
-//! use parabuteo::rendezvous::node::{WeightedNode, Capacity};
+//! use bayard::rendezvous::hash::RendezvousNodes;
+//! use bayard::rendezvous::node::{WeightedNode, Capacity};
 //!
 //! let mut nodes = RendezvousNodes::default();
 //! nodes.insert(WeightedNode::new("foo", Capacity::new(70.0).unwrap()));

@@ -23,13 +23,6 @@ pub fn create_lindera_analyzer(args: &[u8]) -> Result<TextAnalyzer, TokenizerFac
 
 #[cfg(test)]
 mod tests {
-    use lindera_tantivy::{
-        mode::{Mode, Penalty},
-        tokenizer::DictionaryKind,
-    };
-
-    use crate::index::tokenizer::lindera::{create_lindera_analyzer, LinderaTokenizerArgs};
-
     #[test]
     #[cfg(any(
         feature = "ipadic",
