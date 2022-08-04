@@ -72,7 +72,7 @@ jobs:
       #   run: |
       #     powershell Compress-Archive -DestinationPath bayard-${{ matrix.target }}.zip -Path target/${{ matrix.target }}/release/bayard.exe
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: build-${{ matrix.target }}
           path: bayard-${{ matrix.target }}.zip
@@ -96,7 +96,7 @@ jobs:
         run: |
           echo '${{ steps.create-release.outputs.upload_url }}' > release_upload_url.txt
       - name: Upload release_upload_url.txt
-        uses: actions/upload-artifact@v2.3.1
+        uses: actions/upload-artifact@v3
         with:
           name: create-release
           path: release_upload_url.txt
