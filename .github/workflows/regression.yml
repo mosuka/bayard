@@ -16,13 +16,20 @@ jobs:
         toolchain: [stable]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install protoc
+        uses: arduino/setup-protoc@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: ${{ matrix.toolchain }}
           override: true
-      - uses: actions-rs/cargo@v1
+      - name: Check
+        uses: actions-rs/cargo@v1
         with:
           command: check
 
@@ -35,14 +42,20 @@ jobs:
         toolchain: [stable]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: arduino/setup-protoc@v1
-      - uses: actions-rs/toolchain@v1
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install protoc
+        uses: arduino/setup-protoc@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: ${{ matrix.toolchain }}
           override: true
-      - uses: actions-rs/cargo@v1
+      - name: Test
+        uses: actions-rs/cargo@v1
         with:
           command: test
 
@@ -54,14 +67,18 @@ jobs:
         toolchain: [stable]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: ${{ matrix.toolchain }}
           override: true
-      - run: rustup component add rustfmt
-      - uses: actions-rs/cargo@v1
+      - name: Add rustfmt
+        run: rustup component add rustfmt
+      - name: Check format
+        uses: actions-rs/cargo@v1
         with:
           command: fmt
           args: --all -- --check
