@@ -15,6 +15,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
+      - uses: arduino/setup-protoc@v1
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
