@@ -113,14 +113,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download release_upload_url.txt
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: create-release
       - id: upload-url
         run: |
           echo "::set-output name=url::$(cat create-release/release_upload_url.txt)"
       - name: Download artifact
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: build-${{ matrix.target }}
       - name: Upload release assets
