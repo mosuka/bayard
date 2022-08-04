@@ -9,8 +9,8 @@ jobs:
     name: Test
     strategy:
       matrix:
-        # os: [ubuntu-latest, macOS-latest, windows-latest]
-        os: [ubuntu-latest, macOS-latest]
+        os: [ubuntu-latest, macOS-latest, windows-latest]
+        # os: [ubuntu-latest, macOS-latest]
         toolchain: [stable, beta, nightly]
     runs-on: ${{ matrix.os }}
     steps:
