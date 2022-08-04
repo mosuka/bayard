@@ -9,9 +9,19 @@ Bayard makes easy for programmers to develop search applications with advanced f
 
 ## Features
 
-- Full-text search/indexing
+- Full-text search
+- Multiple indices
+- Index sharding
 - Index replication
-- Bringing up a cluster
+- Distributed search and indexing
+- JSON-based query DSL
+- JSON-based index definition (index schema and analyzers)
+- Multilingual support
+- Easy to bring up a multi-node cluster
+- Gossip-based membership discovery
+- Internal cluster communication via gRPC
+- Master node-less cluster
+- RESTful API
 
 ![Architecture](../docs/bayard-architecture.png "Architecture")
 
