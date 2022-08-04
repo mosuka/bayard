@@ -1,18 +1,19 @@
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct LivenessRequest {}
+pub struct LivenessRequest {
+}
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct LivenessResponse {
-    #[prost(enumeration = "liveness_response::State", tag = "1")]
+    #[prost(enumeration="liveness_response::State", tag="1")]
     pub state: i32,
 }
 /// Nested message and enum types in `LivenessResponse`.
 pub mod liveness_response {
     #[derive(Serialize, Deserialize)]
-    #[serde(rename_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
     #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
     #[repr(i32)]
     pub enum State {
@@ -23,22 +24,36 @@ pub mod liveness_response {
         #[serde(rename = "dead")]
         Dead = 2,
     }
+    impl State {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                State::Unknown => "UNKNOWN",
+                State::Alive => "ALIVE",
+                State::Dead => "DEAD",
+            }
+        }
+    }
 }
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct ReadinessRequest {}
+pub struct ReadinessRequest {
+}
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ReadinessResponse {
-    #[prost(enumeration = "readiness_response::State", tag = "1")]
+    #[prost(enumeration="readiness_response::State", tag="1")]
     pub state: i32,
 }
 /// Nested message and enum types in `ReadinessResponse`.
 pub mod readiness_response {
     #[derive(Serialize, Deserialize)]
-    #[serde(rename_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
     #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
     #[repr(i32)]
     pub enum State {
@@ -49,11 +64,25 @@ pub mod readiness_response {
         #[serde(rename = "not_ready")]
         NotReady = 2,
     }
+    impl State {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                State::Unknown => "UNKNOWN",
+                State::Ready => "READY",
+                State::NotReady => "NOT_READY",
+            }
+        }
+    }
 }
 /// Generated client implementations.
 pub mod health_check_service_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
+    use tonic::codegen::http::Uri;
     #[derive(Debug, Clone)]
     pub struct HealthCheckServiceClient<T> {
         inner: tonic::client::Grpc<T>,
@@ -80,6 +109,10 @@ pub mod health_check_service_client {
             let inner = tonic::client::Grpc::new(inner);
             Self { inner }
         }
+        pub fn with_origin(inner: T, origin: Uri) -> Self {
+            let inner = tonic::client::Grpc::with_origin(inner, origin);
+            Self { inner }
+        }
         pub fn with_interceptor<F>(
             inner: T,
             interceptor: F,
@@ -93,54 +126,63 @@ pub mod health_check_service_client {
                     <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
                 >,
             >,
-            <T as tonic::codegen::Service<http::Request<tonic::body::BoxBody>>>::Error:
-                Into<StdError> + Send + Sync,
+            <T as tonic::codegen::Service<
+                http::Request<tonic::body::BoxBody>,
+            >>::Error: Into<StdError> + Send + Sync,
         {
             HealthCheckServiceClient::new(InterceptedService::new(inner, interceptor))
         }
-        /// Compress requests with `gzip`.
+        /// Compress requests with the given encoding.
         ///
         /// This requires the server to support it otherwise it might respond with an
         /// error.
         #[must_use]
-        pub fn send_gzip(mut self) -> Self {
-            self.inner = self.inner.send_gzip();
+        pub fn send_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.inner = self.inner.send_compressed(encoding);
             self
         }
-        /// Enable decompressing responses with `gzip`.
+        /// Enable decompressing responses.
         #[must_use]
-        pub fn accept_gzip(mut self) -> Self {
-            self.inner = self.inner.accept_gzip();
+        pub fn accept_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.inner = self.inner.accept_compressed(encoding);
             self
         }
         pub async fn liveness(
             &mut self,
             request: impl tonic::IntoRequest<super::LivenessRequest>,
         ) -> Result<tonic::Response<super::LivenessResponse>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path =
-                http::uri::PathAndQuery::from_static("/healthcheck.HealthCheckService/Liveness");
+            let path = http::uri::PathAndQuery::from_static(
+                "/healthcheck.HealthCheckService/Liveness",
+            );
             self.inner.unary(request.into_request(), path, codec).await
         }
         pub async fn readiness(
             &mut self,
             request: impl tonic::IntoRequest<super::ReadinessRequest>,
         ) -> Result<tonic::Response<super::ReadinessResponse>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path =
-                http::uri::PathAndQuery::from_static("/healthcheck.HealthCheckService/Readiness");
+            let path = http::uri::PathAndQuery::from_static(
+                "/healthcheck.HealthCheckService/Readiness",
+            );
             self.inner.unary(request.into_request(), path, codec).await
         }
     }
@@ -164,8 +206,8 @@ pub mod health_check_service_server {
     #[derive(Debug)]
     pub struct HealthCheckServiceServer<T: HealthCheckService> {
         inner: _Inner<T>,
-        accept_compression_encodings: (),
-        send_compression_encodings: (),
+        accept_compression_encodings: EnabledCompressionEncodings,
+        send_compression_encodings: EnabledCompressionEncodings,
     }
     struct _Inner<T>(Arc<T>);
     impl<T: HealthCheckService> HealthCheckServiceServer<T> {
@@ -180,11 +222,26 @@ pub mod health_check_service_server {
                 send_compression_encodings: Default::default(),
             }
         }
-        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(
+            inner: T,
+            interceptor: F,
+        ) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
             InterceptedService::new(Self::new(inner), interceptor)
+        }
+        /// Enable decompressing requests with the given encoding.
+        #[must_use]
+        pub fn accept_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.accept_compression_encodings.enable(encoding);
+            self
+        }
+        /// Compress responses with the given encoding, if the client supports it.
+        #[must_use]
+        pub fn send_compressed(mut self, encoding: CompressionEncoding) -> Self {
+            self.send_compression_encodings.enable(encoding);
+            self
         }
     }
     impl<T, B> tonic::codegen::Service<http::Request<B>> for HealthCheckServiceServer<T>
@@ -196,7 +253,10 @@ pub mod health_check_service_server {
         type Response = http::Response<tonic::body::BoxBody>;
         type Error = std::convert::Infallible;
         type Future = BoxFuture<Self::Response, Self::Error>;
-        fn poll_ready(&mut self, _cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
+        fn poll_ready(
+            &mut self,
+            _cx: &mut Context<'_>,
+        ) -> Poll<Result<(), Self::Error>> {
             Poll::Ready(Ok(()))
         }
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
@@ -205,9 +265,15 @@ pub mod health_check_service_server {
                 "/healthcheck.HealthCheckService/Liveness" => {
                     #[allow(non_camel_case_types)]
                     struct LivenessSvc<T: HealthCheckService>(pub Arc<T>);
-                    impl<T: HealthCheckService> tonic::server::UnaryService<super::LivenessRequest> for LivenessSvc<T> {
+                    impl<
+                        T: HealthCheckService,
+                    > tonic::server::UnaryService<super::LivenessRequest>
+                    for LivenessSvc<T> {
                         type Response = super::LivenessResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::LivenessRequest>,
@@ -224,10 +290,11 @@ pub mod health_check_service_server {
                         let inner = inner.0;
                         let method = LivenessSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
-                            accept_compression_encodings,
-                            send_compression_encodings,
-                        );
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -236,11 +303,15 @@ pub mod health_check_service_server {
                 "/healthcheck.HealthCheckService/Readiness" => {
                     #[allow(non_camel_case_types)]
                     struct ReadinessSvc<T: HealthCheckService>(pub Arc<T>);
-                    impl<T: HealthCheckService> tonic::server::UnaryService<super::ReadinessRequest>
-                        for ReadinessSvc<T>
-                    {
+                    impl<
+                        T: HealthCheckService,
+                    > tonic::server::UnaryService<super::ReadinessRequest>
+                    for ReadinessSvc<T> {
                         type Response = super::ReadinessResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ReadinessRequest>,
@@ -257,23 +328,28 @@ pub mod health_check_service_server {
                         let inner = inner.0;
                         let method = ReadinessSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
-                            accept_compression_encodings,
-                            send_compression_encodings,
-                        );
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
                     Box::pin(fut)
                 }
-                _ => Box::pin(async move {
-                    Ok(http::Response::builder()
-                        .status(200)
-                        .header("grpc-status", "12")
-                        .header("content-type", "application/grpc")
-                        .body(empty_body())
-                        .unwrap())
-                }),
+                _ => {
+                    Box::pin(async move {
+                        Ok(
+                            http::Response::builder()
+                                .status(200)
+                                .header("grpc-status", "12")
+                                .header("content-type", "application/grpc")
+                                .body(empty_body())
+                                .unwrap(),
+                        )
+                    })
+                }
             }
         }
     }
@@ -297,7 +373,8 @@ pub mod health_check_service_server {
             write!(f, "{:?}", self.0)
         }
     }
-    impl<T: HealthCheckService> tonic::transport::NamedService for HealthCheckServiceServer<T> {
+    impl<T: HealthCheckService> tonic::server::NamedService
+    for HealthCheckServiceServer<T> {
         const NAME: &'static str = "healthcheck.HealthCheckService";
     }
 }
