@@ -136,8 +136,8 @@ impl ClientPool {
         let members = Arc::clone(&client_pool.members);
         tokio::spawn(async move {
             while let Some(received_members) = members_stream.next().await {
-                let mut i = inner.write().await;
-                let mut m = members.write().await;
+                let mut mut_inner = inner.write().await;
+                let mut mut_members = members.write().await;
 
                 // Add new gRPC clients.
                 for member in received_members.iter() {
@@ -149,7 +149,7 @@ impl ClientPool {
                         continue;
                     };
 
-                    if let Entry::Vacant(_entry) = i.entry(member.addr) {
+                    if let Entry::Vacant(_entry) = mut_inner.entry(member.addr) {
                         // Get gRPC address.
                         let grpc_address = if let Some(grpc_address) = metadata.grpc_address {
                             grpc_address
@@ -168,23 +168,23 @@ impl ClientPool {
                         };
 
                         info!(?member, "add gRPC client");
-                        i.insert(member.addr, client);
+                        mut_inner.insert(member.addr, client);
                     }
 
-                    m.insert(member.clone());
+                    mut_members.push(member.clone());
                 }
 
                 // Remove dead gRPC clients.
-                let cur = m.clone();
+                let cur = mut_members.clone();
                 for member in cur.iter() {
                     if !received_members.contains(&member.addr) {
                         info!(?member, "delete gRPC client");
-                        i.remove(&member.addr);
-                        m.remove(member.clone());
+                        mut_inner.remove(&member.addr);
+                        mut_members.remove(&member.addr);
                     }
                 }
 
-                info!(?m, "update members");
+                info!(?mut_members, "update members");
             }
         });
 

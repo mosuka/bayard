@@ -110,7 +110,7 @@ impl Metadata {
     ) -> Self {
         let mut shards = Shards::new();
         for _ in 0..num_shards {
-            shards.insert(Shard::new(generate_shard_id()));
+            shards.push(Shard::new(generate_shard_id()));
         }
 
         Metadata {
@@ -321,7 +321,7 @@ impl Metadata {
             Ordering::Less => {
                 let cnt = num_shards - current_shards.len();
                 for _ in 0..cnt {
-                    current_shards.insert(Shard::new(generate_shard_id()));
+                    current_shards.push(Shard::new(generate_shard_id()));
                 }
             }
         }

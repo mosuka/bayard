@@ -52,67 +52,43 @@ impl Members {
         }
     }
 
-    pub fn init(members: Vec<Member>) -> Self {
-        let mut m = Members::default();
-        for member in members {
-            m.insert(member);
+    pub fn init(member_list: Vec<Member>) -> Self {
+        let mut members = Members::default();
+        for member in member_list {
+            members.push(member);
         }
-        m
+        members
     }
 
-    // A result of `true` means that the effective list of
-    // cluster member addresses has changed
-    pub fn insert(&mut self, member: Member) -> bool {
-        let mut changed = false;
-
-        changed |= match self.inner.get_mut(&member.addr) {
-            Some(m) => {
-                // Member exists.
-                if m.metadata != member.metadata {
-                    // Metadata changed.
-                    // Update existing member.
-                    m.metadata = member.metadata;
-                    m.renew();
-                    true
+    // If the result is not None, it means that the valid list of cluster members has changed
+    pub fn push(&mut self, member: Member) -> Option<Member> {
+        match self.inner.get_mut(&member.addr) {
+            Some(mut_member) => {
+                if mut_member.metadata != member.metadata {
+                    mut_member.metadata = member.metadata;
+                    mut_member.renew();
+                    self.hash.insert(IdNode::new(mut_member.addr));
+                    Some(mut_member.clone())
                 } else {
-                    // Same metadata.
-                    // Nothing changed.
-                    false
+                    None
                 }
             }
             None => {
-                // Member does not exist.
-                // Add new member.
                 self.inner.insert(member.addr, member.clone());
-                true
+                self.hash.insert(IdNode::new(member.addr));
+                Some(member.clone())
             }
-        };
-
-        // Add member to Rendezvous hash.
-        changed |= if self.hash.contains(&member.addr) {
-            // Node exists in hash.
-            false
-        } else {
-            // Node does not exist in hash.
-            self.hash.insert(IdNode::new(member.addr));
-            true
-        };
-
-        changed
+        }
     }
 
-    /// A result of `true` means that the effective list of
-    /// cluster member addresses has changed
-    pub fn remove(&mut self, member: Member) -> bool {
-        let mut changed = false;
-
-        // Remove member.
-        changed |= matches!(self.inner.remove(&member.addr), Some(_member));
-
-        // Remove member from Rendezvous hash.
-        changed |= self.hash.remove(&member.addr).is_some();
-
-        changed
+    /// If the result is not None, it means that the valid list of cluster members has changed
+    pub fn remove(&mut self, addr: &SocketAddr) -> Option<Member> {
+        if self.inner.contains_key(addr) {
+            self.hash.remove(addr);
+            self.inner.remove(addr)
+        } else {
+            None
+        }
     }
 
     /// Returns whether or not the member at the specified address exists in the members.
