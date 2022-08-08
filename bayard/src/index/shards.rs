@@ -31,78 +31,42 @@ impl Shards {
         }
     }
 
-    pub fn init(shards: Vec<Shard>) -> Self {
-        let mut s = Shards::new();
-        for shard in shards {
-            s.insert(shard);
+    pub fn init(shard_list: Vec<Shard>) -> Self {
+        let mut shards = Shards::new();
+        for shard in shard_list {
+            shards.push(shard);
         }
-        s
+        shards
     }
 
-    pub fn insert(&mut self, shard: Shard) -> bool {
-        let mut changed = false;
-
-        // Push shard id.
-        changed |= if self.keys.contains(&shard.id) {
-            false
+    pub fn remove(&mut self, id: &String) -> Option<Shard> {
+        if self.inner.contains_key(id) {
+            self.hash.remove(id);
+            self.keys.retain(|shard_id| shard_id != id);
+            self.inner.remove(id)
         } else {
+            None
+        }
+    }
+
+    pub fn push(&mut self, shard: Shard) -> Option<Shard> {
+        if self.inner.contains_key(&shard.id) {
+            None
+        } else {
+            self.inner.insert(shard.id.clone(), shard.clone());
             self.keys.push(shard.id.clone());
-            true
-        };
-
-        // Insert shard.
-        changed |= if self.inner.contains_key(&shard.id) {
-            // Shard exists.
-            // Nothing changed.
-            false
-        } else {
-            // Shard does not exist.
-            // Add new shard.
-            self.inner.insert(shard.clone().id, shard.clone());
-            true
-        };
-
-        // Insert shard to Rendezvous hash.
-        changed |= if self.hash.contains(&shard.id) {
-            // Node exists in hash.
-            false
-        } else {
-            // Node does not exist in hash.
-            self.hash.insert(IdNode::new(shard.id));
-            true
-        };
-
-        changed
+            self.hash.insert(IdNode::new(shard.clone().id));
+            Some(shard)
+        }
     }
 
-    pub fn remove(&mut self, shard: &Shard) -> bool {
-        let mut changed = false;
-
-        // Remove shard id.
-        changed |= if self.keys.contains(&shard.id) {
-            // Remove shard id.
-            self.keys.retain(|id| id != &shard.id);
-            true
-        } else {
-            false
+    pub fn pop(&mut self) -> Option<Shard> {
+        let shard_id = match self.keys.last() {
+            Some(shard_id) => shard_id.clone(),
+            None => return None,
         };
 
-        // Remove shard.
-        changed |= matches!(self.inner.remove(&shard.id), Some(_shard));
-
-        // Remove shard from Rendezvous hash.
-        changed |= self.hash.remove(&shard.id).is_some();
-
-        changed
-    }
-
-    pub fn pop(&mut self) -> bool {
-        let shard_id = match self.keys.pop() {
-            Some(key) => key,
-            None => return false,
-        };
-
-        self.remove(&Shard::new(shard_id))
+        self.remove(&shard_id)
     }
 
     /// Returns whether or not the shard at the specified ID exists in the shards.
@@ -281,13 +245,13 @@ mod tests {
         let mut shards = Shards::new();
 
         let shard = Shard::new("foo".to_string());
-        assert!(shards.insert(shard));
+        assert!(shards.push(shard).is_some());
 
         let shard2 = Shard::new("bar".to_string());
-        assert!(shards.insert(shard2));
+        assert!(shards.push(shard2).is_some());
 
         let shard3 = Shard::new("bar".to_string());
-        assert!(!shards.insert(shard3));
+        assert!(!shards.push(shard3).is_some());
     }
 
     #[test]
@@ -295,14 +259,14 @@ mod tests {
         let mut shards = Shards::new();
 
         let shard = Shard::new("foo".to_string());
-        shards.insert(shard);
+        shards.push(shard);
 
         let shard2 = Shard::new("bar".to_string());
-        shards.insert(shard2.clone());
+        shards.push(shard2.clone());
 
-        assert!(shards.remove(&shard2));
+        assert!(shards.remove(&shard2.id).is_some());
 
-        assert!(!shards.remove(&shard2));
+        assert!(shards.remove(&shard2.id).is_none());
     }
 
     #[test]
@@ -310,7 +274,7 @@ mod tests {
         let mut shards = Shards::new();
 
         let shard = Shard::new("foo".to_string());
-        shards.insert(shard);
+        shards.push(shard);
 
         assert!(shards.contains(&"foo".to_string()));
 
@@ -322,10 +286,10 @@ mod tests {
         let mut shards = Shards::new();
 
         let shard1 = Shard::new("foo".to_string());
-        shards.insert(shard1);
+        shards.push(shard1);
 
         let shard2 = Shard::new("bar".to_string());
-        shards.insert(shard2);
+        shards.push(shard2);
 
         let shards_iter = shards.iter();
         let shard_ids = shards_iter
@@ -341,7 +305,7 @@ mod tests {
         let mut shards = Shards::new();
 
         let shard = Shard::new("foo".to_string());
-        shards.insert(shard);
+        shards.push(shard);
 
         let shard = shards.get(&"foo".to_string());
         assert_eq!(shard.unwrap().id, "foo".to_string());
@@ -355,21 +319,21 @@ mod tests {
         let mut shards = Shards::new();
 
         let shard = Shard::new("foo".to_string());
-        shards.insert(shard);
+        shards.push(shard);
         assert_eq!(shards.len(), 1);
 
         let shard2 = Shard::new("bar".to_string());
-        shards.insert(shard2.clone());
+        shards.push(shard2.clone());
         assert_eq!(shards.len(), 2);
 
         let shard3 = Shard::new("bar".to_string());
-        shards.insert(shard3);
+        shards.push(shard3);
         assert_eq!(shards.len(), 2);
 
-        shards.remove(&shard2);
+        shards.remove(&shard2.id);
         assert_eq!(shards.len(), 1);
 
-        shards.remove(&shard2);
+        shards.remove(&shard2.id);
         assert_eq!(shards.len(), 1);
     }
 
@@ -379,10 +343,10 @@ mod tests {
         assert!(shards.is_empty());
 
         let shard1 = Shard::new("foo".to_string());
-        shards.insert(shard1.clone());
+        shards.push(shard1.clone());
         assert!(!shards.is_empty());
 
-        shards.remove(&shard1);
+        shards.remove(&shard1.id);
         assert!(shards.is_empty());
     }
 
@@ -391,13 +355,13 @@ mod tests {
         let mut shards = Shards::new();
 
         let shard1 = Shard::new("foo".to_string());
-        shards.insert(shard1);
+        shards.push(shard1);
 
         let shard2 = Shard::new("bar".to_string());
-        shards.insert(shard2);
+        shards.push(shard2);
 
         let shard3 = Shard::new("baz".to_string());
-        shards.insert(shard3);
+        shards.push(shard3);
 
         let shard = shards.lookup_shard("hoge");
         assert_eq!(shard.unwrap().id, "foo".to_string());
@@ -414,13 +378,13 @@ mod tests {
         let mut shards = Shards::new();
 
         let shard1 = Shard::new("foo".to_string());
-        shards.insert(shard1);
+        shards.push(shard1);
 
         let shard2 = Shard::new("bar".to_string());
-        shards.insert(shard2);
+        shards.push(shard2);
 
         let shard3 = Shard::new("baz".to_string());
-        shards.insert(shard3);
+        shards.push(shard3);
 
         let mut shards_iter = shards.lookup_shards("hoge", 2);
         assert_eq!(shards_iter.next().unwrap().id, "foo".to_string());

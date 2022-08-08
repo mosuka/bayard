@@ -27,6 +27,7 @@ use super::{
     runtime::AccumulatingRuntime,
 };
 
+const FOCA_CHANNEL_BUFFER_SIZE: usize = 100;
 const MEMBERS_FILE: &str = "members.json";
 
 #[derive(Debug, Clone, Copy)]
@@ -152,7 +153,7 @@ impl Membership {
 
         // And communicating via channels
         let (tx_foca, mut rx_foca): (mpsc::Sender<Input<Member>>, mpsc::Receiver<Input<Member>>) =
-            mpsc::channel(100);
+            mpsc::channel(FOCA_CHANNEL_BUFFER_SIZE);
 
         // Another alternative would be putting a Lock around Foca,
         // but yours truly likes to hide behind (the lock inside) channels instead.
@@ -227,13 +228,15 @@ impl Membership {
                 let mut active_list_has_changed = false;
                 while let Some(notification) = runtime.notifications.pop() {
                     match notification {
-                        Notification::MemberUp(id) => {
-                            info!(?id, "Member up.");
-                            active_list_has_changed |= members_task.write().await.insert(id)
+                        Notification::MemberUp(member) => {
+                            info!(?member, "Member up.");
+                            active_list_has_changed |=
+                                members_task.write().await.push(member).is_some()
                         }
-                        Notification::MemberDown(id) => {
-                            info!(?id, "Member down.");
-                            active_list_has_changed |= members_task.write().await.remove(id)
+                        Notification::MemberDown(member) => {
+                            info!(?member, "Member down.");
+                            active_list_has_changed |=
+                                members_task.write().await.remove(&member.addr).is_some()
                         }
                         other => {
                             info!(notification = ?other, "Receive membership notification.");
