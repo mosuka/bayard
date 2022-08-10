@@ -13,14 +13,16 @@ use tracing::{debug, error, info, warn};
 use crate::{
     cluster::{
         member::Member,
-        message::{
-            CreateIndexMessage, DeleteIndexMessage, Message, MessageKind, ModifyIndexMessage,
-        },
+        message::{Message, MessageKind},
     },
-    cluster::{members::Members, membership::Membership},
+    cluster::{
+        members::Members,
+        membership::Membership,
+        message::{MESSAGE_METADATA_FIELD, MESSAGE_NAME_FIELD},
+    },
     common::{read_file, remove_file},
     index::{
-        metadata::{save_index_metadata, Metadata as IndexMetadata},
+        metadata::{save_index_metadata, Metadata},
         metastore::Metastore,
         shard::Shard,
         shards::Shards,
@@ -715,17 +717,26 @@ impl Node {
                     MessageKind::CreateIndex => {
                         // Settings are extracted from the received messages and written to a file.
                         // No actual creating an index is performed.
-                        let req = match serde_json::from_slice::<CreateIndexMessage>(message.body())
+                        let json_value =
+                            match serde_json::from_slice::<serde_json::Value>(message.body()) {
+                                Ok(value) => value,
+                                Err(error) => {
+                                    error!(?error, "Failed to deserialize message body.");
+                                    continue;
+                                }
+                            };
+
+                        let index_name = match json_value.get("name").and_then(|name| name.as_str())
                         {
-                            Ok(req) => req,
-                            Err(error) => {
-                                error!(?error, "Failed to deserialize request.");
+                            Some(name) => name.to_string(),
+                            None => {
+                                error!("Request does not contain index name.");
                                 continue;
                             }
                         };
 
                         // Create the index directory
-                        let index_dir = indices_dir.join(&req.name);
+                        let index_dir = indices_dir.join(&index_name);
                         if index_dir.exists() {
                             warn!(?index_dir, "Index directory already exists.");
                         } else {
@@ -738,12 +749,38 @@ impl Node {
                             }
                         }
 
+                        let index_metadata_map = match json_value
+                            .get("metadata")
+                            .and_then(|metadata| metadata.as_object())
+                        {
+                            Some(map) => map,
+                            None => {
+                                error!("Request does not contain index metadata.");
+                                continue;
+                            }
+                        };
+                        let index_metadata_bytes = match serde_json::to_vec(&index_metadata_map) {
+                            Ok(bytes) => bytes,
+                            Err(error) => {
+                                error!(?error, "Failed to serialize index metadata.");
+                                continue;
+                            }
+                        };
+                        let index_metadata =
+                            match serde_json::from_slice::<Metadata>(&index_metadata_bytes) {
+                                Ok(metadata) => metadata,
+                                Err(error) => {
+                                    error!(?error, "Failed to deserialize index metadata.");
+                                    continue;
+                                }
+                            };
+
                         // Save meta.json
                         let meta_path = index_dir.join(INDEX_METADATA_FILE);
                         if meta_path.exists() {
                             warn!(?meta_path, "File already exists.");
                         } else {
-                            match save_index_metadata(&meta_path, req.meta.clone()).await {
+                            match save_index_metadata(&meta_path, index_metadata).await {
                                 Ok(_) => info!(?meta_path, "File have been saved."),
                                 Err(error) => {
                                     error!(?meta_path, ?error, "Failed to write file.");
@@ -753,17 +790,26 @@ impl Node {
                         }
                     }
                     MessageKind::DeleteIndex => {
-                        let req = match serde_json::from_slice::<DeleteIndexMessage>(message.body())
+                        let json_value =
+                            match serde_json::from_slice::<serde_json::Value>(message.body()) {
+                                Ok(value) => value,
+                                Err(error) => {
+                                    error!(?error, "Failed to deserialize message body.");
+                                    continue;
+                                }
+                            };
+
+                        let index_name = match json_value.get("name").and_then(|name| name.as_str())
                         {
-                            Ok(req) => req,
-                            Err(error) => {
-                                error!(?error, "Failed to deserialize request.");
+                            Some(name) => name.to_string(),
+                            None => {
+                                error!("Request does not contain index name.");
                                 continue;
                             }
                         };
 
                         // Create the index directory
-                        let index_dir = indices_dir.join(&req.name);
+                        let index_dir = indices_dir.join(&index_name);
 
                         // Delete index metadata file.
                         let index_metadata_path = index_dir.join(INDEX_METADATA_FILE);
@@ -786,16 +832,25 @@ impl Node {
                         }
                     }
                     MessageKind::ModifyIndex => {
-                        let req = match serde_json::from_slice::<ModifyIndexMessage>(message.body())
+                        let json_value =
+                            match serde_json::from_slice::<serde_json::Value>(message.body()) {
+                                Ok(value) => value,
+                                Err(error) => {
+                                    error!(?error, "Failed to deserialize message body.");
+                                    continue;
+                                }
+                            };
+
+                        let index_name = match json_value.get("name").and_then(|name| name.as_str())
                         {
-                            Ok(req) => req,
-                            Err(error) => {
-                                error!(?error, "Failed to deserialize request.");
+                            Some(name) => name.to_string(),
+                            None => {
+                                error!("Request does not contain index name.");
                                 continue;
                             }
                         };
 
-                        let index_dir = indices_dir.join(req.name.as_str());
+                        let index_dir = indices_dir.join(&index_name);
 
                         // Check index directory existence.
                         if !index_dir.exists() {
@@ -803,16 +858,38 @@ impl Node {
                             continue;
                         }
 
-                        // Save shards.json
-                        match save_index_metadata(
-                            &index_dir.join(INDEX_METADATA_FILE),
-                            req.index_metadata.clone(),
-                        )
-                        .await
+                        let index_metadata_map = match json_value
+                            .get("metadata")
+                            .and_then(|metadata| metadata.as_object())
                         {
-                            Ok(_) => {}
+                            Some(map) => map,
+                            None => {
+                                error!("Request does not contain index metadata.");
+                                continue;
+                            }
+                        };
+                        let index_metadata_bytes = match serde_json::to_vec(&index_metadata_map) {
+                            Ok(bytes) => bytes,
                             Err(error) => {
-                                error!(?error, "Failed to update index config.");
+                                error!(?error, "Failed to serialize index metadata.");
+                                continue;
+                            }
+                        };
+                        let index_metadata =
+                            match serde_json::from_slice::<Metadata>(&index_metadata_bytes) {
+                                Ok(metadata) => metadata,
+                                Err(error) => {
+                                    error!(?error, "Failed to deserialize index metadata.");
+                                    continue;
+                                }
+                            };
+
+                        // Save meta.json
+                        let meta_path = index_dir.join(INDEX_METADATA_FILE);
+                        match save_index_metadata(&meta_path, index_metadata).await {
+                            Ok(_) => info!(?meta_path, "File have been saved."),
+                            Err(error) => {
+                                error!(?meta_path, ?error, "Failed to write file.");
                                 continue;
                             }
                         }
@@ -842,7 +919,7 @@ impl Node {
         self.membership.members().await.iter().cloned().collect()
     }
 
-    pub async fn index_metadata(&self, name: &str) -> Option<IndexMetadata> {
+    pub async fn index_metadata(&self, name: &str) -> Option<Metadata> {
         self.metastore.metadatas().await.get(name).cloned()
     }
 
@@ -866,14 +943,14 @@ impl Node {
         &self,
         request: CreateIndexRequest,
     ) -> Result<CreateIndexResponse, NodeError> {
-        let meta = serde_json::from_slice::<IndexMetadata>(&request.metadata)
+        let metadata = serde_json::from_slice::<Metadata>(&request.metadata)
             .map_err(|error| NodeErrorKind::MetadataError.with_error(error))?;
 
         let kind = MessageKind::CreateIndex;
-        let message = CreateIndexMessage {
-            name: request.name,
-            meta,
-        };
+        let message = serde_json::json!({
+            MESSAGE_NAME_FIELD: request.name,
+            MESSAGE_METADATA_FIELD: metadata,
+        });
         let body = serde_json::to_vec(&message)
             .map_err(|error| NodeErrorKind::MessageSerializationFailure.with_error(error))?;
         let version = OffsetDateTime::now_utc().unix_timestamp();
@@ -893,7 +970,9 @@ impl Node {
         request: DeleteIndexRequest,
     ) -> Result<DeleteIndexResponse, NodeError> {
         let kind = MessageKind::DeleteIndex;
-        let message = DeleteIndexMessage { name: request.name };
+        let message = serde_json::json!({
+            MESSAGE_NAME_FIELD: request.name,
+        });
         let body = serde_json::to_vec(&message)
             .map_err(|error| NodeErrorKind::MessageSerializationFailure.with_error(error))?;
         let version = OffsetDateTime::now_utc().unix_timestamp();
@@ -928,75 +1007,75 @@ impl Node {
         &self,
         request: ModifyIndexRequest,
     ) -> Result<ModifyIndexResponse, NodeError> {
-        let mut index_metadata = self.index_metadata(&request.name).await.ok_or_else(|| {
+        let mut metadata = self.index_metadata(&request.name).await.ok_or_else(|| {
             NodeErrorKind::IndexConfigDoesNotExist.with_error(anyhow::anyhow!(
                 "Index config for {} does not exist.",
                 request.name
             ))
         })?;
 
-        let new_index_metadata = serde_json::from_slice::<IndexMetadata>(&request.metadata)
+        let new_metadata = serde_json::from_slice::<Metadata>(&request.metadata)
             .map_err(|error| NodeErrorKind::MetadataError.with_error(error))?;
 
         let mut changed = false;
 
-        let writer_threads = index_metadata
+        let writer_threads = metadata
             .writer_threads()
             .map_err(|error| NodeErrorKind::MetadataError.with_error(error))?;
-        let new_writer_threads = new_index_metadata
+        let new_writer_threads = new_metadata
             .writer_threads()
             .map_err(|error| NodeErrorKind::MetadataError.with_error(error))?;
         if writer_threads != new_writer_threads {
-            index_metadata
+            metadata
                 .set_writer_threads(new_writer_threads)
                 .map_err(|error| NodeErrorKind::MetadataError.with_error(error))?;
             changed = true;
         }
 
-        let writer_mem_size = index_metadata
+        let writer_mem_size = metadata
             .writer_mem_size()
             .map_err(|error| NodeErrorKind::MetadataError.with_error(error))?;
-        let new_writer_mem_size = new_index_metadata
+        let new_writer_mem_size = new_metadata
             .writer_mem_size()
             .map_err(|error| NodeErrorKind::MetadataError.with_error(error))?;
         if writer_mem_size != new_writer_mem_size {
-            index_metadata
+            metadata
                 .set_writer_mem_size(new_writer_mem_size)
                 .map_err(|error| NodeErrorKind::MetadataError.with_error(error))?;
             changed = true;
         }
 
-        let index_settings = index_metadata
+        let index_settings = metadata
             .index_settings()
             .map_err(|error| NodeErrorKind::MetadataError.with_error(error))?;
-        let new_index_settings = new_index_metadata
+        let new_index_settings = new_metadata
             .index_settings()
             .map_err(|error| NodeErrorKind::MetadataError.with_error(error))?;
         if index_settings != new_index_settings {
             warn!("Sorry. We don't support changing index settings at this time.");
         }
 
-        let num_replicas = index_metadata
+        let num_replicas = metadata
             .num_replicas()
             .map_err(|error| NodeErrorKind::MetadataError.with_error(error))?;
-        let new_num_replicas = new_index_metadata
+        let new_num_replicas = new_metadata
             .num_replicas()
             .map_err(|error| NodeErrorKind::MetadataError.with_error(error))?;
         if num_replicas != new_num_replicas {
-            index_metadata
+            metadata
                 .set_num_replicas(new_num_replicas)
                 .map_err(|error| NodeErrorKind::MetadataError.with_error(error))?;
             changed = true;
         }
 
-        let num_shards = index_metadata
+        let num_shards = metadata
             .num_shards()
             .map_err(|error| NodeErrorKind::MetadataError.with_error(error))?;
-        let new_num_shards = new_index_metadata
+        let new_num_shards = new_metadata
             .num_shards()
             .map_err(|error| NodeErrorKind::MetadataError.with_error(error))?;
         if num_shards != new_num_shards {
-            index_metadata
+            metadata
                 .set_num_shards(new_num_shards)
                 .map_err(|error| NodeErrorKind::MetadataError.with_error(error))?;
             changed = true;
@@ -1008,10 +1087,10 @@ impl Node {
         }
 
         let kind = MessageKind::ModifyIndex;
-        let message = ModifyIndexMessage {
-            name: request.name,
-            index_metadata: index_metadata.clone(),
-        };
+        let message = serde_json::json!({
+            MESSAGE_NAME_FIELD: request.name,
+            MESSAGE_METADATA_FIELD: metadata,
+        });
         let body = serde_json::to_vec(&message)
             .map_err(|error| NodeErrorKind::MessageSerializationFailure.with_error(error))?;
         let version = OffsetDateTime::now_utc().unix_timestamp();

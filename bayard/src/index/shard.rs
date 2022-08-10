@@ -124,4 +124,20 @@ mod tests {
         assert_eq!(shard.state, State::Serving);
         assert_eq!(shard.version, 1);
     }
+
+    #[test]
+    fn test_shard_to_vec() {
+        let shard_json_str = r#"
+        {
+            "id": "shard_1",
+            "state": "serving"
+        }
+        "#;
+        let shard_json_bytes = shard_json_str.as_bytes();
+        let shard = serde_json::from_slice::<Shard>(shard_json_bytes).unwrap();
+        assert_eq!(shard.id, "shard_1");
+        assert_eq!(shard.state, State::Serving);
+
+        let _shard_vec = serde_json::to_vec(&shard).unwrap();
+    }
 }

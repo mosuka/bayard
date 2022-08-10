@@ -16,16 +16,16 @@ use tantivy::{
     },
     IndexSettings,
 };
+use tracing::{error, info};
 
 use crate::{
     common::read_file,
     index::{analyzer::Analyzers, shard::Shard, shards::Shards},
 };
 
-use super::{DOC_ID_FIELD_NAME, DOC_TIMESTAMP_FIELD_NAME};
+use super::{shard::State, DOC_ID_FIELD_NAME, DOC_TIMESTAMP_FIELD_NAME};
 
 const SHARD_ID_LENGTH: usize = 8;
-
 const DEFAULT_WRITER_THREADS: usize = 1;
 const DEFAULT_WRITER_MEM_SIZE: usize = 100_000_000;
 const DEFAULT_NUM_REPLICAS: usize = 1;
@@ -48,6 +48,7 @@ pub enum MetadataErrorKind {
     SaveFailure,
     LoadFailure,
     DeserializationFailure,
+    SetNumShardsFailure,
 }
 
 impl MetadataErrorKind {
@@ -149,7 +150,7 @@ impl Metadata {
 
         // If the `shards` length and the `num_shards` are different,
         // the `shards` value takes precedence over the `num_shards`.
-        if num_shards != shards.len() {
+        if num_shards != shards.serving_shards_len() {
             metadata.set_shards(shards)?;
         }
 
@@ -288,43 +289,66 @@ impl Metadata {
         Ok(*current_num_replicas)
     }
 
+    // Return the number of serving shards for the index.
     pub fn num_shards(&self) -> Result<usize, MetadataError> {
         Ok(*self.num_shards.read().map_err(|error| {
             MetadataErrorKind::RwLockFailure.with_error(anyhow::anyhow!(error.to_string()))
         })?)
     }
 
+    // Set the number of shards fot the index and update shard list. Retuns the number of serving shards.
     pub fn set_num_shards(&mut self, num_shards: usize) -> Result<usize, MetadataError> {
         if num_shards == 0 {
-            return Err(MetadataErrorKind::InvalidArgument
+            return Err(MetadataErrorKind::SetNumShardsFailure
                 .with_error(anyhow::anyhow!("Number of shards must be greater than 0")));
         }
 
-        let mut current_num_shards = self.num_shards.write().map_err(|error| {
-            MetadataErrorKind::RwLockFailure.with_error(anyhow::anyhow!(error.to_string()))
-        })?;
         let mut current_shards = self.shards.write().map_err(|error| {
-            MetadataErrorKind::RwLockFailure.with_error(anyhow::anyhow!(error.to_string()))
+            MetadataErrorKind::SetNumShardsFailure.with_error(anyhow::anyhow!(error.to_string()))
         })?;
-
-        *current_num_shards = num_shards;
-        match current_shards.len().cmp(&num_shards) {
+        match current_shards.serving_shards_len().cmp(&num_shards) {
             Ordering::Equal => {
                 // Nothing to do
+                info!("Number of shards is already {}", num_shards);
             }
             Ordering::Greater => {
-                let cnt = current_shards.len() - num_shards;
+                info!(
+                    "Reduce shards: {} to {}",
+                    current_shards.serving_shards_len(),
+                    num_shards
+                );
+                let cnt = current_shards.serving_shards_len() - num_shards;
+                let mut draining_shards = Vec::new();
                 for _ in 0..cnt {
-                    current_shards.pop();
+                    if let Some(shard) = current_shards.pop() {
+                        draining_shards.push(shard);
+                    } else {
+                        return Err(MetadataErrorKind::SetNumShardsFailure
+                            .with_error(anyhow::anyhow!("Failed to drain shards")));
+                    };
+                }
+                for mut shard in draining_shards {
+                    shard.state = State::Draining;
+                    current_shards.push(shard);
                 }
             }
             Ordering::Less => {
-                let cnt = num_shards - current_shards.len();
+                info!(
+                    "Increase shards: {} to {}",
+                    current_shards.serving_shards_len(),
+                    num_shards
+                );
+                let cnt = num_shards - current_shards.serving_shards_len();
                 for _ in 0..cnt {
                     current_shards.push(Shard::new(generate_shard_id()));
                 }
             }
         }
+
+        let mut current_num_shards = self.num_shards.write().map_err(|error| {
+            MetadataErrorKind::SetNumShardsFailure.with_error(anyhow::anyhow!(error.to_string()))
+        })?;
+        *current_num_shards = current_shards.serving_shards_len();
 
         Ok(*current_num_shards)
     }
@@ -343,12 +367,29 @@ impl Metadata {
         let mut current_shards = self.shards.write().map_err(|error| {
             MetadataErrorKind::RwLockFailure.with_error(anyhow::anyhow!(error.to_string()))
         })?;
+        if !current_shards.is_empty() {
+            let mut draining_shards = Vec::new();
+            for _ in 0..current_shards.len() {
+                if let Some(shard) = current_shards.pop() {
+                    draining_shards.push(shard);
+                } else {
+                    return Err(MetadataErrorKind::SetNumShardsFailure
+                        .with_error(anyhow::anyhow!("Failed to drain shards")));
+                };
+            }
+            for mut shard in draining_shards {
+                shard.state = State::Draining;
+                current_shards.push(shard);
+            }
+        }
+        for shard in shards.iter().cloned() {
+            current_shards.push(shard);
+        }
+
         let mut current_num_shards = self.num_shards.write().map_err(|error| {
             MetadataErrorKind::RwLockFailure.with_error(anyhow::anyhow!(error.to_string()))
         })?;
-
-        *current_num_shards = shards.len();
-        *current_shards = shards;
+        *current_num_shards = current_shards.serving_shards_len();
 
         Ok(current_shards.clone())
     }
@@ -780,6 +821,102 @@ mod tests {
         assert_eq!(meta.num_shards().unwrap(), 2);
         assert_eq!(meta.shards().unwrap().len(), 2);
 
+        let metadata_json_str = r#"
+        {
+            "analyzers": {
+                "default": {
+                    "tokenizer": {
+                        "name": "simple"
+                    },
+                    "filters": [
+                        {
+                            "name": "remove_long",
+                            "args": {
+                                "length_limit": 40
+                            }
+                        },
+                        {
+                            "name": "ascii_folding"
+                        },
+                        {
+                            "name": "lower_case"
+                        }
+                    ]
+                }
+            },
+            "schema": [
+                {
+                    "name": "name",
+                    "type": "text",
+                    "options": {
+                        "indexing": {
+                            "record": "position",
+                            "fieldnorms": false,
+                            "tokenizer": "default"
+                        },
+                        "stored": true
+                    }
+                }
+            ],
+            "writer_threads": 1,
+            "writer_mem_size": 500000000,
+            "index_settings": {
+                "sort_by_field": null,
+                "docstore_compression": "none"
+            },
+            "num_replicas": 2,
+            "num_shards": 1,
+            "shards": {
+                "shard_list": [
+                    {
+                        "id": "shard-1",
+                        "state": "serving",
+                        "version": 1
+                        },
+                    {
+                        "id": "shard-2",
+                        "state": "draining",
+                        "version": 1
+                        },
+                    {
+                        "id": "shard-3",
+                        "state": "drained",
+                        "version": 1
+                        }
+                ]
+            }
+        }
+        "#;
+        let metadata_json_bytes = metadata_json_str.as_bytes();
+
+        let metadata = serde_json::from_slice::<Metadata>(metadata_json_bytes).unwrap();
+        assert_eq!(metadata.writer_threads().unwrap(), 1);
+        assert_eq!(metadata.writer_mem_size().unwrap(), 500000000);
+        assert_eq!(metadata.num_replicas().unwrap(), 2);
+        assert_eq!(metadata.num_shards().unwrap(), 1);
+        assert_eq!(metadata.shards().unwrap().len(), 3);
+        assert_eq!(metadata.shards().unwrap().serving_shards_len(), 1);
+        assert_eq!(metadata.shards().unwrap().draining_shards_len(), 1);
+        assert_eq!(metadata.shards().unwrap().drained_shards_len(), 1);
+        assert!(metadata
+            .shards()
+            .unwrap()
+            .iter_serving_shards()
+            .any(|shard| &shard.id == "shard-1"));
+        assert!(metadata
+            .shards()
+            .unwrap()
+            .iter_draining_shards()
+            .any(|shard| &shard.id == "shard-2"));
+        assert!(metadata
+            .shards()
+            .unwrap()
+            .iter_drained_shards()
+            .any(|shard| &shard.id == "shard-3"));
+    }
+
+    #[test]
+    fn test_index_metadata_to_vec() {
         let meta_json_str = r#"
         {
             "analyzers": {
@@ -824,34 +961,15 @@ mod tests {
                 "docstore_compression": "none"
             },
             "num_replicas": 2,
-            "num_shards": 3,
-            "shards": {
-                "shard_list": [
-                    {
-                        "id": "shard-1"
-                    },
-                    {
-                        "id": "shard-2"
-                    },
-                    {
-                        "id": "shard-3"
-                    }
-                ]
-            }
+            "num_shards": 2
         }
         "#;
         let meta_json_bytes = meta_json_str.as_bytes();
+        let mut meta = serde_json::from_slice::<Metadata>(meta_json_bytes).unwrap();
 
-        let meta = serde_json::from_slice::<Metadata>(meta_json_bytes).unwrap();
-        assert_eq!(meta.writer_threads().unwrap(), 1);
-        assert_eq!(meta.writer_mem_size().unwrap(), 500000000);
-        assert_eq!(meta.num_replicas().unwrap(), 2);
-        assert_eq!(meta.num_shards().unwrap(), 3);
-        let shards = meta.shards().unwrap();
-        assert_eq!(shards.len(), 3);
-        assert!(shards.contains(&"shard-1".to_string()));
-        assert!(shards.contains(&"shard-2".to_string()));
-        assert!(shards.contains(&"shard-3".to_string()));
+        meta.set_num_shards(1).unwrap();
+
+        let _meta_vec = serde_json::to_vec(&meta).unwrap();
     }
 
     #[test]
@@ -1220,7 +1338,7 @@ mod tests {
     }
 
     #[test]
-    fn test_index_metadata_set_replicas() {
+    fn test_index_metadata_set_num_replicas() {
         let meta_json_str = r#"
         {
             "analyzers": {
@@ -1279,6 +1397,68 @@ mod tests {
     }
 
     #[test]
+    fn test_index_metadata_set_num_shards() {
+        let meta_json_str = r#"
+        {
+            "analyzers": {
+                "default": {
+                    "tokenizer": {
+                        "name": "simple"
+                    },
+                    "filters": [
+                        {
+                            "name": "remove_long",
+                            "args": {
+                                "length_limit": 40
+                            }
+                        },
+                        {
+                            "name": "ascii_folding"
+                        },
+                        {
+                            "name": "lower_case"
+                        }
+                    ]
+                }
+            },
+            "schema": [
+                {
+                    "name": "name",
+                    "type": "text",
+                    "options": {
+                        "indexing": {
+                            "record": "position",
+                            "fieldnorms": false,
+                            "tokenizer": "default"
+                        },
+                        "stored": true
+                    }
+                }
+            ],
+            "writer_threads": 1,
+            "writer_mem_size": 500000000,
+            "index_settings": {
+                "sort_by_field": null,
+                "docstore_compression": "none"
+            },
+            "num_replicas": 2,
+            "num_shards": 2
+        }
+        "#;
+        let meta_json_bytes = meta_json_str.as_bytes();
+        let mut meta = serde_json::from_slice::<Metadata>(meta_json_bytes).unwrap();
+        assert_eq!(meta.num_shards().unwrap(), 2);
+
+        let num_serving_shards = meta.set_num_shards(1).unwrap();
+        assert_eq!(num_serving_shards, 1);
+        assert_eq!(meta.num_shards().unwrap(), 1);
+
+        assert_eq!(meta.shards().unwrap().len(), 2);
+        assert_eq!(meta.shards().unwrap().serving_shards_len(), 1);
+        assert_eq!(meta.shards().unwrap().draining_shards_len(), 1);
+    }
+
+    #[test]
     fn test_index_metadata_set_shards() {
         let meta_json_str = r#"
         {
@@ -1324,30 +1504,12 @@ mod tests {
                 "docstore_compression": "none"
             },
             "num_replicas": 2,
-            "num_shards": 2,
-            "shards": {
-                "shard_list": [
-                    {
-                        "id": "shard-1"
-                    },
-                    {
-                        "id": "shard-2"
-                    }
-                ]
-            }
+            "num_shards": 2
         }
         "#;
         let meta_json_bytes = meta_json_str.as_bytes();
-
         let mut meta = serde_json::from_slice::<Metadata>(meta_json_bytes).unwrap();
         assert_eq!(meta.num_shards().unwrap(), 2);
-
-        let new_shards = meta.set_num_shards(1).unwrap();
-        assert_eq!(new_shards, 1);
-        assert_eq!(meta.num_shards().unwrap(), 1);
-        let shards = meta.shards().unwrap();
-        assert_eq!(shards.len(), 1);
-        assert!(shards.contains(&"shard-1".to_string()));
 
         let new_shards = meta
             .set_shards(Shards::init(vec![
@@ -1356,17 +1518,38 @@ mod tests {
                 Shard::new("shard-3".to_string()),
             ]))
             .unwrap();
-        assert_eq!(new_shards.len(), 3);
-        assert!(new_shards.contains(&"shard-1".to_string()));
-        assert!(new_shards.contains(&"shard-2".to_string()));
-        assert!(new_shards.contains(&"shard-3".to_string()));
+        assert_eq!(new_shards.len(), 5);
+        assert_eq!(new_shards.draining_shards_len(), 2);
+        assert_eq!(new_shards.serving_shards_len(), 3);
+        assert!(new_shards
+            .iter_serving_shards()
+            .any(|shard| &shard.id == "shard-1"));
+        assert!(new_shards
+            .iter_serving_shards()
+            .any(|shard| &shard.id == "shard-2"));
+        assert!(new_shards
+            .iter_serving_shards()
+            .any(|shard| &shard.id == "shard-3"));
 
         assert_eq!(meta.num_shards().unwrap(), 3);
-        let shards = meta.shards().unwrap();
-        assert_eq!(shards.len(), 3);
-        assert!(shards.contains(&"shard-1".to_string()));
-        assert!(shards.contains(&"shard-2".to_string()));
-        assert!(shards.contains(&"shard-3".to_string()));
+        assert_eq!(meta.shards().unwrap().len(), 5);
+        assert_eq!(meta.shards().unwrap().draining_shards_len(), 2);
+        assert_eq!(meta.shards().unwrap().serving_shards_len(), 3);
+        assert!(meta
+            .shards()
+            .unwrap()
+            .iter_serving_shards()
+            .any(|shard| &shard.id == "shard-1"));
+        assert!(meta
+            .shards()
+            .unwrap()
+            .iter_serving_shards()
+            .any(|shard| &shard.id == "shard-2"));
+        assert!(meta
+            .shards()
+            .unwrap()
+            .iter_serving_shards()
+            .any(|shard| &shard.id == "shard-3"));
     }
 
     #[test]
