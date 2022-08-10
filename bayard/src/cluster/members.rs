@@ -114,7 +114,7 @@ impl Members {
     pub fn lookup_members<'a>(&'a self, key: &'a str, num: usize) -> impl Iterator<Item = &Member> {
         self.hash
             .calc_top_n_candidates(&key, num)
-            .map(|addr| self.get(&addr.clone().into_inner()).unwrap())
+            .filter_map(|addr| self.get(&addr.clone().into_inner()))
     }
 
     pub fn rotate_node(&self, key: &str, num: usize) -> Option<&Member> {

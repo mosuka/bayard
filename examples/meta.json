@@ -101,5 +101,5 @@
         "docstore_blocksize": 16384
     },
     "num_replicas": 2,
-    "num_shards": 3
+    "num_shards": 2
 }

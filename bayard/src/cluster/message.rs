@@ -5,8 +5,6 @@ use foca::{Invalidates, Timer};
 use time::OffsetDateTime;
 use tracing::{debug, error, info};
 
-use crate::index::metadata::Metadata;
-
 #[derive(Debug, Clone, Copy)]
 pub enum MessageErrorKind {
     ReadError,
@@ -50,8 +48,6 @@ impl MessageError {
     }
 }
 
-// We'll also launch a task to manage Foca. Since there are timers
-// involved, one simple way to do it is unifying the input:
 #[derive(Clone)]
 pub enum Input<T> {
     Event(Timer<T>),
@@ -115,22 +111,8 @@ impl MessageKind {
     }
 }
 
-#[derive(Clone, Deserialize, Serialize)]
-pub struct CreateIndexMessage {
-    pub name: String,
-    pub meta: Metadata,
-}
-
-#[derive(Clone, Deserialize, Serialize)]
-pub struct DeleteIndexMessage {
-    pub name: String,
-}
-
-#[derive(Clone, Deserialize, Serialize)]
-pub struct ModifyIndexMessage {
-    pub name: String,
-    pub index_metadata: Metadata,
-}
+pub const MESSAGE_NAME_FIELD: &str = "name";
+pub const MESSAGE_METADATA_FIELD: &str = "metadata";
 
 #[derive(Clone, PartialEq)]
 pub struct Message {
@@ -281,5 +263,164 @@ mod tests {
         assert_eq!(message.kind().unwrap(), MessageKind::Unknown);
         assert_eq!(message.body(), body);
         assert_eq!(message.version(), version);
+    }
+
+    #[test]
+    fn test_modify_index_message() {
+        let modify_index_message_json_str = r#"
+        {
+            "name": "example",
+            "index_metadata": {
+                "schema": [
+                    {
+                        "name": "_id",
+                        "type": "text",
+                        "options": {
+                            "indexing": {
+                                "record": "basic",
+                                "fieldnorms": true,
+                                "tokenizer": "raw"
+                            },
+                            "stored": true,
+                            "fast": false
+                        }
+                    },
+                    {
+                        "name": "_timestamp",
+                        "type": "date",
+                        "options": {
+                            "indexed": true,
+                            "fieldnorms": true,
+                            "fast": "single",
+                            "stored": true
+                        }
+                    },
+                    {
+                        "name": "url",
+                        "type": "text",
+                        "options": {
+                            "indexing": {
+                                "record": "freq",
+                                "fieldnorms": false,
+                                "tokenizer": "raw"
+                            },
+                            "stored": true,
+                            "fast": false
+                        }
+                    },
+                    {
+                        "name": "name",
+                        "type": "text",
+                        "options": {
+                            "indexing": {
+                                "record": "position",
+                                "fieldnorms": false,
+                                "tokenizer": "default"
+                            },
+                            "stored": true,
+                            "fast": false
+                        }
+                    },
+                    {
+                        "name": "description",
+                        "type": "text",
+                        "options": {
+                            "indexing": {
+                                "record": "position",
+                                "fieldnorms": false,
+                                "tokenizer": "default"
+                            },
+                            "stored": true,
+                            "fast": false
+                        }
+                    },
+                    {
+                        "name": "popularity",
+                        "type": "u64",
+                        "options": {
+                            "indexed": true,
+                            "fieldnorms": true,
+                            "fast": "single",
+                            "stored": true
+                        }
+                    },
+                    {
+                        "name": "category",
+                        "type": "facet",
+                        "options": {
+                            "stored": true
+                        }
+                    },
+                    {
+                        "name": "publish_date",
+                        "type": "date",
+                        "options": {
+                            "indexed": true,
+                            "fieldnorms": true,
+                            "fast": "single",
+                            "stored": true
+                        }
+                    }
+                ],
+                "index_settings": {
+                    "docstore_compression": "none",
+                    "docstore_blocksize": 16384
+                },
+                "analyzers": {
+                    "default": {
+                        "filters":[
+                            {
+                                "args":{
+                                    "length_limit": 40
+                                },
+                                "name": "remove_long"
+                            },
+                            {
+                                "name": "ascii_folding"
+                            },
+                            {
+                                "name": "lower_case"
+                            }
+                        ],
+                        "tokenizer": {
+                            "name": "simple"
+                        }
+                    },
+                    "raw": {
+                        "tokenizer": {
+                            "name": "raw"
+                        }
+                    },
+                    "whitespace": {
+                        "tokenizer": {
+                            "name": "whitespace"
+                        }
+                    }
+                },
+                "writer_threads": 1,
+                "writer_mem_size": 500000000,
+                "num_replicas": 2,
+                "num_shards": 1,
+                "shards": {
+                    "shard_list": [
+                        {
+                            "id": "4UdJIxlX",
+                            "state": "serving",
+                            "version": 1660049618
+                        },
+                        {
+                            "id": "QMcs7uHm",
+                            "state": "draining",
+                            "version": 1660049618
+                        }
+                    ]
+                }
+            }
+        }
+        "#;
+        let modify_index_message_bytes = modify_index_message_json_str.as_bytes();
+        let modify_index_message =
+            serde_json::from_slice::<serde_json::Value>(modify_index_message_bytes).unwrap();
+        let _modify_index_message_vec = serde_json::to_vec(&modify_index_message).unwrap();
     }
 }

@@ -13,7 +13,7 @@ use crate::rendezvous::{
     node::IdNode,
 };
 
-use super::shard::Shard;
+use super::shard::{Shard, State};
 
 #[derive(Clone)]
 pub struct Shards {
@@ -84,19 +84,84 @@ impl Shards {
         self.inner.values()
     }
 
-    /// Returns the shard responsible for the given key.
-    pub fn lookup_shard<'a>(&'a self, key: &'a str) -> Option<&Shard> {
-        self.lookup_shards(key, 1).next()
+    fn iter_filterd_shards<'a>(&'a self, state: State) -> impl Iterator<Item = &Shard> {
+        self.iter().filter(move |shard| shard.state == state)
+    }
+
+    pub fn iter_serving_shards<'a>(&'a self) -> impl Iterator<Item = &Shard> {
+        self.iter_filterd_shards(State::Serving)
+    }
+
+    pub fn iter_draining_shards<'a>(&'a self) -> impl Iterator<Item = &Shard> {
+        self.iter_filterd_shards(State::Draining)
+    }
+
+    pub fn iter_drained_shards<'a>(&'a self) -> impl Iterator<Item = &Shard> {
+        self.iter_filterd_shards(State::Drained)
     }
 
     pub fn lookup_shards<'a>(&'a self, key: &'a str, num: usize) -> impl Iterator<Item = &Shard> {
         self.hash
             .calc_top_n_candidates(&key, num)
-            .map(|id| self.get(&id.clone().into_inner()).unwrap())
+            .filter_map(|id| self.get(&id.clone().into_inner()))
+    }
+
+    pub fn lookup_shard<'a>(&'a self, key: &'a str) -> Option<&Shard> {
+        self.lookup_shards(key, 1).next()
+    }
+
+    fn lookup_filterd_shards<'a>(
+        &'a self,
+        key: &'a str,
+        num: usize,
+        state: State,
+    ) -> impl Iterator<Item = &Shard> {
+        self.lookup_shards(key, num)
+            .filter(move |shard| shard.state == state)
+    }
+
+    pub fn lookup_serving_shards<'a>(
+        &'a self,
+        key: &'a str,
+        num: usize,
+    ) -> impl Iterator<Item = &Shard> {
+        self.lookup_filterd_shards(key, num, State::Serving)
+    }
+
+    pub fn lookup_serving_shard<'a>(&'a self, key: &'a str) -> Option<&Shard> {
+        self.lookup_serving_shards(key, 1).next()
+    }
+
+    pub fn lookup_draining_shards<'a>(
+        &'a self,
+        key: &'a str,
+        num: usize,
+    ) -> impl Iterator<Item = &Shard> {
+        self.lookup_filterd_shards(key, num, State::Draining)
+    }
+
+    pub fn lookup_drained_shards<'a>(
+        &'a self,
+        key: &'a str,
+        num: usize,
+    ) -> impl Iterator<Item = &Shard> {
+        self.lookup_filterd_shards(key, num, State::Drained)
     }
 
     pub fn len(&self) -> usize {
         self.inner.len()
+    }
+
+    pub fn serving_shards_len(&self) -> usize {
+        self.iter_serving_shards().count()
+    }
+
+    pub fn draining_shards_len(&self) -> usize {
+        self.iter_draining_shards().count()
+    }
+
+    pub fn drained_shards_len(&self) -> usize {
+        self.iter_drained_shards().count()
     }
 
     pub fn is_empty(&self) -> bool {
@@ -217,7 +282,10 @@ impl<'de> Deserialize<'de> for Shards {
 
 #[cfg(test)]
 mod tests {
-    use crate::index::{shard::Shard, shards::Shards};
+    use crate::index::{
+        shard::{Shard, State},
+        shards::Shards,
+    };
 
     #[test]
     fn test_shards_from_slice() {
@@ -238,6 +306,31 @@ mod tests {
 
         let shards = serde_json::from_slice::<Shards>(shards_json_bytes).unwrap();
         assert_eq!(shards.len(), 2);
+    }
+
+    #[test]
+    fn test_shards_to_vec() {
+        let shards_json_str = r#"
+        {
+            "shard_list": [
+                {
+                    "id": "aaaaaaaa",
+                    "state": "serving",
+                    "version": 1
+                },
+                {
+                    "id": "bbbbbbb",
+                    "state": "draining",
+                    "version": 1
+                }
+            ]
+        }
+        "#;
+        let shards_json_bytes = shards_json_str.as_bytes();
+
+        let shards = serde_json::from_slice::<Shards>(shards_json_bytes).unwrap();
+
+        let _shards_vec = serde_json::to_vec(&shards).unwrap();
     }
 
     #[test]
@@ -351,6 +444,35 @@ mod tests {
     }
 
     #[test]
+    fn test_lookup_shards() {
+        let mut shards = Shards::new();
+
+        let shard1 = Shard::new("foo".to_string());
+        shards.push(shard1);
+
+        let shard2 = Shard::new("bar".to_string());
+        shards.push(shard2);
+
+        let shard3 = Shard::new("baz".to_string());
+        shards.push(shard3);
+
+        let mut shards_iter = shards.lookup_shards("hoge", 2);
+        assert_eq!(shards_iter.next().unwrap().id, "foo".to_string());
+        assert_eq!(shards_iter.next().unwrap().id, "baz".to_string());
+        assert!(shards_iter.next().is_none());
+
+        let mut shards_iter = shards.lookup_shards("fuga", 2);
+        assert_eq!(shards_iter.next().unwrap().id, "baz".to_string());
+        assert_eq!(shards_iter.next().unwrap().id, "foo".to_string());
+        assert!(shards_iter.next().is_none());
+
+        let mut shards_iter = shards.lookup_shards("piyo", 2);
+        assert_eq!(shards_iter.next().unwrap().id, "bar".to_string());
+        assert_eq!(shards_iter.next().unwrap().id, "foo".to_string());
+        assert!(shards_iter.next().is_none());
+    }
+
+    #[test]
     fn test_lookup_shard() {
         let mut shards = Shards::new();
 
@@ -374,16 +496,19 @@ mod tests {
     }
 
     #[test]
-    fn test_lookup_shards() {
+    fn test_lookup_filterd_shards() {
         let mut shards = Shards::new();
 
-        let shard1 = Shard::new("foo".to_string());
+        let mut shard1 = Shard::new("foo".to_string());
+        shard1.state = State::Serving;
         shards.push(shard1);
 
-        let shard2 = Shard::new("bar".to_string());
+        let mut shard2 = Shard::new("bar".to_string());
+        shard2.state = State::Draining;
         shards.push(shard2);
 
-        let shard3 = Shard::new("baz".to_string());
+        let mut shard3 = Shard::new("baz".to_string());
+        shard3.state = State::Drained;
         shards.push(shard3);
 
         let mut shards_iter = shards.lookup_shards("hoge", 2);
