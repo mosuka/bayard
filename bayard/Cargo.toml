@@ -25,7 +25,7 @@ crossbeam = "0.8.1"
 dashmap = { version = "5.2.0", features = ["serde"] }
 exponential-backoff = "1.1.0"
 foca = { version = "0.4.1", features = ["postcard-codec"] }
-futures-util = "0.3.21"
+futures-util = "0.3.23"
 http = "0.2.8"
 lindera-tantivy = { version = "0.14.0", features = ["ipadic", "ko-dic", "cc-cedict"] }
 notify = "5.0.0-pre.15"
