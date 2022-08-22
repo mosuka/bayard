@@ -7,6 +7,8 @@ service IndexService {
     rpc DeleteIndex(DeleteIndexRequest) returns (DeleteIndexResponse) {}
     rpc GetIndex(GetIndexRequest) returns (GetIndexResponse) {}
     rpc ModifyIndex(ModifyIndexRequest) returns (ModifyIndexResponse) {}
+    rpc IncrementShards(IncrementShardsRequest) returns (IncrementShardsResponse) {}
+    rpc DecrementShards(DecrementShardsRequest) returns (DecrementShardsResponse) {}
     rpc PutDocuments(PutDocumentsRequest) returns (PutDocumentsResponse) {}
     rpc DeleteDocuments(DeleteDocumentsRequest) returns (DeleteDocumentsResponse) {}
     rpc Commit(CommitRequest) returns (CommitResponse) {}
@@ -37,6 +39,18 @@ message ModifyIndexRequest {
     bytes metadata = 2;
 }
 message ModifyIndexResponse {}
+
+message IncrementShardsRequest {
+    string name = 1;
+    uint32 amount = 2;
+}
+message IncrementShardsResponse {}
+
+message DecrementShardsRequest {
+    string name = 1;
+    uint32 amount = 2;
+}
+message DecrementShardsResponse {}
 
 message PutDocumentsRequest {
     string name = 1;

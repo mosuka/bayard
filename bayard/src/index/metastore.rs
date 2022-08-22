@@ -5,6 +5,7 @@ use notify::{
     event::{DataChange, ModifyKind, RemoveKind, RenameMode},
     EventKind, RecommendedWatcher, RecursiveMode, Watcher,
 };
+use once_cell::sync::Lazy;
 use regex::Regex;
 use tokio::{
     fs,
@@ -22,6 +23,9 @@ use crate::{
 use super::{metadata::Metadata, INDEX_METADATA_FILE_PATTERN};
 
 const SLEEP_DURATION: Duration = Duration::from_millis(100);
+
+static INDEX_METADATA_FILE_REGEX: Lazy<Regex> =
+    Lazy::new(|| Regex::new(INDEX_METADATA_FILE_PATTERN).unwrap());
 
 #[derive(Debug, Clone, Copy)]
 pub enum MetastoreErrorKind {
@@ -133,7 +137,7 @@ impl Metastore {
         let metadatas_task = Arc::clone(&metadatas);
 
         tokio::spawn(async move {
-            let index_meta_re = Regex::new(INDEX_METADATA_FILE_PATTERN).unwrap();
+            // let index_meta_re = Regex::new(INDEX_METADATA_FILE_PATTERN).unwrap();
 
             let (tx_filesystem, rx_filesystem) = unbounded();
 
@@ -162,7 +166,7 @@ impl Metastore {
                             }
                         };
 
-                        if index_meta_re.is_match(path.to_str().unwrap_or("")) {
+                        if INDEX_METADATA_FILE_REGEX.is_match(path.to_str().unwrap_or("")) {
                             // Extract index name from path.
                             let index_name = match extract_index_name(path) {
                                 Ok(name) => name,
@@ -175,6 +179,12 @@ impl Metastore {
                             match event.kind {
                                 EventKind::Modify(ModifyKind::Name(RenameMode::To))
                                 | EventKind::Modify(ModifyKind::Data(DataChange::Any)) => {
+
+                                    // meta.jsonをロードして、今のメタデータとの差分をチェックする。
+                                    // 差分があれば、差分をイベントメッセージとして送信し、メタデータを更新する。
+                                    // 差分がなければ、何もしない。
+
+
                                     // Load index metadata.
                                     info!(?path, "Load index metadata.");
                                     let index_metadata = match load_index_metadata(path).await {

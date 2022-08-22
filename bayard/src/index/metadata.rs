@@ -296,7 +296,83 @@ impl Metadata {
         })?)
     }
 
-    // Set the number of shards fot the index and update shard list. Retuns the number of serving shards.
+    // Increment the current number of shards by specified amounts.
+    // Returns the number of serving shards.
+    pub fn increment_num_shards(&mut self, amount: usize) -> Result<usize, MetadataError> {
+        // Must be an integer value greater than 0.
+        if amount == 0 {
+            return Err(MetadataErrorKind::SetNumShardsFailure
+                .with_error(anyhow::anyhow!("Number of shards must be greater than 0")));
+        }
+
+        // Get the current shard.
+        let mut shards = self.shards.write().map_err(|error| {
+            MetadataErrorKind::SetNumShardsFailure.with_error(anyhow::anyhow!(error.to_string()))
+        })?;
+
+        // Add the specified number of shards to the current shard.
+        for _ in 0..amount {
+            shards.push(Shard::new(generate_shard_id()));
+        }
+
+        // Update the number of shards based on the shards.
+        let mut num_shards = self.num_shards.write().map_err(|error| {
+            MetadataErrorKind::SetNumShardsFailure.with_error(anyhow::anyhow!(error.to_string()))
+        })?;
+        *num_shards = shards.serving_shards_len();
+
+        // Return the number of serving shards.
+        Ok(*num_shards)
+    }
+
+    // Decrement the current number of shards by specified amounts.
+    // Returns the number of serving shards.
+    pub fn decrement_num_shards(&mut self, amount: usize) -> Result<usize, MetadataError> {
+        // Must be an integer value greater than 0.
+        if amount == 0 {
+            return Err(MetadataErrorKind::SetNumShardsFailure
+                .with_error(anyhow::anyhow!("Amount must be greater than 0.")));
+        }
+
+        // Get the current shard.
+        let mut shards = self.shards.write().map_err(|error| {
+            MetadataErrorKind::SetNumShardsFailure.with_error(anyhow::anyhow!(error.to_string()))
+        })?;
+
+        if shards.serving_shards_len() <= amount {
+            return Err(
+                MetadataErrorKind::SetNumShardsFailure.with_error(anyhow::anyhow!(
+                    "Amount must be greater than current number of serving shards."
+                )),
+            );
+        }
+
+        // Remove the specified number of shards from the current shard.
+        let mut draining_shards = Vec::new();
+        for _ in 0..amount {
+            if let Some(mut shard) = shards.pop() {
+                shard.state = State::Draining;
+                draining_shards.push(shard);
+            } else {
+                return Err(MetadataErrorKind::SetNumShardsFailure
+                    .with_error(anyhow::anyhow!("Failed to drain shards")));
+            };
+        }
+        for shard in draining_shards {
+            shards.push(shard);
+        }
+
+        // Update the number of shards based on the shards.
+        let mut num_shards = self.num_shards.write().map_err(|error| {
+            MetadataErrorKind::SetNumShardsFailure.with_error(anyhow::anyhow!(error.to_string()))
+        })?;
+        *num_shards = shards.serving_shards_len();
+
+        // Return the number of serving shards.
+        Ok(*num_shards)
+    }
+
+    /// Set the number of shards fot the index and update shard list. Retuns the number of serving shards.
     pub fn set_num_shards(&mut self, num_shards: usize) -> Result<usize, MetadataError> {
         if num_shards == 0 {
             return Err(MetadataErrorKind::SetNumShardsFailure

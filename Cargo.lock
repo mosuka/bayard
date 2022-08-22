@@ -150,6 +150,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "backoff"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9fe17f59a06fe8b87a6fc8bf53bb70b3aba76d7685f432487a68cd5552853625"
+dependencies = [
+ "getrandom 0.2.7",
+ "instant",
+ "rand 0.8.5",
+]
+
+[[package]]
 name = "base64"
 version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -166,6 +177,7 @@ name = "bayard"
 version = "0.9.0"
 dependencies = [
  "anyhow",
+ "async-trait",
  "axum",
  "bytes",
  "clap",
@@ -178,6 +190,7 @@ dependencies = [
  "lindera-tantivy",
  "notify",
  "num",
+ "once_cell",
  "path-slash",
  "prost",
  "prost-build",
@@ -190,6 +203,7 @@ dependencies = [
  "tempdir",
  "thiserror",
  "time",
+ "tiny-tokio-actor",
  "tokio",
  "tokio-stream",
  "tonic",
@@ -1608,9 +1622,9 @@ dependencies = [
 
 [[package]]
 name = "once_cell"
-version = "1.13.0"
+version = "1.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "18a6dbe30758c9f83eb00cbea4ac95966305f5a7772f3f42ebfc7fc7eddbd8e1"
+checksum = "074864da206b4973b84eb91683020dbefd6a8c3f0f38e054d93954e891935e4e"
 
 [[package]]
 name = "oneshot"
@@ -2458,6 +2472,20 @@ name = "time-macros"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "42657b1a6f4d817cda8e7a0ace261fe0cc946cf3a80314390b22cc61ae080792"
+
+[[package]]
+name = "tiny-tokio-actor"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b4187478415f1e85459f6d4a8be347b288a482a00d9513c36d848cc7869008ac"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "backoff",
+ "log",
+ "thiserror",
+ "tokio",
+]
 
 [[package]]
 name = "tokio"

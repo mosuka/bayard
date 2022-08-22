@@ -18,6 +18,7 @@ path = "src/main.rs"
 
 [dependencies]
 anyhow = "1.0.60"
+async-trait = "0.1.57"
 axum = "0.5.15"
 bytes = { version = "1.1.0", features = ["serde"] }
 clap = { version = "3.1.6", features = ["derive"] }
@@ -30,6 +31,7 @@ http = "0.2.8"
 lindera-tantivy = { version = "0.14.0", features = ["ipadic", "ko-dic", "cc-cedict"] }
 notify = "5.0.0-pre.15"
 num = "0.4.0"
+once_cell = "1.13.1"
 path-slash = "0.2.1"
 prost = { version = "0.11.0", default-features = false, features = ["prost-derive"] }
 rand = "0.8.5"
@@ -40,6 +42,7 @@ signal-hook = { version = "0.3.13", features = ["extended-siginfo"] }
 tantivy = "0.18.0"
 thiserror = "1.0.32"
 time = { version = "0.3.13", features = ["std"] }
+tiny-tokio-actor = "0.3.1"
 tokio = { version = "1.19.2", features = ["full"] }
 tokio-stream = { version = "0.1.9", features = ["sync"] }
 tonic = { version = "0.8.0", features = ["transport"] }

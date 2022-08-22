@@ -14,9 +14,9 @@ use crate::{
     index::metadata::Metadata,
     proto::index::{
         index_service_client::IndexServiceClient, query::Kind, sort::Order, CollectionKind,
-        CommitRequest, CreateIndexRequest, DeleteDocumentsRequest, DeleteIndexRequest,
-        GetIndexRequest, ModifyIndexRequest, PutDocumentsRequest, Query, RollbackRequest,
-        SearchRequest, Sort,
+        CommitRequest, CreateIndexRequest, DecrementShardsRequest, DeleteDocumentsRequest,
+        DeleteIndexRequest, GetIndexRequest, IncrementShardsRequest, ModifyIndexRequest,
+        PutDocumentsRequest, Query, RollbackRequest, SearchRequest, Sort,
     },
 };
 
@@ -55,6 +55,16 @@ struct JsonDocument {
 struct JsonSearchResponse {
     total_hits: i64,
     documents: Vec<JsonDocument>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct JsonIncrementShardRequest {
+    amount: u32,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct JsonDecrementShardRequest {
+    amount: u32,
 }
 
 pub async fn create_index(
@@ -150,6 +160,52 @@ pub async fn modify_index(
         .await
         .map_err(|error| {
             error!(?error, "Failed to modify index metadata.");
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?
+        .into_inner();
+
+    Ok((StatusCode::OK, Json(resp)))
+}
+
+pub async fn increment_num_shards(
+    Path(index): Path<String>,
+    Json(request): Json<JsonIncrementShardRequest>,
+    Extension(channel): Extension<Channel>,
+) -> Result<impl IntoResponse, StatusCode> {
+    let req = IncrementShardsRequest {
+        name: index,
+        amount: request.amount,
+    };
+
+    let mut client = IndexServiceClient::new(channel);
+    let resp = client
+        .increment_shards(Request::new(req))
+        .await
+        .map_err(|error| {
+            error!(?error, "Failed to increment shards.");
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?
+        .into_inner();
+
+    Ok((StatusCode::OK, Json(resp)))
+}
+
+pub async fn decrement_num_shards(
+    Path(index): Path<String>,
+    Json(request): Json<JsonDecrementShardRequest>,
+    Extension(channel): Extension<Channel>,
+) -> Result<impl IntoResponse, StatusCode> {
+    let req = DecrementShardsRequest {
+        name: index,
+        amount: request.amount,
+    };
+
+    let mut client = IndexServiceClient::new(channel);
+    let resp = client
+        .decrement_shards(Request::new(req))
+        .await
+        .map_err(|error| {
+            error!(?error, "Failed to decrement shards.");
             StatusCode::INTERNAL_SERVER_ERROR
         })?
         .into_inner();

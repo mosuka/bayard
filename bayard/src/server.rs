@@ -16,8 +16,8 @@ use crate::{
         cluster::nodes,
         healthcheck::{liveness, readiness},
         index::{
-            commit, create_index, delete_documents, delete_index, get_index, modify_index,
-            put_documents, rollback, search,
+            commit, create_index, decrement_num_shards, delete_documents, delete_index, get_index,
+            increment_num_shards, modify_index, put_documents, rollback, search,
         },
     },
     node::Node,
@@ -79,6 +79,8 @@ pub async fn handle_http_server(
         .route("/indices/:index", delete(delete_index))
         .route("/indices/:index", get(get_index))
         .route("/indices/:index", post(modify_index))
+        .route("/indices/:index/shards", put(increment_num_shards))
+        .route("/indices/:index/shards", delete(decrement_num_shards))
         .route("/indices/:index/documents", put(put_documents))
         .route("/indices/:index/documents", delete(delete_documents))
         .route("/indices/:index/commit", get(commit))

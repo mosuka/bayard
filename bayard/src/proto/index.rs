@@ -52,6 +52,32 @@ pub struct ModifyIndexResponse {}
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct IncrementShardsRequest {
+    #[prost(string, tag = "1")]
+    pub name: ::prost::alloc::string::String,
+    #[prost(uint32, tag = "2")]
+    pub amount: u32,
+}
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct IncrementShardsResponse {}
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct DecrementShardsRequest {
+    #[prost(string, tag = "1")]
+    pub name: ::prost::alloc::string::String,
+    #[prost(uint32, tag = "2")]
+    pub amount: u32,
+}
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct DecrementShardsResponse {}
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PutDocumentsRequest {
     #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
@@ -397,6 +423,34 @@ pub mod index_service_client {
             let path = http::uri::PathAndQuery::from_static("/index.IndexService/ModifyIndex");
             self.inner.unary(request.into_request(), path, codec).await
         }
+        pub async fn increment_shards(
+            &mut self,
+            request: impl tonic::IntoRequest<super::IncrementShardsRequest>,
+        ) -> Result<tonic::Response<super::IncrementShardsResponse>, tonic::Status> {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static("/index.IndexService/IncrementShards");
+            self.inner.unary(request.into_request(), path, codec).await
+        }
+        pub async fn decrement_shards(
+            &mut self,
+            request: impl tonic::IntoRequest<super::DecrementShardsRequest>,
+        ) -> Result<tonic::Response<super::DecrementShardsResponse>, tonic::Status> {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static("/index.IndexService/DecrementShards");
+            self.inner.unary(request.into_request(), path, codec).await
+        }
         pub async fn put_documents(
             &mut self,
             request: impl tonic::IntoRequest<super::PutDocumentsRequest>,
@@ -492,6 +546,14 @@ pub mod index_service_server {
             &self,
             request: tonic::Request<super::ModifyIndexRequest>,
         ) -> Result<tonic::Response<super::ModifyIndexResponse>, tonic::Status>;
+        async fn increment_shards(
+            &self,
+            request: tonic::Request<super::IncrementShardsRequest>,
+        ) -> Result<tonic::Response<super::IncrementShardsResponse>, tonic::Status>;
+        async fn decrement_shards(
+            &self,
+            request: tonic::Request<super::DecrementShardsRequest>,
+        ) -> Result<tonic::Response<super::DecrementShardsResponse>, tonic::Status>;
         async fn put_documents(
             &self,
             request: tonic::Request<super::PutDocumentsRequest>,
@@ -680,6 +742,72 @@ pub mod index_service_server {
                     let fut = async move {
                         let inner = inner.0;
                         let method = ModifyIndexSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/index.IndexService/IncrementShards" => {
+                    #[allow(non_camel_case_types)]
+                    struct IncrementShardsSvc<T: IndexService>(pub Arc<T>);
+                    impl<T: IndexService> tonic::server::UnaryService<super::IncrementShardsRequest>
+                        for IncrementShardsSvc<T>
+                    {
+                        type Response = super::IncrementShardsResponse;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::IncrementShardsRequest>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move { (*inner).increment_shards(request).await };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = IncrementShardsSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/index.IndexService/DecrementShards" => {
+                    #[allow(non_camel_case_types)]
+                    struct DecrementShardsSvc<T: IndexService>(pub Arc<T>);
+                    impl<T: IndexService> tonic::server::UnaryService<super::DecrementShardsRequest>
+                        for DecrementShardsSvc<T>
+                    {
+                        type Response = super::DecrementShardsResponse;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::DecrementShardsRequest>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move { (*inner).decrement_shards(request).await };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = DecrementShardsSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
                             accept_compression_encodings,

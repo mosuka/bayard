@@ -61,6 +61,8 @@ pub enum MessageKind {
     CreateIndex,
     DeleteIndex,
     ModifyIndex,
+    IncrementShards,
+    DecrementShards,
 }
 
 impl FromStr for MessageKind {
@@ -72,6 +74,8 @@ impl FromStr for MessageKind {
             "create_index" => Ok(MessageKind::CreateIndex),
             "delete_index" => Ok(MessageKind::DeleteIndex),
             "modify_index" => Ok(MessageKind::ModifyIndex),
+            "increment_shards" => Ok(MessageKind::IncrementShards),
+            "decrement_shards" => Ok(MessageKind::DecrementShards),
             _ => Err(MessageErrorKind::InvalidMessageKind
                 .with_error(anyhow::format_err!("Unknown message kind: {}", s))),
         }
@@ -85,6 +89,8 @@ impl fmt::Debug for MessageKind {
             MessageKind::CreateIndex => write!(f, "create_index"),
             MessageKind::DeleteIndex => write!(f, "delete_index"),
             MessageKind::ModifyIndex => write!(f, "modify_index"),
+            MessageKind::IncrementShards => write!(f, "increment_shards"),
+            MessageKind::DecrementShards => write!(f, "decrement_shards"),
         }
     }
 }
@@ -93,9 +99,11 @@ impl MessageKind {
     pub fn from_u8(n: u8) -> Result<Self, MessageError> {
         match n {
             0 => Ok(MessageKind::Unknown),
-            3 => Ok(MessageKind::CreateIndex),
-            4 => Ok(MessageKind::DeleteIndex),
-            5 => Ok(MessageKind::ModifyIndex),
+            1 => Ok(MessageKind::CreateIndex),
+            2 => Ok(MessageKind::DeleteIndex),
+            3 => Ok(MessageKind::ModifyIndex),
+            4 => Ok(MessageKind::IncrementShards),
+            5 => Ok(MessageKind::DecrementShards),
             _ => Err(MessageErrorKind::InvalidMessageKind
                 .with_error(anyhow::format_err!("Unknown message kind: {:?}", n))),
         }
@@ -104,17 +112,20 @@ impl MessageKind {
     pub fn to_u8(&self) -> u8 {
         match self {
             MessageKind::Unknown => 0,
-            MessageKind::CreateIndex => 3,
-            MessageKind::DeleteIndex => 4,
-            MessageKind::ModifyIndex => 5,
+            MessageKind::CreateIndex => 1,
+            MessageKind::DeleteIndex => 2,
+            MessageKind::ModifyIndex => 3,
+            MessageKind::IncrementShards => 4,
+            MessageKind::DecrementShards => 5,
         }
     }
 }
 
 pub const MESSAGE_NAME_FIELD: &str = "name";
 pub const MESSAGE_METADATA_FIELD: &str = "metadata";
+pub const MESSAGE_AMOUNT_FIELDS: &str = "amount";
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct Message {
     data: Vec<u8>,
 }

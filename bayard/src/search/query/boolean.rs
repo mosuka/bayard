@@ -10,7 +10,7 @@ use crate::proto::index::{query::Kind as ProtoQueryKind, Query as ProtoQuery};
 
 use super::{create_query, QueryFactoryError};
 
-#[derive(Deserialize, Serialize, Debug, PartialEq)]
+#[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
 pub enum Occurrence {
     #[serde(rename = "must")]
     Must,

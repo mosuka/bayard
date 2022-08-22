@@ -9,8 +9,9 @@ use crate::{
     node::Node,
     proto::index::{
         index_service_server::IndexService as ProtoIndexService, CommitRequest, CommitResponse,
-        CreateIndexRequest, CreateIndexResponse, DeleteDocumentsRequest, DeleteDocumentsResponse,
-        DeleteIndexRequest, DeleteIndexResponse, GetIndexRequest, GetIndexResponse,
+        CreateIndexRequest, CreateIndexResponse, DecrementShardsRequest, DecrementShardsResponse,
+        DeleteDocumentsRequest, DeleteDocumentsResponse, DeleteIndexRequest, DeleteIndexResponse,
+        GetIndexRequest, GetIndexResponse, IncrementShardsRequest, IncrementShardsResponse,
         ModifyIndexRequest, ModifyIndexResponse, PutDocumentsRequest, PutDocumentsResponse,
         RollbackRequest, RollbackResponse, SearchRequest, SearchResponse,
     },
@@ -99,6 +100,42 @@ impl ProtoIndexService for IndexService {
         };
 
         info!(elapsed = ?now.elapsed(), "Modify index completed.");
+
+        resp
+    }
+
+    async fn increment_shards(
+        &self,
+        request: Request<IncrementShardsRequest>,
+    ) -> Result<tonic::Response<IncrementShardsResponse>, Status> {
+        let now = Instant::now();
+
+        let req = request.into_inner();
+
+        let resp = match self.node.read().await.increment_num_shards(req).await {
+            Ok(resp) => Ok(Response::new(resp)),
+            Err(e) => Err(Status::new(Code::Internal, e.to_string())),
+        };
+
+        info!(elapsed = ?now.elapsed(), "Incrementing shards completed.");
+
+        resp
+    }
+
+    async fn decrement_shards(
+        &self,
+        request: Request<DecrementShardsRequest>,
+    ) -> Result<tonic::Response<DecrementShardsResponse>, Status> {
+        let now = Instant::now();
+
+        let req = request.into_inner();
+
+        let resp = match self.node.read().await.decrement_num_shards(req).await {
+            Ok(resp) => Ok(Response::new(resp)),
+            Err(e) => Err(Status::new(Code::Internal, e.to_string())),
+        };
+
+        info!(elapsed = ?now.elapsed(), "decrementing shards completed.");
 
         resp
     }
