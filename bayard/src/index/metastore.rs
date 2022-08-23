@@ -179,15 +179,9 @@ impl Metastore {
                             match event.kind {
                                 EventKind::Modify(ModifyKind::Name(RenameMode::To))
                                 | EventKind::Modify(ModifyKind::Data(DataChange::Any)) => {
-
-                                    // meta.jsonをロードして、今のメタデータとの差分をチェックする。
-                                    // 差分があれば、差分をイベントメッセージとして送信し、メタデータを更新する。
-                                    // 差分がなければ、何もしない。
-
-
-                                    // Load index metadata.
-                                    info!(?path, "Load index metadata.");
-                                    let index_metadata = match load_index_metadata(path).await {
+                                    // Load new metadata.
+                                    info!(?path, "Load new metadata.");
+                                    let new_metadata = match load_index_metadata(path).await {
                                         Ok(index_metadata) => index_metadata,
                                         Err(error) => {
                                             error!(?path, ?error, "Failed to load metadata.");
@@ -195,11 +189,249 @@ impl Metastore {
                                         }
                                     };
 
-                                    // Update index metadatas.
-                                    info!(?index_name, "Insert index metadata.");
                                     let mut mut_metadatas = metadatas_task.write().await;
-                                    mut_metadatas
-                                        .insert(index_name.clone(), index_metadata.clone());
+                                    // Get current index metadata.
+                                    info!(?index_name, "Load current metadata.");
+                                    let current_metadata = match mut_metadatas.get_mut(&index_name)
+                                    {
+                                        Some(metadata) => metadata,
+                                        None => {
+                                            error!(?index_name, "No metadata found.");
+                                            continue;
+                                        }
+                                    };
+
+                                    // Check schema difference.
+                                    let current_schema = match current_metadata.schema() {
+                                        Ok(schema) => schema,
+                                        Err(error) => {
+                                            error!(
+                                                ?index_name,
+                                                ?error,
+                                                "Failed to get current schema."
+                                            );
+                                            continue;
+                                        }
+                                    };
+                                    let new_schema = match new_metadata.schema() {
+                                        Ok(schema) => schema,
+                                        Err(error) => {
+                                            error!(
+                                                ?index_name,
+                                                ?error,
+                                                "Failed to get new schema."
+                                            );
+                                            continue;
+                                        }
+                                    };
+                                    if current_schema != new_schema {
+                                        // Send event message.
+                                        info!("Schema has changed.");
+                                    }
+
+                                    // Check analyzers difference.
+                                    let current_analyzers = match current_metadata.analyzers() {
+                                        Ok(analyzers) => analyzers,
+                                        Err(error) => {
+                                            error!(
+                                                ?index_name,
+                                                ?error,
+                                                "Failed to get current analyzers."
+                                            );
+                                            continue;
+                                        }
+                                    };
+                                    let new_analyzers = match new_metadata.analyzers() {
+                                        Ok(analyzers) => analyzers,
+                                        Err(error) => {
+                                            error!(
+                                                ?index_name,
+                                                ?error,
+                                                "Failed to get new analyzers."
+                                            );
+                                            continue;
+                                        }
+                                    };
+                                    if current_analyzers != new_analyzers {
+                                        // Send event message.
+                                        info!("Analyzers has changed.");
+                                    }
+
+                                    // Check index settings difference.
+                                    let current_index_settings =
+                                        match current_metadata.index_settings() {
+                                            Ok(index_settings) => index_settings,
+                                            Err(error) => {
+                                                error!(
+                                                    ?index_name,
+                                                    ?error,
+                                                    "Failed to get current index settings."
+                                                );
+                                                continue;
+                                            }
+                                        };
+                                    let new_index_settings = match new_metadata.index_settings() {
+                                        Ok(index_settings) => index_settings,
+                                        Err(error) => {
+                                            error!(
+                                                ?index_name,
+                                                ?error,
+                                                "Failed to get new index settings."
+                                            );
+                                            continue;
+                                        }
+                                    };
+                                    if current_index_settings != new_index_settings {
+                                        // Send event message.
+                                        info!("Index settings has changed.");
+                                    }
+
+                                    // Check writer threads difference.
+                                    let current_writer_threads =
+                                        match current_metadata.writer_threads() {
+                                            Ok(writer_threads) => writer_threads,
+                                            Err(error) => {
+                                                error!(
+                                                    ?index_name,
+                                                    ?error,
+                                                    "Failed to get current writer threads."
+                                                );
+                                                continue;
+                                            }
+                                        };
+                                    let new_writer_threads = match new_metadata.writer_threads() {
+                                        Ok(writer_threads) => writer_threads,
+                                        Err(error) => {
+                                            error!(
+                                                ?index_name,
+                                                ?error,
+                                                "Failed to get new writer threads."
+                                            );
+                                            continue;
+                                        }
+                                    };
+                                    if current_writer_threads != new_writer_threads {
+                                        // Send event message.
+                                        info!("Writer threads has changed.");
+                                    }
+
+                                    // Check writer memory size difference.
+                                    let current_writer_mem_size =
+                                        match current_metadata.writer_mem_size() {
+                                            Ok(writer_mem_size) => writer_mem_size,
+                                            Err(error) => {
+                                                error!(
+                                                    ?index_name,
+                                                    ?error,
+                                                    "Failed to get current writer memory size."
+                                                );
+                                                continue;
+                                            }
+                                        };
+                                    let new_writer_mem_size = match new_metadata.writer_mem_size() {
+                                        Ok(writer_mem_size) => writer_mem_size,
+                                        Err(error) => {
+                                            error!(
+                                                ?index_name,
+                                                ?error,
+                                                "Failed to get new writer memory size."
+                                            );
+                                            continue;
+                                        }
+                                    };
+                                    if current_writer_mem_size != new_writer_mem_size {
+                                        // Send event message.
+                                        info!("Writer memory size has changed.");
+                                    }
+
+                                    // Check number of replicas difference.
+                                    let current_num_replicas = match current_metadata.num_replicas()
+                                    {
+                                        Ok(replicas) => replicas,
+                                        Err(error) => {
+                                            error!(
+                                                ?index_name,
+                                                ?error,
+                                                "Failed to get current number of replicas."
+                                            );
+                                            continue;
+                                        }
+                                    };
+                                    let new_num_replicas = match new_metadata.num_replicas() {
+                                        Ok(replicas) => replicas,
+                                        Err(error) => {
+                                            error!(
+                                                ?index_name,
+                                                ?error,
+                                                "Failed to get new number of replicas."
+                                            );
+                                            continue;
+                                        }
+                                    };
+                                    if current_num_replicas != new_num_replicas {
+                                        // Send event message.
+                                        info!("Number of replicas has changed.");
+                                    }
+
+                                    // Check number of shards difference.
+                                    let current_num_shards = match current_metadata.num_shards() {
+                                        Ok(shards) => shards,
+                                        Err(error) => {
+                                            error!(
+                                                ?index_name,
+                                                ?error,
+                                                "Failed to get current number of shards."
+                                            );
+                                            continue;
+                                        }
+                                    };
+                                    let new_num_shards = match new_metadata.num_shards() {
+                                        Ok(shards) => shards,
+                                        Err(error) => {
+                                            error!(
+                                                ?index_name,
+                                                ?error,
+                                                "Failed to get new number of shards."
+                                            );
+                                            continue;
+                                        }
+                                    };
+                                    if current_num_shards != new_num_shards {
+                                        // Send event message.
+                                        info!("Number of shards has changed.");
+                                    }
+
+                                    // Check shards difference.
+                                    let current_shards = match current_metadata.shards() {
+                                        Ok(shards) => shards,
+                                        Err(error) => {
+                                            error!(
+                                                ?index_name,
+                                                ?error,
+                                                "Failed to get current shards."
+                                            );
+                                            continue;
+                                        }
+                                    };
+                                    let new_shards = match new_metadata.shards() {
+                                        Ok(shards) => shards,
+                                        Err(error) => {
+                                            error!(
+                                                ?index_name,
+                                                ?error,
+                                                "Failed to get new shards."
+                                            );
+                                            continue;
+                                        }
+                                    };
+                                    if current_shards != new_shards {
+                                        // Send event message.
+                                        info!("Shards has changed.");
+                                    }
+
+                                    // Update metadatas.
+                                    info!(?index_name, "Insert index metadata.");
+                                    mut_metadatas.insert(index_name.clone(), new_metadata.clone());
 
                                     match metadatas_sender.send(mut_metadatas.clone()) {
                                         Ok(_) => info!("Sent index metadatas to the stream."),

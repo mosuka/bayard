@@ -280,6 +280,14 @@ impl<'de> Deserialize<'de> for Shards {
     }
 }
 
+impl PartialEq for Shards {
+    fn eq(&self, other: &Shards) -> bool {
+        self.inner == other.inner
+    }
+}
+
+impl Eq for Shards {}
+
 #[cfg(test)]
 mod tests {
     use crate::index::{

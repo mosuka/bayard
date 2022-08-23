@@ -112,6 +112,14 @@ impl<'de> Deserialize<'de> for Analyzers {
     }
 }
 
+impl PartialEq for Analyzers {
+    fn eq(&self, other: &Analyzers) -> bool {
+        self.source == other.source
+    }
+}
+
+impl Eq for Analyzers {}
+
 fn build_analyzers(source: &Value) -> Result<Analyzers, AnalyzerError> {
     let mut analyzers = HashMap::new();
 
