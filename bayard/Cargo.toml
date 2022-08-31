@@ -17,7 +17,7 @@ name = "bayard"
 path = "src/main.rs"
 
 [dependencies]
-anyhow = "1.0.60"
+anyhow = "1.0.63"
 axum = "0.5.15"
 bytes = { version = "1.1.0", features = ["serde"] }
 clap = { version = "3.1.6", features = ["derive"] }
