@@ -28,7 +28,7 @@ foca = { version = "0.4.1", features = ["postcard-codec"] }
 futures-util = "0.3.21"
 http = "0.2.8"
 lindera-tantivy = { version = "0.14.0", features = ["ipadic", "ko-dic", "cc-cedict"] }
-notify = "5.0.0-pre.15"
+notify = "5.0.0"
 num = "0.4.0"
 path-slash = "0.2.1"
 prost = { version = "0.11.0", default-features = false, features = ["prost-derive"] }
