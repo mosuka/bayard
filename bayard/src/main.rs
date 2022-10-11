@@ -8,14 +8,14 @@ use bayard::{
     server::{handle_grpc_server, handle_http_server},
     signal::handle_signals,
 };
-use clap::{AppSettings, Parser};
+use clap::Parser;
 use tokio::{
     sync::{watch, RwLock},
     time::{sleep, Duration},
 };
 
 #[derive(Parser, Debug)]
-#[clap(version, about, long_about = None, setting = AppSettings::DeriveDisplayOrder)]
+#[clap(version, about, long_about = None)]
 struct Args {
     /// The bind address that should be bound to for internal cluster communications.
     #[clap(

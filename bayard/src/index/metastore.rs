@@ -3,7 +3,7 @@ use std::{collections::HashMap, fmt, path::PathBuf, sync::Arc};
 use crossbeam::channel::{unbounded, TryRecvError};
 use notify::{
     event::{DataChange, ModifyKind, RemoveKind, RenameMode},
-    EventKind, RecommendedWatcher, RecursiveMode, Watcher,
+    recommended_watcher, EventKind, RecommendedWatcher, RecursiveMode, Watcher,
 };
 use regex::Regex;
 use tokio::{
@@ -138,7 +138,7 @@ impl Metastore {
             let (tx_filesystem, rx_filesystem) = unbounded();
 
             let mut watcher: RecommendedWatcher =
-                RecommendedWatcher::new(tx_filesystem).expect("Watch error.");
+                recommended_watcher(tx_filesystem).expect("Watch error.");
             watcher
                 .watch(indices_dir_task.as_path(), RecursiveMode::Recursive)
                 .expect("Watch error.");
