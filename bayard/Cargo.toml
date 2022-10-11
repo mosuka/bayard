@@ -17,38 +17,38 @@ name = "bayard"
 path = "src/main.rs"
 
 [dependencies]
-anyhow = "1.0.60"
-axum = "0.5.15"
-bytes = { version = "1.1.0", features = ["serde"] }
-clap = { version = "3.1.6", features = ["derive"] }
-crossbeam = "0.8.1"
-dashmap = { version = "5.2.0", features = ["serde"] }
+anyhow = "1.0.65"
+axum = "0.5.16"
+bytes = { version = "1.2.1", features = ["serde"] }
+clap = { version = "4.0.12", features = ["derive"] }
+crossbeam = "0.8.2"
+dashmap = { version = "5.4.0", features = ["serde"] }
 exponential-backoff = "1.1.0"
 foca = { version = "0.4.1", features = ["postcard-codec"] }
-futures-util = "0.3.21"
+futures-util = "0.3.24"
 http = "0.2.8"
-lindera-tantivy = { version = "0.14.0", features = ["ipadic", "ko-dic", "cc-cedict"] }
-notify = "5.0.0-pre.15"
+lindera-tantivy = { version = "0.16.2", features = ["ipadic", "ko-dic", "cc-cedict"] }
+notify = "5.0.0"
 num = "0.4.0"
 path-slash = "0.2.1"
 prost = { version = "0.11.0", default-features = false, features = ["prost-derive"] }
 rand = "0.8.5"
-regex = "1.5.6"
-serde = { version = "1.0.143", features = ["derive"] }
-serde_json = "1.0.83"
-signal-hook = { version = "0.3.13", features = ["extended-siginfo"] }
+regex = "1.6.0"
+serde = { version = "1.0.145", features = ["derive"] }
+serde_json = "1.0.86"
+signal-hook = { version = "0.3.14", features = ["extended-siginfo"] }
 tantivy = "0.18.0"
-thiserror = "1.0.32"
-time = { version = "0.3.13", features = ["std"] }
-tokio = { version = "1.19.2", features = ["full"] }
-tokio-stream = { version = "0.1.9", features = ["sync"] }
-tonic = { version = "0.8.0", features = ["transport"] }
-tracing = "0.1.32"
-tracing-subscriber = "0.3.9"
+thiserror = "1.0.37"
+time = { version = "0.3.15", features = ["std"] }
+tokio = { version = "1.21.1", features = ["full"] }
+tokio-stream = { version = "0.1.10", features = ["sync"] }
+tonic = { version = "0.8.2", features = ["transport"] }
+tracing = "0.1.37"
+tracing-subscriber = "0.3.16"
 
 [dev-dependencies]
 tempdir = "0.3.7"
 
 [build-dependencies]
-tonic-build = "0.8.0"
+tonic-build = "0.8.2"
 prost-build = "0.11.1"

@@ -3,7 +3,12 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
+- Refactoring #180 @mosuka
+- Refactoring #176 @mosuka
+- Update dependencies #207 @mosuka
+- Refactor metastore #175 @mosuka
 - Update dependencies #163 @mosuka
+- Update README.md #158 @mosuka
 
 ## 0.9.0 (2022-08-03)
 - Fix workflow for release #153 @mosuka

@@ -27,9 +27,11 @@ Bayard makes easy for programmers to develop search applications with advanced f
 
 ## Table of Contents
 
+- [Build](./docs/build.md)
 - [Getting Started](./docs/getting_started.md)
 - [Schema](./docs/schema.md)
 - [Analyzers](./docs/analyzers.md)
 - [Query DSL](./docs/query_dsl.md)
 - [REST API](./docs/rest_api.md)
 - [Bring up a multi-node cluster](./docs/multi_node_cluster.md)
+
