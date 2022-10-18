@@ -170,7 +170,7 @@ dependencies = [
  "anyhow",
  "axum",
  "bytes",
- "clap 4.0.12",
+ "clap 4.0.17",
  "crossbeam",
  "dashmap",
  "exponential-backoff",
@@ -348,13 +348,13 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.0.12"
+version = "4.0.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "385007cbbed899260395a4107435fead4cad80684461b3cc78238bdcb0bad58f"
+checksum = "06badb543e734a2d6568e19a40af66ed5364360b9226184926f89d229b4b4267"
 dependencies = [
  "atty",
  "bitflags",
- "clap_derive 4.0.10",
+ "clap_derive 4.0.13",
  "clap_lex 0.3.0",
  "once_cell",
  "strsim",
@@ -376,9 +376,9 @@ dependencies = [
 
 [[package]]
 name = "clap_derive"
-version = "4.0.10"
+version = "4.0.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "db342ce9fda24fb191e2ed4e102055a4d381c1086a06630174cd8da8d5d917ce"
+checksum = "c42f169caba89a7d512b5418b09864543eeb4d497416c917d7137863bd2076ad"
 dependencies = [
  "heck",
  "proc-macro-error",
