@@ -20,7 +20,7 @@ path = "src/main.rs"
 anyhow = "1.0.65"
 axum = "0.5.16"
 bytes = { version = "1.2.1", features = ["serde"] }
-clap = { version = "4.0.12", features = ["derive"] }
+clap = { version = "4.0.22", features = ["derive"] }
 crossbeam = "0.8.2"
 dashmap = { version = "5.4.0", features = ["serde"] }
 exponential-backoff = "1.1.0"
