@@ -37,7 +37,7 @@ regex = "1.6.0"
 serde = { version = "1.0.145", features = ["derive"] }
 serde_json = "1.0.86"
 signal-hook = { version = "0.3.14", features = ["extended-siginfo"] }
-tantivy = "0.18.0"
+tantivy = "0.19.0"
 thiserror = "1.0.37"
 time = { version = "0.3.15", features = ["std"] }
 tokio = { version = "1.21.1", features = ["full"] }
