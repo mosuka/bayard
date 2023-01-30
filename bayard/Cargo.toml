@@ -40,7 +40,7 @@ signal-hook = { version = "0.3.14", features = ["extended-siginfo"] }
 tantivy = "0.18.0"
 thiserror = "1.0.37"
 time = { version = "0.3.15", features = ["std"] }
-tokio = { version = "1.21.1", features = ["full"] }
+tokio = { version = "1.25.0", features = ["full"] }
 tokio-stream = { version = "0.1.10", features = ["sync"] }
 tonic = { version = "0.8.2", features = ["transport"] }
 tracing = "0.1.37"
